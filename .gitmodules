@@ -1,0 +1,6 @@
+[submodule "code/ixy.rs"]
+	path = code/ixy.rs
+	url = https://github.com/ixy-languages/ixy.rs.git
+[submodule "code/iommu-leaks"]
+	path = code/iommu-leaks
+	url = https://github.com/ackxolotl/iommu-leaks.git

@@ -1,0 +1,81 @@
+\documentclass[class=article,border=0pt]{standalone}
+\pagestyle{empty} 
+
+\usepackage{tikz}
+\usepackage{tumcolor}
+
+\begin{document}
+\begin{tikzpicture}
+
+\node (hardware) [anchor=south west, color=white, fill=TUMLightBlue, rounded corners=.1ex, minimum width=10cm, minimum height = 3.0cm] {};
+
+\node (nic1) at (hardware.south west) [anchor=south west, color=white, fill=TUMBlue, rounded corners=.1ex, minimum width=1.5cm, minimum height = .5cm] {\textbf{NIC}};
+\node (nic2) [anchor=south west, xshift=2.8333cm, color=white, fill=TUMBlue, rounded corners=.1ex, minimum width=1.5cm, minimum height = .5cm] {\textbf{NIC}};
+\node (nic3) [anchor=south west, xshift=5.666cm, color=white, fill=TUMBlue, rounded corners=.1ex, minimum width=1.5cm, minimum height = .5cm] {\textbf{NIC}};
+\node (nic4) [anchor=south west, xshift=8.5cm, color=white, fill=TUMBlue, rounded corners=.1ex, minimum width=1.5cm, minimum height = .5cm] {\textbf{NIC}};
+
+\node (hypervisor) at ([xshift=0cm, yshift=0.1cm] hardware.north west) [anchor=south west, fill=TUMLightBlue, rounded corners=.1ex, minimum width=10cm, minimum height = 1cm] {};
+\node at (hypervisor) [align=center, color=white, anchor=center, text width=6cm] {\textbf{Hypervisor}};
+
+\node (software) at (hypervisor.north west) [anchor=south west, yshift=0.1cm, color=white, fill=TUMLightBlue, rounded corners=.1ex, minimum width=10cm, minimum height = 1.5cm] {};
+
+\node at ([yshift=0cm] software.north west) [color=white, anchor=north west] {\textbf{Software}};
+\node at ([yshift=0cm] hardware.north west) [color=white, anchor=north west] {\textbf{Hardware}};
+
+%\node (driver) at ([xshift=0cm,yshift=-.25cm] hardware.north) [anchor=north,densely dotted, ultra thick, fill=TUMLightBlue, draw=TUMBlue, rounded corners=.1ex, minimum width=2cm, minimum height =1cm] {};
+%\node at (driver) [color=TUMBlue, anchor=center, text width=2cm,align=center] {\textbf{\texttt{mmap}}'ed\\\textbf{BAR0}};
+
+
+%\node (driverr) at ([xshift=-.25cm,yshift=.25cm] nic1.north east) [anchor=south east, color=white, fill=TUMBlue, rounded corners=.1ex, minimum width=3cm, minimum height = .5cm] {\textbf{Driver}};
+
+%\node (os) at ([yshift=.25cm] driverr.north) [anchor=south, color=white, fill=TUMBlue, rounded corners=.1ex, minimum width=3cm, minimum height = .5cm] {\textbf{OS}};
+
+%\node (ovs) at ([yshift=2cm] nic1.north) [anchor=south, color=white, fill=TUMBlue, rounded corners=.1ex, minimum width=3cm, minimum height = .5cm] {\textbf{Open vSwitch}};
+
+\node (vm1) at ([yshift=-0.5cm,xshift=-3cm] software.north) [anchor=north, color=white, fill=TUMOrange, rounded corners=.1ex, minimum width=2.3cm, minimum height = 0.8cm] {\textbf{VM}};
+\node (vm2) at ([yshift=-0.5cm,xshift=0cm] software.north) [anchor=north, color=white, fill=TUMOrange, rounded corners=.1ex, minimum width=2.3cm, minimum height = 0.8cm] {\textbf{VM}};
+\node (vm3) at ([yshift=-0.5cm,xshift=3cm] software.north) [anchor=north, color=white, fill=TUMOrange, rounded corners=.1ex, minimum width=2.3cm, minimum height = 0.8cm] {\textbf{VM}};
+\node (cpu) at ([yshift=-0.5cm,xshift=3.2cm] hardware.north west) [anchor=north west, color=white, fill=TUMBlue, rounded corners=.1ex, minimum width=1.2cm, minimum height = .5cm] {\textbf{CPU}};
+\node (memory) at ([yshift=-0.5cm,xshift=5.6cm] hardware.north west) [anchor=north west, color=white, fill=TUMBlue, rounded corners=.1ex, minimum width=1.2cm, minimum height = .5cm] {\textbf{Memory}};
+\node (driverX) at ([yshift=-1.0cm] cpu.south) [anchor=south] {};
+\node (dmaX) at ([xshift=0.16cm, yshift=-1.3cm] memory.south) [anchor=south] {};
+
+%\node (dma) at ([xshift=1.1cm,yshift=0cm] hypervisor.east) [anchor=west,densely dotted, ultra thick, fill=TUMLightBlue, draw=TUMBlue, rounded corners=.1ex, minimum width=2cm, minimum height =1cm] {};
+%\node at (dma.center) [align=center,color=TUMBlue, anchor=center, text width=2cm] {\textbf{DMA\\Memory}};
+%\node (dmaX) at ([xshift=0cm,yshift=-2.0cm] dma.south) [anchor=north] {};
+
+%\draw[ultra thick, color=TUMBlue] ([xshift=0.03cm]driver.north west) -- ([xshift=0.03cm]hypervisor.south west);
+%\draw[ultra thick, color=TUMBlue] ([xshift=-0.03cm]driver.north east) -- ([xshift=-0.03cm]hypervisor.south east);
+
+\draw[ultra thick, color=TUMBlue] ([xshift=0.16cm]memory.south) -- (dmaX.center);
+\draw[ultra thick, color=TUMBlue] ([xshift=0.2cm]nic1.north) |- (dmaX.center);
+\draw[ultra thick, color=TUMBlue] ([xshift=0.2cm]nic2.north) |- (dmaX.center);
+\draw[ultra thick, color=TUMBlue] ([xshift=0.2cm]nic3.north) |- (dmaX.center);
+\draw[ultra thick, color=TUMBlue] ([xshift=0.2cm]nic4.north) |- (dmaX.center);
+
+%\draw[ultra thick, color=TUMOrange] (vm1) -| (dma.north) node[color=TUMBlue, near start,above] {\small Packets};
+%\draw[ultra thick, color=TUMOrange] (vm1) -- (hypervisor.north);
+\draw[ultra thick, color=TUMOrange] (cpu) -- (driverX.south);
+\draw[ultra thick, color=TUMOrange] (driverX.south) -| (nic1);
+\draw[ultra thick, color=TUMOrange] (driverX.south) -| (nic2);
+\draw[ultra thick, color=TUMOrange] (driverX.south) -| (nic3);
+\draw[ultra thick, color=TUMOrange] (driverX.south) -| (nic4);
+\draw[ultra thick, color=TUMOrange] (cpu) -- (memory);
+
+\node (hide) at (vm3.south) [yshift=-0.8cm, color=white, fill=white, rounded corners=.1ex, minimum width=0.2cm, minimum height = 1.2cm] {};
+\draw[ultra thick, color=TUMOrange] (vm3) |- (driverX.south);
+\node (iommu) at ([xshift=-0.03cm,yshift=-0.45cm] memory.south east) [color=white, fill=TUMPurple, rounded corners=.1ex, minimum width=1.2cm, minimum height = .5cm] {\textbf{IOMMU}};
+
+
+%\draw[ultra thick, color=TUMOrange] (vm1) -- ([xshift=-2.02cm]hypervisor.north);
+%\draw[ultra thick, color=TUMOrange] (vm2) -- (hypervisor.north);
+%\draw[ultra thick, color=TUMOrange] (vm3) -- ([xshift=1.98cm]hypervisor.north);
+%\draw[ultra thick, color=TUMOrange] ([xshift=0.2cm]nic1.north) |- (dmaX.center);
+%\draw[ultra thick, color=TUMOrange] ([xshift=0.2cm]nic1.north) |- (dmaX.center);
+
+%\draw[ultra thick, densely dotted, color=TUMOrange] (app.south) to[in=90, out=290] (ovs);
+%\draw[ultra thick, densely dotted, color=TUMOrange] (app.east) to[in=35, out=0] (os);
+
+\end{tikzpicture}
+
+\end{document}
