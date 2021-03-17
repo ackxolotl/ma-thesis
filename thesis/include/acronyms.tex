@@ -1,0 +1,123 @@
+\DeclareAcroListStyle{longtabu}{table}{%
+	table = longtabu,
+	table-spec = @{}>{}lX@{}
+}{%
+
+\acsetup{%
+	list-style=longtabu,
+	extra-style=plain,	% remove dot after long in list
+	only-used=false,
+}
+
+\tabulinesep=1ex
+
+\DeclareAcronym{io}{
+    short               = {\sc{I/O}},
+    long                = {input/output},
+    list                = {\Acl{io}.},
+    extra               = {%
+        Flow of information between an information processing system and a human
+        or another information processing system.
+    }
+}
+\DeclareAcronym{cpu}{
+    short               = {\sc{CPU}},
+    short-plural-form   = {\sc*{CPU}s},
+    long                = {central processing unit},
+    long-plural-form    = {central processing units},
+    list                = {\Acl{cpu}.},
+    extra               = {%
+        Electronic circuitry that executes arithmetic, logic, control and
+        \acs{io} instructions specified by computer programs.
+    }
+}
+\DeclareAcronym{dma}{
+    short               = {\sc{DMA}},
+    long                = {direct memory access},
+    list                = {\Acl{dma}.},
+    extra               = {%
+        Feature of computer systems that allows hardware to access main memory
+        independent of the \acs{cpu}.
+    }
+}
+\DeclareAcronym{sriov}{
+    short               = {\sc{SR-IOV}},
+    long                = {single root input/output virtualization},
+    list                = {\Acl{sriov}.},
+    extra               = {%
+        Feature of computer systems that allows a single \ac{pcie} device to be
+        shared with multiple virtual environments.
+    }
+}
+\DeclareAcronym{mmu}{
+    short               = {\sc{MMU}},
+    short-plural-form   = {\sc*{MMU}s},
+    long                = {memory management unit},
+    long-plural-form    = {memory management units},
+    list                = {\Acl{mmu}.},
+    extra               = {%
+        Computer component that primarily translates virtual to physical memory
+        addresses. Often part of the \ac{cpu}.
+    }
+}
+\DeclareAcronym{iommu}{
+    short               = {\sc{IOMMU}},
+    short-plural-form   = {\sc*{IOMMU}s},
+    long                = {input-output memory management unit},
+    long-plural-form    = {input-output memory management units},
+    list                = {\Acl{iommu}.},
+    extra               = {%
+        A \ac{mmu} between \acs{dma}-capable devices and main memory.
+    }
+}
+\DeclareAcronym{tlb}{
+    short               = {\sc{TLB}},
+    short-plural-form   = {\sc*{TLB}s},
+    long                = {translation lookaside buffer},
+    long-plural-form    = {translation lookaside buffers},
+    list                = {\Acl{tlb}.},
+    extra               = {%
+        Memory cache of a \ac{mmu} that stores recent address translations to
+        improve performance.
+    }
+}
+\DeclareAcronym{iotlb}{
+    short               = {\sc{IOTLB}},
+    short-plural-form   = {\sc*{IOTLB}s},
+    long                = {I/O translation lookaside buffer},
+    long-plural-form    = {I/O translation lookaside buffers},
+    list                = {\Acl{iotlb}.},
+    extra               = {%
+        \ac{tlb} of an \ac{iommu}.
+    }
+}
+\DeclareAcronym{nic}{
+    short               = {\sc{NIC}},
+    short-plural-form   = {\sc*{NIC}s},
+    long                = {network interface controller},
+    long-plural-form    = {network interface controllers},
+    list                = {\Acl{nic}.},
+    extra               = {%
+        Computer component that receives and transmits data via a computer
+        network.
+    }
+}
+\DeclareAcronym{os}{
+    short               = {\sc{OS}},
+    short-plural-form   = {\sc*{OS}es},
+    long                = {operating system},
+    long-plural-form    = {operating systems},
+    list                = {\Acl{os}.},
+    extra               = {%
+        Low-level software that manages a computer's hardware and software and
+        provides services for computer programs.
+    }
+}
+\DeclareAcronym{pcie}{
+    short               = {\sc{PCIe}},
+    long                = {Peripheral Component Interconnect Express},
+    list                = {\Acl{pcie}.},
+    extra               = {%
+        High-speed serial bus standard designed to replace PCI.
+    }
+}

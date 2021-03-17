@@ -1,0 +1,55 @@
+\documentclass[beamer,multi=true,preview]{standalone}
+\usepackage{beamerpackages}
+
+\newlength{\upt}
+\setlength{\upt}{0.0666667\beamertextwidth}
+
+\setbeamertemplate{headline}{}
+
+\let\myshipout\shipout
+\begin{document}%
+\let\shipout\myshipout
+
+\begin{standaloneframe}[plain]%
+
+\begin{tikzpicture}[>=latex]
+    \node[align=center,text width=3cm]{Descriptor \\ Ring};
+
+    \begin{scope}[line width=7mm,rotate=10]
+        \draw[TUMLightGray]  (-40:1.45cm)  arc (-40:80:1.45cm);
+
+        \newcount\mycount
+        \foreach \angle in {0,40,...,359}
+        {
+            \mycount=\angle\relax
+            \draw[TUMDarkGray,thick] (\the\mycount:11mm) -- (\the\mycount:18mm);
+        }
+    \end{scope}
+
+    \draw[TUMDarkGray, thick] (0,0) circle (1.8cm) circle (1.1cm);
+
+    \node (tdt) [draw, minimum width = 0cm, minimum height = 0cm] at (4,-1) {TDT};
+    \node (tdh) [draw, minimum width = 0cm, minimum height = 0cm] at (-1,3) {TDH};
+
+    \draw [->=] (tdt) |- (-10:18mm);
+    \draw [->=] (tdh) -| (70:18mm);
+
+    \matrix [outer sep=0pt, column sep=-\pgflinewidth, row sep=-\pgflinewidth, minimum width = 2.4cm] at (4.5,1.5)
+    {
+        \node (b0) [draw] {Buffer 0}; \\
+        \node (b1) [draw] {Buffer 1}; \\
+        \node (b2) [draw] {Buffer 2}; \\
+        \node (b3) [draw] {Buffer 3}; \\
+        \node (b4) [draw] {Buffer 4}; \\
+    };
+
+    \node (desc) at (4.5,3) {Memory Pool};
+
+    \draw [->] (-10:18mm) -- (b3.west);
+    \draw [->] (30:18mm) -- (b0.west);
+    \draw [->] (70:18mm) -- (b2.west);
+
+\end{tikzpicture}
+
+\end{standaloneframe}
+\end{document}

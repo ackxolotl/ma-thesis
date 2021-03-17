@@ -1,0 +1,61 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{tumlocale}[2016/07/06 TUM localizations]
+
+\newcommand{\localetext}[2]{\iflanguage{ngerman}{#2}{#1}}
+\newcommand{\localemacro}[3]{%
+	\ifdefined\captionsenglish
+		\addto\captionsenglish{\def#1{#2}}%
+		\addto\captionsngerman{\def#1{#3}}%
+	\else
+		\AtBeginDocument{%
+			\addto\captionsenglish{\def#1{#2}}%
+			\addto\captionsngerman{\def#1{#3}}%
+		}%
+	\fi
+}
+
+\localemacro{\datename}{Date}{Datum}
+\localemacro{\timename}{Time}{Uhrzeit}
+\localemacro{\contentname}{Content}{Inhalt}
+\localemacro{\signaturename}{Signature}{Unterschrift}
+\localemacro{\firstnamename}{First name}{Vorname}
+\localemacro{\lastnamename}{Last name}{Nachname}
+\localemacro{\registrationname}{Registration number}{Matrikelnummer}
+\localemacro{\modulename}{Module}{Modul}
+\localemacro{\lecturename}{Lecture}{Vorlesung}
+\localemacro{\examname}{Examination}{Pr\"ufung}
+\localemacro{\examinername}{Examiner}{Pr\"ufer}
+\localemacro{\responsibilityname}
+	{Responsible staff member}
+	{H\"orsaalverantwortlicher}
+\localemacro{\supervisorsname}{Supervisors}{Aufsichtsf\"uhrende}
+\localemacro{\assistantname}{Assistant}{\"Ubungsleiter}
+\localemacro{\assistantsname}{Assistants}{\"Ubungsleiter}
+\localemacro{\examname}{Exam}{Klausur}
+\localemacro{\pagename}{Page}{Seite}
+\localemacro{\problemname}{Problem}{Aufgabe}
+\localemacro{\creditsname}{credits}{Punkte}
+\localemacro{\creditname}{credit}{Punkt}
+\localemacro{\gradename}{Grade}{Note}
+\localemacro{\gradeintervalname}{Grade intervall}{Notenintervall}
+\localemacro{\correctionname}{Correction}{Korrektur}
+\localemacro{\correctionsname}{Corrections}{Korrekturen}
+\localemacro{\correctionpassa}{I}{I}
+\localemacro{\correctionpassb}{II}{II}
+\localemacro{\samplesolutionname}{Sample Solution}{L\"osungsvorschlag}
+\localemacro{\correctionnotesname}{Correction Notes}{Korrekturanmerkungen}
+\localemacro{\examplename}{Example}{Beispiel}
+\localemacro{\protocolname}{Protocol}{Protokoll}
+\localemacro{\attendeelistname}{Attendeelist}{Anwesenheitsliste}
+\localemacro{\seatplanname}{Seatplan}{Sitzplan}
+\localemacro{\roomname}{Room}{Raum}
+\localemacro{\rowname}{Row}{Reihe}
+\localemacro{\seatname}{Seat}{Platz}
+\localemacro{\notename}{Note}{Hinweis}
+\localemacro{\notesname}{Notes}{Hinweise}
+\localemacro{\examnotesname}{Working instructions}{Bearbeitungshinweise}
+\localemacro{\annotationname}{Annotations}{Anmerkungen}
+\localemacro{\reviewname}{Review}{Einsicht}
+\localemacro{\updatename}{Last update}{Zuletzt aktualisiert}
+
+\endinput

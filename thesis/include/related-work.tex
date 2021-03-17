@@ -1,0 +1,61 @@
+\chapter{Related Work}
+\label{chap:related_work}
+
+Publications on \acp{iommu} can be split into four categories:
+(1)~basic documentation and evaluation of \ac{iommu} utilization in Linux and
+   Xen,
+(2)~performance analyses of \acp{iommu},
+(3)~\ac{iommu} emulation and usage in the context of virtualization, and
+(4)~OS vulnerabilities by incorrect use of \acp{iommu}.
+
+Early papers covered Sun Microsystem's \ac{iommu} on SPARC stations of the Sun-4
+architecture which was launched in 1987 \cite{miller1996linux,
+kunisawa1997gigabit}.  Miller and de Icaza documented their efforts to port
+Linux to the SPARC platform, describing implementation hurdles and differences
+between various versions of the Sun-4 architecture \cite{miller1996linux}. They
+note that on larger machines the Sun \ac{iommu} forms a separate MMU on the
+chipset, whereas on smaller machines it is included in the processor.
+
+In 2006, research shifted to the previously released \acp{iommu} from Intel, AMD
+and IBM that marked a paradigm change: While former \acp{iommu} had been
+primarily used for address translation to enable \ac{dma} devices to access all
+physical memory of a host, these new \acp{iommu} were also capable of device
+isolation, i.e. restricting memory access of devices to device-specific memory
+regions \cite{ben2006utilizing}. Performance evaluations of these \acp{iommu}
+focused on \ac{cpu} load: Ben-Yehuda et al. claim that IBM's Calgary/DART
+\acp{iommu} do not affect \ac{io} throughput, however, \ac{cpu} utilization
+increases by up to 60\% in some scenarios \cite{ben2007price}. They identify
+IOVA (de-)allocation as the primary factor of high \ac{cpu} load and thus
+propose batching memory map and unmap calls or eliminating them wherever
+possible.
+
+Later scientific work revealed more bottlenecks in hardware and software. Amit
+et al. focus on the \ac{iommu} IO-TLB \cite{amit2010iommu}. They note that the
+\ac{tlb} of their Intel Xeon X5570 \ac{iommu} gets thrashed when more than 16
+pages are used, increasing CPU execution time by up to 47\%. To evaluate
+different replacement strategies for IO-TLB entries, they implement a virtual
+\ac{iommu} for the KVM hypervisor which lets them trace map/unmap operations and
+analyse \ac{io} memory access patterns. Based on their results, they propose
+changes in software and hardware that can reduce IO-TLB misses by over 60\%.
+
+In a follow-up paper \cite{amit2011viommu}, Amit et al. use their virtual
+\ac{iommu} to investigate different mapping strategies and performance/security
+implications of delayed IO-TLB invalidations. They conclude that delaying IOMMU
+unmappings for a few milliseconds can lead to a significantly higher througput
+if DMA buffers are reused often (and are consequently not unmapped and
+invalidated in the IO-TLB).
+
+For devices with ring buffers, Malka et al. propose a new \ac{iommu} design with
+drastically reduced overhead for IOVA (de-)allocation and a one-entry \ac{iotlb}
+per memory ring \cite{malka2015riommu} to keep up with the increasing speeds of
+\ac{io} peripherals.
+
+Peleg et al. take a look at concurrent IOVA assignment and \ac{iotlb} management
+for scalable use of \acp{iommu} \cite{peleg2015utilizing}. They propose three
+designs for IOVA assignment and a new \ac{iotlb} invalidation scheme.
+
+Other researchers focus on security. Markettos et al. investigate the handling
+of \acp{iommu} by \aclp{os} \cite{markettos2019thunderclap}. They build their
+own FPGA platform to attack systems as malicious Thunderbolt peripherals, and
+discover eight major vulnerabilities in Windows, Linux and macOS.
+

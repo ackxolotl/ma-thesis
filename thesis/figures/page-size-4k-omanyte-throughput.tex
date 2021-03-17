@@ -1,0 +1,65 @@
+\documentclass[class=minimal,border=0pt]{standalone}
+\usepackage{tumcolor}
+
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+\pgfplotsset{compat=newest}
+\usetikzlibrary{pgfplots.groupplots}
+\pgfplotsset{grid style={dotted}}
+\usetikzlibrary{plotmarks}
+
+\begin{document}
+\tikzset{every mark/.append style={scale=1}}
+\begin{tikzpicture}
+\begin{axis}[
+	width=10.95cm,
+	height=6.4cm,
+	xmode=log,
+	log basis x={2},
+	log ticks with fixed point,
+	xmin=192, xmax=6144,
+	ymin=8, ymax=30,
+	grid=major,
+	xtick={256, 512, 1024, 2048, 4096},
+    xticklabels={256, 512, 1024, 2048, 4096},
+	ytick={0, 10, 20, 30},
+    ylabel={Packet Rate {[}Mpps{]}},
+    xlabel={Memory Pool Buffer Size [B]},
+	legend style={font=\fontsize{7}{8}\selectfont},
+	every axis legend/.append style={nodes={right}},
+    legend entries={{Queue Size: 128}, {Queue Size: 256}, {Queue Size: 512}},
+	legend columns=1,
+	legend style={at={(0.98,0.95)}, anchor = north east},
+]
+
+	\addplot [mark=*,color=TUMDarkerBlue, thick] coordinates {
+		(256,  23.06)
+		(512,  23.06)
+		(1024, 22.99)
+		(2048, 15.30)
+		(4096, 10.67)
+	};
+
+    \addplot [mark=diamond*,color=TUMBlack, thick] coordinates {
+		(256,  23.07)
+		(512,  23.03)
+		(1024, 18.99)
+		(2048, 12.45)
+		(4096, 10.67)
+	};
+
+	\addplot [mark=none,color=TUMGreen, thick] coordinates {
+		(256,  23.06)
+		(512,  21.17)
+		(1024, 13.21)
+		(2048, 11.31)
+	};
+
+	\addplot [dashed, mark=none,color=TUMGreen, thick] coordinates { % C
+		(2048, 11.31)
+		(4096, 10.67)
+	};
+
+\end{axis}
+\end{tikzpicture}
+\end{document}

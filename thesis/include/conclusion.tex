@@ -1,0 +1,61 @@
+\chapter{Conclusion}
+\label{chap:conclusion}
+
+We investigated the effects of hardware isolation in high-speed network
+environments with a focus on Intel's and AMD's \acp{iommu}. We used the
+\texttt{ixy.rs} user space network driver for our analyses, and adapted it to
+our needs. We implemented support for multiple devices in an \ac{iommu} group
+and \acp{iommu} with limited IOVA translation capabilities. We also implemented
+a whole new driver in \texttt{ixy.rs} for virtual functions, \texttt{ixgbevf}.
+And we implemented methods for precise timing measurements on \ac{nic}
+operations to investigate the \ac{iotlb} of \acp{iommu}, including a brute-force
+memory allocator to allocate physically contiguous memory in user space.
+
+Our findings with \texttt{ixy.rs} paint a multi-layered picture of \acp{iommu}.
+In regards to performance, our results show that on most configurations, neither
+throughput nor latency are affected by \acp{iommu} to a quantifiable extent, be
+it in virtualized or non-virtualized environments. There are, however, some
+configurations where \acp{iommu} have a negative impact, leading to a loss of
+packet throughput of more than 50\%.
+
+In regards to safety and security, our picture of \acp{iommu} is rather bleak:
+Against common believe, \acp{iommu} do not protect against malicious or faulty
+peripherals due to the weaknesses in the \ac{pcie} protocol and archaic threat
+models of \ac{os} vendors which see internal \ac{io} peripherals as trustworthy
+and enable inherently unsafe features like ATS on these devices.
+
+As a result, many weaknesses in the handling of \acp{iommu} have been uncovered
+in the past, as well as some architectural deficiencies. We believe that more
+vulnerabilities are to be discovered and suspect one in the hardware of
+\acp{iommu}: the \ac{iotlb}. As other caches, we believe that the \ac{iotlb} is
+susceptible to timing attacks and thus provides an attack surface for side
+channel attacks. If timing of \ac{dma} accesses and address translation through
+the \ac{iotlb} can be measured precisely, packet receival and transmittal times
+of other devices sharing the \ac{iotlb} could be leaked.
+
+Our measurements on \ac{dma} operations provide some insight on the performance
+characteristics of Intel's \ac{iommu}. We hope these results can be used in the
+future to uncover the suspected vulnerability in the \ac{iotlb}.
+
+Generally speaking of safety and security, however, we recognize that a lot has
+changed in the last years: More and more \acp{os} support \acp{iommu} or improve
+their usage of \acp{iommu} when mitigating vulnerabilities, more vendors of
+consumer products include \acp{iommu} into their hardware to protect systems
+against external peripherals, and even on mobile phones \acp{iommu} are on the
+rise: Apple has developed its own \ac{iommu} for the iPhone, Google uses an
+\ac{iommu} on the Pixel phones, and ARM-based Android phones often have an ARM
+SMMU included.
+
+In view of these rapid changes, we believe that effects of hardware isolation
+remain an exciting research topic in all kinds of environments, not necessarily
+restricted to virtualization and high-speed networking.
+
+
+\section{Future Work}
+\label{chap:future_work}
+
+Future work could continue our work on the \ac{iotlb}, investigate \acp{iommu}
+on mobile platforms, e.g., the \ac{iommu} of Apple's iPhones, or focus on
+Linux's VFIO API and its different ways of handling IOVA address mappings, e.g.,
+coalescing of addresses and mapping with different page sizes.
+

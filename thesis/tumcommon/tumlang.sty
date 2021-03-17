@@ -1,0 +1,374 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{tumlang}[2016/03/18 TUM language]
+
+\RequirePackage[english,ngerman]{babel}
+\RequirePackage[english=usenglishmax,ngerman=ngerman-x-latest]{hyphsubst}
+
+
+% language options
+\DeclareOption{english}{
+	\AtEndOfPackage{\selectlanguage{english}}
+	\AtBeginDocument{\selectlanguage{english}}
+}
+\DeclareOption{german}{
+	\AtEndOfPackage{\selectlanguage{ngerman}}
+	\AtBeginDocument{\selectlanguage{ngerman}}
+}
+\DeclareOption{ngerman}{
+	\AtEndOfPackage{\selectlanguage{ngerman}}
+	\AtBeginDocument{\selectlanguage{ngerman}}
+}
+
+% general TUM option
+\DeclareOption{TUM}{
+	\def\TUMnameenglish{Technical University of Munich}
+	\def\TUMnamegerman{Technische Universit\"at M\"unchen}
+	\addto\captionsenglish{\def\TUMname{\TUMnameenglish}}
+	\addto\captionsngerman{\def\TUMname{\TUMnamegerman}}
+	\let\tumlang@departmentnameenglish\@undefined
+	\let\tumlang@departmentnamegerman\@undefined
+	\let\departmentlogo\@undefined
+	\let\tumlang@chairnameenglish\@undefined
+	\let\tumlang@chairnamegerman\@undefined
+	\let\chairhead\@undefined
+}
+
+% department options
+\newcommand{\tumlang@define@department}[3]
+{
+	\expandafter\def\csname#1nameenglish\endcsname{#2}
+	\expandafter\def\csname#1namegerman\endcsname{#3}
+	\addto\captionsenglish{\expandafter\def\csname#1name\endcsname{\csname#1nameenglish\endcsname}}
+	\addto\captionsngerman{\expandafter\def\csname#1name\endcsname{\csname#1namegerman\endcsname}}
+	\DeclareOption{#1}{
+		\ds@TUM
+		\def\departmentcode{#1}
+		\def\departmentname{\csname#1name\endcsname}
+		\def\departmentlogo{\csname#1Logo\endcsname}
+	}
+}
+\tumlang@define@department{AR}{Department of Architecture}{Fakult\"at f\"ur Architektur}
+\tumlang@define@department{BGU}{Department of Civil, Geo and Environmental Engineering}{Ingenieurfakult\"at Bau Geo Umwelt}
+\tumlang@define@department{CH}{Department of Chemistry}{Fakult\"at f\"ur Chemie}
+\tumlang@define@department{EI}{Department of Electrical and Computer Engineering}{Fakult\"at f\"ur Elektrotechnik und Informationstechnik}
+\tumlang@define@department{HFP}{School of Politics}{Hochschule f\"ur Politik}
+\tumlang@define@department{IN}{Department of Informatics}{Fakult\"at f\"ur Informatik}
+\tumlang@define@department{MA}{Department of Mathematics}{Fakult\"at f\"ur Mathematik}
+\tumlang@define@department{MED}{School of Medicine}{Fakult\"at f\"ur Medizin}
+\tumlang@define@department{MW}{Department of Mechanical Engineering}{Fakult\"at f\"ur Maschinenwesen}
+\tumlang@define@department{PH}{Department of Physics}{Fakult\"at f\"ur Physik}
+\tumlang@define@department{SE}{School of Education}{School of Education}
+\tumlang@define@department{SP}{Department of Sport and Health Sciences}{Fakult\"at f\"ur Sport- und Gesundheitswissenschaften}
+\tumlang@define@department{WI}{TUM School of Management}{Fakult\"at f\"ur Wirtschaftswissenschaften}
+\tumlang@define@department{WZW}{School of Life Sciences Weihenstephan}{Wissenschaftszentrum Weihenstephan f\"ur Ern\"ahrung, Landnutzung und Umwelt}
+\tumlang@define@department{MAWI}{Department of Mathematics and School of Management}{Fakult\"aten f\"ur Mathematik und Wirtschaftswissenschaften}
+\tumlang@define@department{IRC}{Integrative Research Centers}{Integrative Research Centers}
+
+% chair options
+\newcommand{\tumlang@define@chair}[5]
+{
+	\expandafter\def\csname#1nameenglish\endcsname{#3}
+	\expandafter\def\csname#1namegerman\endcsname{#4}
+	\addto\captionsenglish{\expandafter\def\csname#1name\endcsname{\csname#1nameenglish\endcsname}}
+	\addto\captionsngerman{\expandafter\def\csname#1name\endcsname{\csname#1namegerman\endcsname}}
+	\expandafter\def\csname#1head\endcsname{#5}
+	\DeclareOption{#1}{
+		\csname ds@#2\endcsname
+		\def\chairname{\csname#1name\endcsname}
+		\def\chairhead{\csname#1head\endcsname}
+	}
+}
+
+\tumlang@define@chair{CMS}{BGU}%
+	{Chair of Computational Modeling and Simulation}%
+	{Lehrstuhl für Computergestützte Modellierung und Simulation}%
+	{Prof.\ Andr\'{e} Borrmann}%
+
+\tumlang@define@chair{MSV}{EI}%
+	{Associate Professorship of Signal Processing}%
+	{Professur für Methoden der Signalverarbeitung}%
+	{Univ.-Prof.~Dr.-Ing.\ Wolfgang\ Utschick}%
+\tumlang@define@chair{ITR}{EI}%
+	{Chair of Information-oriented Control}%
+	{Lehrstuhl f\"ur Informationstechnische Regelung}%
+	{Prof.\ Dr.-Ing.\ Sandra Hirche}%
+\tumlang@define@chair{LSR}{EI}%
+	{Chair of Automatic Control Engineering}%
+	{Lehrstuhl f\"ur Steuerungs- und Regelungstechnik}%
+	{Prof.\ Dr.-Ing.\ Univ.\ Tokio\ Martin\ Buss}%
+\tumlang@define@chair{LIS}{EI}%
+	{Chair of Integrated Systems}%
+	{Lehrstuhl f\"ur Integrierte Systeme}%
+	{Prof.\ Dr.\ sc.techn.\ Andreas\ Herkersdorf}%
+\tumlang@define@chair{ESI}{EI}%
+	{Assistant Professorship of Embedded Systems and Internet of Things}%
+	{Professur f\"ur Embedded Systems and Internet of Things}%
+	{Prof.\ Dr.\ Sebastian Steinhorst}%
+
+\tumlang@define@chair{SWT}{IN}%
+	{Chair of Applied Software Engineering}%
+	{Lehrstuhl f\"ur Angewandte Softwaretechnik}%
+	{Prof.~Dr.\ Bernd\ Br\"ugge}%
+\tumlang@define@chair{IN2}{IN}%
+	{Chair of Formal Languages, Compiler Construction, Software Construction}%
+	{Lehrstuhl f\"ur Sprachen und Beschreibungsstrukturen in der Informatik}%
+	{Prof.~Dr.\ Helmut\ Seidl}%
+\tumlang@define@chair{DB}{IN}%
+	{Chair of Database Systems}%
+	{Lehrstuhl f\"ur Datenbanken}%
+	{Prof.~Dr.\ Alfons\ Kemper}%
+\tumlang@define@chair{KDD}{IN}%
+	{Professorship of Data Mining and Analytics}%
+	{Professur f\"ur Data Mining and Analytics}%
+	{Prof.~Dr.\ Stephan\ Günnemann}%
+\tumlang@define@chair{IN4}{IN}%
+	{Chair of Software and Systems Engineering}%
+	{Lehrstuhl f\"ur Software und Systems Engineering}%
+	{Prof.~Dr.\ Alexander\ Pretschner}%
+\tumlang@define@chair{SCCS}{IN}%
+	{Chair of Scientific Computing in Computer Science}%
+	{Lehrstuhl f\"ur Wissenschaftliches Rechnen}%
+	{Prof.~Dr.\ Hans-Joachim\ Bungartz}%
+\tumlang@define@chair{ER}{IN}%FIXME delete (umbenannt in IN6)
+	{Chair of Robotics and Embedded Systems}%
+	{Lehrstuhl f\"ur Echtzeitsysteme und Robotik}%
+	{Prof.~Dr.-Ing.\ Alois\ Knoll}%
+\tumlang@define@chair{IN6}{IN}%
+	{Chair of Robotics, Artificial Intelligence and Real-time Systems}%
+	{Lehrstuhl f\"ur Robotik, Künstliche Intelligenz und Echtzeitsysteme}%
+	{Prof.~Dr.-Ing.\ Alois\ Knoll}%
+\tumlang@define@chair{IN7}{IN}%
+	{Chair of Foundations of Software Reliability and Theoretical Computer Science}%
+	{Lehrstuhl f\"ur Theoretische Informatik}%
+	{Prof.~Dr.~Dr.~h.c.\ Javier Esparza}%
+\tumlang@define@chair{NET}{IN}%
+	{Chair of Network Architectures and Services}%
+	{Lehrstuhl f\"ur Netzarchitekturen und Netzdienste}%
+	{Prof.~Dr.-Ing.\ Georg\ Carle}%
+\tumlang@define@chair{CVAI}{IN}%
+	{Chair of Computer Vision and Artificial Intelligence}%
+	{Lehrstuhl f\"ur Bildverarbeitung und K\"unstliche Intelligenz}%
+	{Prof.~Dr.\ Daniel\ Cremers}%
+\tumlang@define@chair{CAPS}{IN}%
+	{Chair of Computer Architecture and Parallel Systems}%
+	{Lehrstuhl f\"ur Rechnerarchitektur \& Parallele Systeme}%
+	{Prof.~Dr.\ Martin\ Schulz}%
+\tumlang@define@chair{CM}{IN}%
+	{Chair of Connected Mobility}%
+	{Lehrstuhl f\"ur Connected Mobility}%
+	{Prof.~Dr.-Ing.\ J\"org\ Ott}%
+\tumlang@define@chair{IN13}{IN}%
+	{Chair of Application and Middleware Systems}%
+	{Lehrstuhl f\"ur Anwendungs- und Middlewaresysteme}%
+	{Prof.~Dr.\ Hans-Arno\ Jacobsen}%
+\tumlang@define@chair{IN14}{IN}%
+	{Chair of Algorithms and Complexity}%
+	{Lehrstuhl f\"ur Algorithmen und Komplexität}%
+	{Prof.~Dr.\ Susanne\ Albers}%
+\tumlang@define@chair{OS}{IN}%
+	{Chair of Operating Systems}%
+	{Lehrstuhl f\"ur Betriebssysteme}%
+	{Prof.~Dr.\ Uwe\ Baumgarten}%
+\tumlang@define@chair{GE}{IN}%
+	{Associate Professorship of Physics-based Simulation}%
+	{Fachgebiet Physik-basierte Simulation}%
+	{Prof.~Dr.\ Nils Thürey}%
+\tumlang@define@chair{VC}{IN}%
+	{Associate Professorship of Visual Computing}%
+	{Professur f\"ur Visual Computing}%
+	{Prof.~Dr.\ Matthias Nießner}%
+\tumlang@define@chair{CAMPAR}{IN}%
+	{Chair of Computer Aided Medical Procedures \& Augmented Reality}%
+	{Lehrstuhl f\"ur Informatikanwendungen in der Medizin \& Augmented Reality}%
+	{Prof.~Dr.\ Nassir\ Navab}%
+\tumlang@define@chair{DSS}{IN}%
+	{Chair of Decisions Sciences \& Systems}%
+	{Lehrstuhl f\"ur Wirtschaftsinformatik und Entscheidungstheorie}%
+	{Prof.~Dr.\ Martin\ Bichler}%
+\tumlang@define@chair{SEBIS}{IN}%
+	{Chair of Software Engineering for Business Information Systems}%
+	{Lehrstuhl f\"ur Software Engineering betrieblicher Informationssysteme}%
+	{Prof.~Dr.\ Florian\ Matthes}%
+\tumlang@define@chair{SEC}{IN}%
+	{Chair of IT Security}%
+	{Lehrstuhl f\"ur Sicherheit in der Informatik}%
+	{Prof.~Dr.\ Claudia\ Eckert}%
+\tumlang@define@chair{IN21}{IN}%
+	{Chair of Logic and Verification}%
+	{Lehrstuhl f\"ur Logik und Verifikation}%
+	{Prof.~Dr.\ Tobias Nipkow}%
+\tumlang@define@chair{IN24}{IN}%
+	{Chair of Cyber Trust}%
+	{Lehrstuhl f\"ur Cyber Trust}%
+	{Prof.~Dr.\ Jens Gro\ss{}klags}%
+\tumlang@define@chair{IN25}{IN}%
+	{Chair of Data Science and Engineering}%
+	{Lehrstuhl f\"ur Data Science and Engineering}%
+	{Prof.~Dr.\ Thomas Neumann}%
+\tumlang@define@chair{IN28}{IN}%
+	{Chair of Chair of Visual Computing \& Artificial Intelligence}%
+	{Lehrstuhl f\"ur Visual Computing \& Artificial Intelligence}%
+	{Prof.~Dr.\ Matthias Nie\ss{}ner}%
+\tumlang@define@chair{DHG}{IN}%
+	{Professorship for Digital Health}%
+	{Professur für Digital Health}%
+	{Prof.~Dr.\ Stephan Jonas}%
+
+\tumlang@define@chair{M1}{MA}%
+	{Chair of Mathematical Optimization}%
+	{Lehrstuhl f\"ur Mathematische Optimierung}%
+	{Prof.~Dr.\ Michael\ Ulbrich}%
+\tumlang@define@chair{M2}{MA}%
+	{Chair of Numerical Mathematics}%
+	{Lehrstuhl f\"ur Numerische Mathematik}%
+	{Prof.~Dr.\ Barbara\ Wohlmuth}%
+\tumlang@define@chair{M3}{MA}%
+	{Chair of Scientific Computing}%
+	{Lehrstuhl f\"ur Wissenschaftliches Rechnen}%
+	{Prof.~Dr.\ Folkmar\ Bornemann}%
+\tumlang@define@chair{M4}{MA}%
+	{Chair of Mathematical Statistics}%
+	{Lehrstuhl f\"ur Mathematische Statistik}%
+	{Prof.~Dr.\ Claudia\ Kl\"uppelberg}%
+\tumlang@define@chair{M5}{MA}%
+	{Chair of Mathematical Physics}%
+	{Lehrstuhl f\"ur Mathematische Physik}%
+	{Prof.~Dr.\ Michael\ M.\ Wolf}%
+\tumlang@define@chair{M6}{MA}%
+	{Chair of Mathematical Modelling}%
+	{Lehrstuhl f\"ur Mathematische Modellbildung}%
+	{Prof.~Dr.\ Martin\ Brokate}%
+\tumlang@define@chair{M7}{MA}%
+	{Chair of Analysis}%
+	{Lehrstuhl f\"ur Analysis}%
+	{Prof.~Dr.\ Gero\ Friesecke}%
+\tumlang@define@chair{M8}{MA}%
+	{Chair of Dynamical Systems}%
+	{Lehrstuhl f\"ur Dynamische Systeme}%
+	{Prof.~Dr.\ J\"urgen\ Scheurle}%
+\tumlang@define@chair{M9}{MA}%
+	{Chair of Applied Geometry and Discrete Mathematics}%
+	{Lehrstuhl f\"ur Angewandte Geometrie und Diskrete Mathematik}%
+	{Prof.~Dr.\ Peter\ Gritzmann}%
+\tumlang@define@chair{M10}{MA}%
+	{Chair of Geometry and Visualization}%
+	{Lehrstuhl f\"ur Geometrie und Visualisierung}%
+	{Prof.~Dr.~Dr.\ J\"urgen\ Richter-Gebert}%
+\tumlang@define@chair{M11}{MA}%
+	{Chair of Algebra}%
+	{Lehrstuhl f\"ur Algebra}%
+	{Prof.~Dr.\ Gregor\ Kemper}%
+\tumlang@define@chair{M12}{MA}%
+	{Chair of Mathematical Modeling of Biological Systems}%
+	{Lehrstuhl f\"ur Mathematische Modellierung Biologischer Systeme}%
+	{Prof.~Dr.~Dr.\ Fabian\ Theis}%
+\tumlang@define@chair{M13}{MA}%
+	{Chair of Mathematical Finance}%
+	{Lehrstuhl f\"ur Finanzmathematik}%
+	{Prof.~Dr.\ Rudi\ Zagst}%
+\tumlang@define@chair{M14}{MA}%
+	{Chair of Probability Theory}%
+	{Lehrstuhl f\"ur Wahrscheinlichkeitstheorie}%
+	{Prof.~Dr.\ Nina\ Gantert}%
+\tumlang@define@chair{M15}{MA}%
+	{Chair of Applied Numerical Analysis}%
+	{Lehrstuhl f\"ur Angewandte Numerische Analysis}%
+	{Prof.~Dr.\ Massimo\ Fornasier}%
+\tumlang@define@chair{M16}{MA}%
+	{Chair of Numerical Methods for Plasma Physic}%
+	{Lehrstuhl f\"ur Numerische Methoden der Plasmaphysik}%
+	{Prof.~Dr.\ Eric\ Sonnendr\"ucker}%
+\tumlang@define@chair{M17}{MA}%
+	{Chair of Optimal Control}%
+	{Lehrstuhl f\"ur Optimalsteuerung}%
+	{Prof.~Dr.\ Boris\ Vexler}%
+
+\tumlang@define@chair{PKM}{MW}%
+	{Associate Professorship of Continuum Mechanics}%
+	{Professur f\"ur Kontinuumsmechanik}%
+	{Koutsourelakis Faidon-Stelios, Ph.\,D.}%
+\tumlang@define@chair{FZG}{MW}%
+	{Chair of Machine Elements}%
+	{Lehrstuhl f\"ur Maschinenelemente}%
+	{Prof.~Dr.~Ing.\ Karsten Stahl}%
+\tumlang@define@chair{LNM}{MW}%
+	{Institute for Computational Mechanics}%
+	{Lehrstuhl f\"ur Numerische Mechanik}%
+	{Prof.\ Dr.-Ing.\ Wolfgang\ A.\ Wall}%
+\tumlang@define@chair{RT}{MW}%
+	{Chair of Automatic Control}%
+	{Lehrstuhl f\"ur Regelgungstechnik}%
+	{Prof.\ Dr.-Ing.\ habil.\ Boris Lohmann}%
+\tumlang@define@chair{TFD}{MW}%
+	{Associate Professorship of Thermo-Fluid Dynamics}%
+	{Professur f\"ur Thermofluiddynamik}%
+	{Prof.\ Wolfgang Polifke, Ph.\,D.}%
+\tumlang@define@chair{LRT}{MW}%
+	{Chair of Astronautics}%
+	{Lehrstuhl f\"ur Raumfahrttechnik}%
+	{Prof.\ Prof.\ h.c.\ Dr.\ Dr.\ h.c.\ Ulrich Walter}%
+\tumlang@define@chair{FTM}{MW}%
+	{Chair of Automotive Technology}%
+	{Lehrstuhl f\"ur Fahrzeugtechnik}%
+	{Prof.\ Dr.-Ing.\ Markus Lienkamp}%
+\tumlang@define@chair{AM}{MW}%
+	{Chair of Applied Mechanics}%
+	{Lehrstuhl f\"ur Angewandte Mechanik}%
+	{Prof.\ Dr.\ Daniel Rixen}%
+\tumlang@define@chair{MIMED}{MW}%
+	{Chair of Micro Technology and Medical Device Technology}%
+	{Lehrstuhl f\"urr Mikrotechnik und Medizinger\"atetechnik}%
+	{Prof.\ Dr.\ rer.\ nat.\ Dipl.-Ing.\ Tim C.\ Lueth}%
+\tumlang@define@chair{WUF}{MW}%
+	{Chair of Machine Tools and Manufacturing Technology}%
+	{Lehrstuhl f\"ur Werkzeugmaschinen und Fertigungstechnik}%
+	{Prof.\ Dr.-Ing.\ Michael F.\ Z\"ah}%
+\tumlang@define@chair{AIS}{MW}%
+	{Chair of Automation and Information Systems}%
+	{Lehrstuhl f\"ur Automatisierung und Informationssysteme}%
+	{Prof.\ Dr.-Ing.\ Birgit Vogel-Heuser}%
+\tumlang@define@chair{VIB}{MW}%
+	{Chair of Vibro-Acoustics of Vehicles and Machines}%
+	{Lehrstuhl f\"r Akustik mobiler Systeme}%
+	{Prof.\ Dr.-Ing.\ Steffen Marburg}%
+\tumlang@define@chair{FML}{MW}%
+	{Chair of Materials Handling, Material Flow, Logistics}%
+	{Lehrstuhl f\"r Fördertechnik Materialfluss Logistik}%
+	{Prof.\ Dr.-Ing.\ Johannes Fottner}%
+
+\tumlang@define@chair{OR}{MAWI}%
+	{Chair of Operations Research}%
+	{Lehrstuhl f\"ur Operations Research}%
+	{Prof.\ Dr.\ Andreas\ S.\ Schulz}%
+
+\tumlang@define@chair{AMC}{CH}%
+	{Chair of Inorganic and Metal-Organic Chemistry}%
+	{Lehrstuhl f\"ur Anorganische und Metallorganische Chemie}%
+	{Prof.\ Dr.\ Roland A.\ Fischer}%
+\tumlang@define@chair{TC1}{CH}%
+	{Chair of Chemical Technology I}%
+	{Lehrstuhl f\"ur Technische Chemie I}%
+	{Prof.\ Dr.-Ing.\ Kai-Olaf Martin Hinrichsen}%
+
+\tumlang@define@chair{ERI}{WI}%
+	{Enterpreneurship Research Institute}%
+	{Enterpreneurship Research Institute}%
+	{Prof.\ Dr.\ Dr.\ Holger Patzelt}%
+
+\tumlang@define@chair{FWL}{WI}%
+	{Chair for Forestal Economics}%
+	{Lehrstuhl für Forstliche Wirtschaftslehre}%
+	{Prof.\ Dr.\ Martin Moog}%
+
+\tumlang@define@chair{MCTS}{IRC}%
+	{Munich Center for Technology in Society}%
+	{Munich Center for Technology in Society}%
+	{Dipl.-Ing.\ Dipl.-Ing.\ (FH) (FH) Barbara Kopp-Gebauer}%
+
+% unknown options
+\DeclareOption*{}
+
+\ExecuteOptions{ngerman,TUM}
+\ProcessOptions\relax
+
+\endinput

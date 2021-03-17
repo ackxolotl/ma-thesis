@@ -1,0 +1,227 @@
+\chapter{Implementations}
+\label{chap:implementations}
+
+To analyse performance, safety and security implications of \acp{iommu}, we use
+\texttt{ixy.rs} \cite{ellmann2018writing}, a high-speed user space network
+driver written in Rust for Intel 10G \acp{nic} of the \texttt{ixgbe} family, and
+adapt it to our needs. Changes to the existing implementation and new code are
+described in the following sections.
+
+Since \texttt{ixy.rs} is a network driver written for Linux on x86, all remarks
+on specific behavior refer to this combination of operating system and
+architecture.
+
+
+\section{ixy.rs}
+\label{sec:ixy_rs}
+
+Stefan Huber added basic IOMMU support to \texttt{ixy.rs} in 2019 through
+Linux's VFIO API \cite{huber2019using}. We complete the implementation by adding
+support for the following two use cases: accessing multiple devices associated
+to the same IOMMU group and using \texttt{ixy.rs} in conjunction with legacy
+\acp{iommu} not supporting 48-bit wide IOVA addresses.
+
+For the former, only minor changes in the code are necessary. In the original
+implementation, a device's VFIO group file is opened on device setup and closed
+after the VFIO device file descriptor was derived from the group. However, a
+device group file cannot be re-opened if it is used through a derived device
+file descriptor, even if the descriptor of the group file was properly closed.
+Re-opening the group file in that case returns OS error 16, i.e., ``device or
+resource busy''. We mitigate this problem by keeping VFIO group files opened and
+storing the file descriptors in a \texttt{HashMap<i32, RawFd>} that maps IOMMU
+groups to group file descriptors. When a new device is initialized, the
+\texttt{HashMap} is checked for the VFIO group. In case there is no key-value
+pair for the group, the group file is opened and group number and descriptor are
+added to the \texttt{HashMap}. Otherwise, the group file descriptor from the
+\texttt{HashMap} is used.
+
+To support IOMMUs with an IOVA address widths smaller than the host's virtual
+address widths (e.g., only 39 instead of 48 bits), smaller \ac{io} virtual
+addresses have to be chosen. Currently, \texttt{ixy.rs} uses a 1:1 mapping of
+process virtual addresses to \ac{io} virtual addresses when setting up the
+\ac{dma} mappings. Thus, \ac{mmu} and \ac{iommu} map the same (\ac{io}) virtual
+addresses to the same physical addresses and there is no need for
+\texttt{ixy.rs} to track which IOVA is used for which \ac{dma} buffer. We keep
+this mapping for simplicity but enforce all memory to be used by the \ac{nic} to
+be mapped into the lower 32-bit of the process address space. To our knowledge,
+there are no \acp{iommu} for the x86 architecture that do not support at least
+32 bit addresses.
+
+Mapping memory into the 32-bit address space of a process is no witchcraft.
+\texttt{mmap} can be forced through the \texttt{MAP\_32BIT} flag to create
+mappings in the first 4 GiB of the process address space (indeed, only 2 GiB are
+used, making some authors call it the \texttt{MAP\_31BIT} flag). However,
+mapping memory gets more sophisticated when huge pages are used (as they are in
+\texttt{ixy.rs}) due to alignment requirements: huge pages have to be
+huge-page-aligned, i.e., at 2 MiB or 1 GiB boundaries.
+
+\begin{minipage}{\textwidth}
+    \lstinputlisting[label={lst:32-bit-map},language=Rust,caption={Mapping huge
+        pages into the first 2 GiB of the process address space.},captionpos=b]
+        {code/32-bit-map.rs}
+\end{minipage}
+
+To obey these requirements, we use \texttt{mmap} twice: to determine an
+appropriate address range and to map the huge pages into the address range.
+\Cref{lst:32-bit-map} illustrates the algorithm. First, a mapping of needed
+size + one huge page size is created (whereby needed size is equivalent to one
+or multiple huge pages). We know that any address range of size $s$ contains a
+$s$-aligned address, i.e., for any \texttt{mmap}-returned address $r$ we know
+that ${\exists a \in \{r, r + 1, ..., r + s - 1\}: a \equiv 0 \mod s}$. Thus we
+use the additionally mapped huge page to find the huge-page-aligned address $a$.
+After that, excess memory is freed, i.e., memory between the
+\texttt{mmap}-returned address and the huge-page-aligned address and any
+remaining bytes of the additionaly mapped huge page at the end of the mapping.
+Finally, huge pages of the needed size are mapped to the huge-page-aligned
+address by a second call to \texttt{mmap}, passing the aligned address as first
+argument to \texttt{mmap} and the flag \texttt{MAP\_FIXED} to force
+\texttt{mmap} to map the huge pages at the specified address.
+
+Besides these newly implemented features in \texttt{ixy.rs}, some minor changes
+were made to the source code. We fixed a bug in the memory module where virtual
+addresses where used instead of \ac{io} virtual addresses, a wrong bitmask was
+discovered and corrected in the original ixy driver \cite{emmerich2019user} that
+propagated into all re-implementations \cite{emmerich2019case} of the driver,
+and some comments were updated, typos fixed and overall code cleanliness
+improved (removal of superfluous casts, parantheses, etc.).
+
+
+\section{ixgbevf}
+\label{sec:ixgbevf}
+
+To analyse the effects of IOMMUs in context of \ac{sriov}, we implement
+\texttt{ixgbevf} for \texttt{ixy.rs}, a variant of the \texttt{ixgbe} driver for
+virtual functions (VFs).
+
+While \texttt{ixgbe} (physical function driver) and \texttt{ixgbevf} (virtual
+function driver) have great similarities, device setup and communication between
+driver and \ac{nic} differ, and there are some tasks on virtual functions (like
+reset) that have to be executed cooperatively by both drivers. Besides these
+differences in the drivers, there are also differences in the devices: the PCI
+configuration space of virtual functions returns \texttt{0xffff} for vendor and
+device ID, making it necessary to grab the values from files in the
+\texttt{sysfs} or from the physical functions' configuration spaces to determine
+the correct driver to be used, and virtual functions support only up to 8 RX/TX
+queues in contrast to 64 of the physical function.
+
+Reset and initialization of the physical function, i.e., the device itself, and
+creation of virtual functions is initiated by the physical function driver. The
+physical function driver brings the \ac{nic} into an operational state and
+creates virtual functions when requested to do so, e.g., by the \ac{os}.
+
+Reset and initialization of the virtual function is initiated by the virtual
+function driver. To reset the VF, communication with the physical function
+driver is necessary. In general, VF driver communication happens in two
+different ways: Directly with the \ac{nic} via memory-mapped \ac{io} and by
+passing messages to the physical function driver via a mailbox system. For
+direct communication with the \ac{nic}, only a part of the device configuration
+space can be accessed by the virtual function. The registers in this
+configuration space allow the VF driver to set up the descriptor rings, enable
+or disable interrupts, send and receive packets, etc. For operations that have
+global impact like configuring VLAN filters or resetting the virtual function,
+the VF driver has to communicate with the PF driver and request the needed
+operations. This is done via the mailbox system that is implemented in hardware
+in the \ac{nic}.
+
+Messages used for mailbox communication are hardware-independent and can be
+freely chosen by driver implementations. However, to be able to use our driver
+in conjunction with the kernel \texttt{ixgbe} driver as PF driver, messages must
+be coordinated and synchronized. Thus, we implement the same mailbox messages as
+the Linux kernel driver and DPDK.
+
+\begin{minipage}{\textwidth}
+    \lstinputlisting[label={lst:mbx},language=Rust,caption={Reading a message
+    from the VF mailbox.},captionpos=b] {code/mbx.rs}
+\end{minipage}
+
+\Cref{lst:mbx} shows how communication with the \ac{nic} mailbox is
+implemented in \texttt{ixgbevf}. \linebreak \texttt{read\_msg\_from\_mbx} is
+used to read a message from the mailbox buffer. It is expected to be called once
+a new message for the virtual function arrives (which can be determined through
+the \texttt{IXGBE\_VFMAILBOX} register). The method takes a slice \texttt{msg}
+of unknown size to store the message from the mailbox. Before the message is
+copied to the slice, the mailbox is locked to prevent race conditions between VF
+and PF. Subsequently, the message is copied and receipt of the message
+acknowledged (releasing the mailbox at the same time).
+
+Virtual function initialization of \texttt{ixgbevf} resembles to a large extent
+physical function initialization of \texttt{ixgbe}: Once the VF's registers are
+mapped into memory and DMA bus master is enabled for the virtual function,
+interrupts are disabled and the VF is reset by prompting the physical function
+driver for function reset. When the PF driver has acknowledged function reset,
+the MAC address of the virtual function is derived from the PF through mailbox
+communication or generated locally. Subsequently, RX and TX descriptor rings are
+set up and initialization of the virtual function is complete.
+
+Unlike with \texttt{ixgbe}, there is no link setup since the physical function
+driver is responsible for the link. Indeed, virtual functions can only be used
+once the device's link is up. If the link is down, virtual function reset hangs.
+
+Deriving the MAC address and using it as source address for outgoing packets is
+crucial for \texttt{ixgbevf} as the kernel driver enables MAC anti-spoofing by
+default, i.e., all TX packets are checked for deviating MAC addresses by the
+\ac{nic} and discarded if necessary.
+
+
+\section{iommu-leaks}
+\label{sec:iommu_leaks}
+
+For precise time measurements on \ac{nic} operations and to analyse effects of
+the \ac{iotlb}, we implement some additional functionality in \texttt{ixy.rs}.
+
+To be independent of the physical link we add methods to enable loopback
+operations on the \ac{nic}. In loopback mode, packets are transmitted from the
+\ac{nic}'s TX queues via its internal 10 Gigabit Media Independent Interface
+(XGMII) to the RX queues without leaving the device.
+
+We also add methods to dynamically enable and disable queues. This is
+advantageous to approximate how much time is needed for \ac{dma} transfers. By
+disabling all RX queues, TX transmit times can be broken down to a \ac{dma}
+access to the TX queue page and another \ac{dma} access to the packet buffer.
+
+To measure \ac{cpu} cycles for \ac{nic} operations, we use the x86
+\texttt{rdtsc} instruction. We implement a rdtsc function as shown in
+\Cref{lst:rdtsc}. We use intrinsic functions to avoid inline assembler. Since
+intrinsic functions are inherently unsafe, we need a \texttt{unsafe} block.
+Note our use of memory fences to serialize instruction execution.
+\texttt{lfence}s deter the compiler from reordering code and the \ac{cpu} from
+speculatively executing subsequent instructions, namely the \texttt{rdtsc}
+itself and following instructions. Unlike suggested by a Intel in a benchmarking
+guide for the IA-32 and IA-64 architecture \cite{paoloni2010benchmark}, we use
+\texttt{lfence} instead of \texttt{cpuid} as it provides the same serialization
+guarantees and keeps the variance small.
+
+\begin{minipage}{\textwidth}
+    \lstinputlisting[label={lst:rdtsc},language=Rust,caption={\texttt{rdtsc()}
+        function to count \acs{cpu} cycles.},captionpos=b]
+        {code/rdtsc.rs}
+\end{minipage}
+
+To be able to evaluate measured \ac{cpu} cycles, we implement a logger that logs
+values to a file-backed huge page and provides statistics about the measured
+values like mean, variance and sample variance.
+
+For \ac{iotlb}-related research, we implement a brute-force memory allocator
+that allocates physically and virtually contiguous 4 KiB pages. By using normal
+sized pages, locality of packet buffers can be maintained while the amount of
+pages to be translated by the \ac{iommu} respectively the \ac{iotlb} can be
+controlled variably.
+
+The memory allocator works as follows: First, two memory regions are allocated
+via \texttt{mmap}, a huge region -- which is our page pool -- containing 1,024
+pages that are checked for contiguity and a target memory area. Next, virtual
+and physical address of every page in the page pool are inserted into some data
+structure, e.g., a vector, and sorted by ascending physical addresses.
+Subsequently, the sorted pages are remapped to the target memory area using
+\texttt{mremap} and checked for contiguity. Since all pages have been remapped
+in physically contiguous order, physically adjacent pages are now also adjacent
+in virtual address space. Thus, it suffices to iterate through the target memory
+area and check whether there is a block of physically subsequent pages big
+enough to satisfy the requested amount of contiguous memory.
+
+To control memory placement of RX/TX queues and packet buffers, we add methods
+to \texttt{ixy.rs} that reinitialize the aforementioned data structures at
+variable memory addresses, e.g., memory allocated by our brute-force memory
+allocator. We also add methods for fine-grained control of TX descriptors and
+queues that allow us to repeatedly use the same descriptor(s) for transmit.
+

@@ -1,0 +1,54 @@
+\documentclass[class=minimal,border=0pt]{standalone}
+\usepackage{tumcolor}
+
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+\pgfplotsset{compat=newest}
+\usetikzlibrary{pgfplots.groupplots}
+\pgfplotsset{grid style={dotted}}
+\usetikzlibrary{plotmarks}
+
+\begin{document}
+\tikzset{every mark/.append style={scale=1}}
+\begin{tikzpicture}
+\begin{axis}[
+	width=10.95cm,
+	height=6.4cm,
+    ybar=2pt,
+    enlarge x limits={abs=2.1cm},
+    ymin=0,
+    ymax=39,
+	ymajorgrids=true,
+    symbolic x coords={32, 33, 48},
+	ytick={0, 10, 20, 30},
+    ylabel={Packet Rate {[}Mpps{]}},
+    xlabel={IOVA address widths {[}bits{]}},
+	legend style={font=\fontsize{7}{8}\selectfont},
+	every axis legend/.append style={nodes={right}},
+    legend entries={{AMD EPYC 7551P},{Intel Xeon E5-2620v3},{Intel Xeon
+    E3-1230v2}},
+	legend columns=3,
+	legend style={at={(0.5,1.02)}, anchor = south},
+    xtick=data,
+]
+
+    \addplot [color=TUMGreen, fill=TUMGreen, thick] coordinates {
+        (32, 12.6)
+        (33, 12.7)
+        (48, 12.7)
+    };
+
+    \addplot [color=TUMBlue, fill=TUMBlue, thick] coordinates {
+        (32, 22.8)
+        (33, 21.1)
+        (48, 21.1)
+    };
+
+    \addplot [color=TUMPurple, fill=TUMPurple, thick] coordinates {
+        (32, 22.9) 
+        (33, 21.1)
+    };
+
+\end{axis}
+\end{tikzpicture}
+\end{document}

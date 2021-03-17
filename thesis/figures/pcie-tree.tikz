@@ -1,0 +1,129 @@
+\documentclass[beamer,multi=true,preview]{standalone}
+\usepackage{beamerpackages}
+
+\newlength{\upt}
+\setlength{\upt}{0.0666667\beamertextwidth}
+
+\setbeamertemplate{headline}{}
+
+\let\myshipout\shipout
+\begin{document}%
+\let\shipout\myshipout
+
+\begin{standaloneframe}[plain]%
+
+\tikzset{
+    cpupch/.style={fill=TUMLightGray!30, text=TUMBlack, font=\bfseries},
+    gpu/.style={fill=TUMPurple, text=TUMLightGray!80, font=\bfseries},
+    core/.style={fill=TUMBlue, text=TUMLightGray!80, font=\huge\bfseries},
+    llc/.style={fill=TUMOrange, text=TUMLightGray, font=\bfseries},
+    sysagent/.style={fill=TUMGreen, text=TUMLightGray!80, font=\bfseries},
+    interconnect/.style={fill=TUMDarkGray},
+    interconnectline/.style={color=TUMDarkGray},
+    connection/.style={fill=TUMLightGray, text=TUMBlack, font=\bfseries}
+}
+
+    \begin{tikzpicture}
+
+        %\node (cpu) [rectangle, draw, minimum width = 16cm, minimum height = 12.5cm] at (0, 0) {CPU};
+        \node (cpu) [draw, minimum width = 4.4cm, minimum height = 3.7cm, label={[shift={(-1.6,-0.6)}]CPU}] at (0, 0) {};
+        \node (sysagent) [draw, above=0.2cm of cpu.south, minimum width = 3.7cm, minimum height = 2.8cm, label={[shift={(-0.6,-0.6)}]System Agent}] {};
+
+        \node (root) [draw, above=0.2cm of sysagent.south, minimum width = 3cm, minimum height = 2cm, text width=4em, text centered] {Root \\ Complex};
+
+        \node (memory) [draw, right=2cm of sysagent.east, minimum width = 3cm, minimum height = 2cm, text width=4em, text centered] {Memory};
+
+        \node (endpoint1) [draw, left=2cm of root.west, minimum width = 2cm, minimum height = 1.2cm, text width=4em, text centered] {PCIe \\ Endpoint};
+
+        \node (switch) [draw, below=1.0cm of root.south, minimum size = 2cm, text width=4em, text centered, regular polygon, regular polygon sides=8, inner sep=0mm] {Switch};
+
+        \node (endpoint3) [draw, below=0.7cm of switch.south, minimum width = 2cm, minimum height = 1.2cm, text width=4em, text centered] {PCIe \\ Endpoint};
+
+        \node (endpoint2) [draw, left=0.3cm of endpoint3.west, minimum width = 2cm, minimum height = 1.2cm, text width=4em, text centered] {PCIe \\ Endpoint};
+
+        \node (bridge) [draw, right=0.3cm of endpoint3.east, minimum width = 2cm, minimum height = 1.2cm, text width=6em, text centered] {PCIe to \\ PCI bridge};
+
+        \draw [thick] (endpoint1) -- (root);
+        \draw [thick] (sysagent) -- (memory);
+        \draw [thick] (root) -- (switch);
+        \draw [thick] (endpoint2) |- (switch);
+        \draw [thick] (endpoint3) -- (switch);
+        \draw [thick] (bridge) |- (switch);
+
+%        \node (cpu) [cpupch, draw, minimum width = 16cm, minimum height = 12.5cm, label={[shift={(0.0,-1.3)}]\fontsize{24}{30} \selectfont Processor}] at (0, 0) {};
+%
+%        \node (gpu) [gpu, above right=0.7cm and 0.9cm of cpu.south west, minimum width = 2cm, minimum height = 10cm] {\huge GPU};
+%
+%        \node (llc1) [llc, below right=0cm and 1.0cm of gpu.north east, minimum width = 0.7cm, minimum height = 4cm, label={[shift={(0.25,-1.0)}, text width=4em, text centered, rotate=90, llc]LLC}] {};
+%        \node (core1) [core, below right=0cm and 0.2cm of llc1.north east, minimum width = 1.7cm, minimum height = 4cm] {Core};
+%        \node (llc2) [llc, below right=0cm and 0.2cm of core1.north east, minimum width = 0.7cm, minimum height = 4cm, label={[shift={(0.25,-1.0)}, text width=4em, text centered, rotate=90, llc]LLC}] {};
+%
+%        \node (llc3) [llc, above right=0cm and 1.0cm of gpu.south east, minimum width = 0.7cm, minimum height = 4cm, label={[shift={(0.25,-3.0)}, text width=4em, text centered, rotate=90, llc]LLC}] {};
+%        \node (core2) [core, above right=0cm and 0.2cm of llc3.south east, minimum width = 1.7cm, minimum height = 4cm] {Core};
+%        \node (llc4) [llc, above right=0cm and 0.2cm of core2.south east, minimum width = 0.7cm, minimum height = 4cm, label={[shift={(0.25,-3.0)}, text width=4em, text centered, rotate=90, llc]LLC}] {};
+%
+%        \node (llc5) [llc, below right=0cm and 0.5cm of llc2.north east, minimum width = 0.7cm, minimum height = 4cm, label={[shift={(0.25,-1.0)}, text width=4em, text centered, rotate=90, llc]LLC}] {};
+%        \node (core3) [core, below right=0cm and 0.2cm of llc5.north east, minimum width = 1.7cm, minimum height = 4cm] {Core};
+%        \node (llc6) [llc, below right=0cm and 0.2cm of core3.north east, minimum width = 0.7cm, minimum height = 4cm, label={[shift={(0.25,-1.0)}, text width=4em, text centered, rotate=90, llc]LLC}] {};
+%
+%        \node (llc7) [llc, above right=0cm and 0.5cm of llc4.south east, minimum width = 0.7cm, minimum height = 4cm, label={[shift={(0.25,-3.0)}, text width=4em, text centered, rotate=90, llc]LLC}] {};
+%        \node (core4) [core, above right=0cm and 0.2cm of llc7.south east, minimum width = 1.7cm, minimum height = 4cm] {Core};
+%        \node (llc8) [llc, above right=0cm and 0.2cm of core4.south east, minimum width = 0.7cm, minimum height = 4cm, label={[shift={(0.25,-3.0)}, text width=4em, text centered, rotate=90, llc]LLC}] {};
+%
+%        \node (sysagent) [sysagent, above right=0cm and 1.0cm of llc8.south east, minimum width = 3cm, minimum height = 10cm, label={[shift={(0.0,-1.6)}, text width=6em, text centered, sysagent]\huge System \\[4pt] Agent}] {};
+%
+%        \node (dmi) [connection, draw, above=0.5cm of sysagent.south, minimum size = 1.5cm] {DMI};
+%        \node (pcie) [connection, draw, above=0.5cm of dmi.north, minimum size = 1.5cm] {PCIe};
+%        \node (dram) [connection, draw, above=0.5cm of pcie.north, minimum size = 1.5cm] {DRAM};
+%        \node (display) [connection, draw, above=0.5cm of dram.north, minimum size = 1.5cm] {Display};
+%
+%        \node (g-bus) [interconnect, right=-0.1cm of gpu.east, minimum width=0.4cm, minimum height=0.04cm, inner sep=0pt] {};
+%        \node (c1-bus) [interconnect, below=-0.1cm of core1.south, minimum width=0.04cm, minimum height=0.4cm, inner sep=0pt] {};
+%        \node (c2-bus) [interconnect, below=-0.1cm of core3.south, minimum width=0.04cm, minimum height=0.4cm, inner sep=0pt] {};
+%        \node (s-bus) [interconnect, left=-0.1cm of sysagent.west, minimum width=0.4cm, minimum height=0.04cm, inner sep=0pt] {};
+%        \node (c4-bus) [interconnect, above=-0.1cm of core4.north, minimum width=0.04cm, minimum height=0.4cm, inner sep=0pt] {};
+%        \node (c3-bus) [interconnect, above=-0.1cm of core2.north, minimum width=0.04cm, minimum height=0.4cm, inner sep=0pt] {};
+%
+%        \draw [interconnectline, thick, rounded corners] ([xshift=-0.1cm]g-bus.east) |- ([yshift=0.1cm]c1-bus.south) -- ([yshift=0.1cm]c2-bus.south) -| ([xshift=0.1cm]s-bus.west) |- ([yshift=-0.1cm]c4-bus.north) -- ([yshift=-0.1cm]c3-bus.north) -| ([xshift=-0.1cm]g-bus.east);
+%        \node (bus) [cpupch, below right=-0.45cm and 2.5cm of gpu.east, minimum height=1.0cm] {\LARGE Ring Interconnect};
+%
+%        \node (pch) [cpupch, draw, above right=0.4cm and 4cm of cpu.south east, minimum width = 6cm, minimum height = 9cm, label={[shift={(0.0,-1.6)}, text width=4em, text centered]\fontsize{24}{30} \selectfont PCH}] {};
+%
+%        \node (dmi2) [connection, draw, right=6cm of dmi.east, minimum size = 1.5cm] {DMI};
+%
+%        \node (pcie2) [connection, draw, right=1.5cm of dmi2.east, minimum size = 1.5cm] {PCIe};
+%        \node (sata) [connection, draw, above=0.5cm of pcie2.north, minimum size = 1.5cm] {SATA};
+%        \node (usb) [connection, draw, above=0.5cm of sata.north, minimum size = 1.5cm] {USB};
+%
+%        \draw [thick] (dmi) -- (dmi2);
+%
+%        \node (connend1) [above right=0.4cm and 2.6cm of display.east] {};
+%        \node (connend2) [above right=0.4cm and 3cm of display.east] {};
+%        \node (connend3) [above right=0.4cm and 3.4cm of display.east] {};
+%        \node (connend4) [above=1cm of connend1.north] {};
+%        \node (connend5) [above=1cm of connend2.north] {};
+%        \node (connend6) [above=1cm of connend3.north] {};
+%        \node (connend7) [right=1cm of usb.east] {};
+%        \node (connend8) [right=1cm of sata.east] {};
+%        \node (connend9) [right=1cm of pcie2.east] {};
+%        \node (connend10) [right=0.6cm of connend7.east] {};
+%        \node (connend11) [right=0.6cm of connend8.east] {};
+%        \node (connend12) [right=0.6cm of connend9.east] {};
+%
+%        \draw [thick] (display) -| (connend1);
+%        \draw [thick] (dram) -| (connend2);
+%        \draw [thick] (pcie) -| (connend3);
+%        \draw [thick, dashed] (connend1.south) -- (connend4);
+%        \draw [thick, dashed] (connend2.south) -- (connend5);
+%        \draw [thick, dashed] (connend3.south) -- (connend6);
+%        \draw [thick] (usb) -- (connend7);
+%        \draw [thick] (sata) -- (connend8);
+%        \draw [thick] (pcie2) -- (connend9);
+%        \draw [thick, dashed] (connend7.west) -- (connend10);
+%        \draw [thick, dashed] (connend8.west) -- (connend11);
+%        \draw [thick, dashed] (connend9.west) -- (connend12);
+
+    \end{tikzpicture}
+
+\end{standaloneframe}
+\end{document}

@@ -1,0 +1,63 @@
+\documentclass[beamer,multi=true,preview]{standalone}
+\usepackage{beamerpackages}
+
+\newlength{\upt}
+\setlength{\upt}{0.0666667\beamertextwidth}
+
+\setbeamertemplate{headline}{}
+
+\let\myshipout\shipout
+\begin{document}%
+\let\shipout\myshipout
+
+\begin{standaloneframe}[plain]%
+
+\tikzset{
+    cpupch/.style={fill=TUMLightGray!30, text=TUMBlack, font=\bfseries},
+    gpu/.style={fill=TUMPurple, text=TUMLightGray!80, font=\bfseries},
+    core/.style={fill=TUMBlue, text=TUMLightGray!80, font=\huge\bfseries},
+    llc/.style={fill=TUMOrange, text=TUMLightGray, font=\bfseries},
+    sysagent/.style={fill=TUMGreen, text=TUMLightGray!80, font=\bfseries},
+    interconnect/.style={fill=TUMDarkGray},
+    interconnectline/.style={color=TUMDarkGray},
+    connection/.style={fill=TUMLightGray, text=TUMBlack, font=\bfseries}
+}
+
+    \begin{tikzpicture}
+
+        \node (cpu) [draw, minimum width = 7.4cm, minimum height = 6.2cm, label={[shift={(-3.1,-0.6)}]CPU}] at (0, 0) {};
+        \node (sysagent) [draw, above=0.2cm of cpu.south, minimum width = 6.7cm, minimum height = 5.3cm, label={[shift={(-2.1,-0.6)}]System Agent}] {};
+
+        \node (root) [draw, above=0.2cm of sysagent.south, minimum width = 6cm, minimum height = 4.2cm, label={[shift={(-1.7,-0.6)}]Root Complex}] {};
+
+        \node (dmar1) [draw, above right=0.2cm and 0cm of root.south, minimum width = 2cm, minimum height = 1cm] {DMAR 1};
+        \node (dmar0) [draw, right=0.2cm of root.west, minimum width = 2cm, minimum height = 1cm] {DMAR 0};
+
+        \node (hostbridge) [draw, above=1.4cm of dmar1.north, minimum width = 2cm, minimum height = 1cm] {Host Bridge};
+
+        \node (memory) [draw, right=2cm of sysagent.east, minimum width = 3cm, minimum height = 2cm, text width=4em, text centered] {Memory};
+
+        \node (endpoint1) [draw, left=2cm of root.west, minimum width = 2cm, minimum height = 1.2cm, text width=4em, text centered] {PCIe \\ Endpoint};
+
+        \node (formerswitch) [below=0.8cm of dmar1.south] {};
+        \node (dashy) [below=0.5cm of formerswitch.south] {};
+
+        \node (hostmem1) [above=3.0cm of root.south east] {};
+        \node (hostmem2) [left=0.1cm of sysagent.east] {};
+
+        \draw [thick] (endpoint1) -- (dmar0);
+        \draw [thick] (sysagent) -- (memory);
+        \draw [thick] (dmar1) -- (hostbridge);
+        \draw [thick] (dmar0) -| (hostbridge);
+
+        \draw [thick] (hostbridge) -- (hostmem1.center);
+        \draw [thick, dashed] (hostmem1.center) -| (hostmem2.center);
+        \draw [thick, dashed] (hostmem2.center) -- (sysagent.east);
+
+        \draw [thick] (dmar1) -- (formerswitch);
+        \draw [thick, dashed] (formerswitch.north) -- (dashy);
+
+    \end{tikzpicture}
+
+\end{standaloneframe}
+\end{document}

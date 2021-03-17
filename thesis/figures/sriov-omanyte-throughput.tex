@@ -1,0 +1,75 @@
+\documentclass[class=minimal,border=0pt]{standalone}
+\usepackage{tumcolor}
+
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+\pgfplotsset{compat=newest}
+\usetikzlibrary{pgfplots.groupplots}
+\pgfplotsset{grid style={dotted}}
+\usetikzlibrary{plotmarks}
+\usetikzlibrary{patterns}
+
+\begin{document}
+\tikzset{every mark/.append style={scale=1}}
+\begin{tikzpicture}
+\begin{axis}[
+	width=10.95cm,
+	height=6.4cm,
+    ybar=2pt,
+    enlarge x limits={abs=2.8cm},
+    ymin=0,
+    ymax=39,
+	ymajorgrids=true,
+    symbolic x coords={Forwarder, Generator},
+	ytick={0, 10, 20, 30},
+    ylabel={Packet Rate {[}Mpps{]}},
+    xlabel={Benchmarking Application},
+	legend style={font=\fontsize{7}{8}\selectfont},
+	every axis legend/.append style={nodes={right}},
+    legend entries={{Intel Xeon E5-2620v3}, {+ IOMMU}, {with VFs}, {+ IOMMU},
+        {with VFs, no spoof check}, {+ IOMMU}},
+    transpose legend,
+	legend columns=2,
+	legend style={at={(0.5,1.02)}, anchor = south},
+    xtick=data,
+]
+
+    % baseline
+    \addplot [color=TUMBlue, fill=TUMBlue] coordinates {
+        (Forwarder, 18.32)
+        (Generator, 29.04)
+    };
+
+    % iommu
+    \addplot [color=TUMBlue, pattern=north east lines, pattern color=TUMBlue] coordinates {
+        (Forwarder, 18.20)
+        (Generator, 29.02)
+    };
+
+    \addplot [color=TUMDarkBlue!60, fill=TUMDarkBlue!60] coordinates {
+        (Forwarder, 23.64)
+        (Generator, 28.19)
+    };
+
+    % iommu
+    \addplot [color=TUMDarkBlue!60, pattern=north east lines, pattern
+    color=TUMDarkBlue!60] coordinates {
+        (Forwarder, 23.62)
+        (Generator, 28.06)
+    };
+
+    \addplot [color=TUMBlue!60, fill=TUMBlue!60] coordinates {
+        (Forwarder, 23.64)
+        (Generator, 29.41)
+    };
+
+    % iommu
+    \addplot [color=TUMBlue!60, pattern=north east lines, pattern
+    color=TUMBlue!60] coordinates {
+        (Forwarder, 23.56)
+        (Generator, 29.06)
+    };
+
+\end{axis}
+\end{tikzpicture}
+\end{document}
