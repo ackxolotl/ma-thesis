@@ -13,26 +13,26 @@
 \tikzset{every mark/.append style={scale=1}}
 \begin{tikzpicture}
 \begin{axis}[
-	width=10.95cm,
-	height=6.4cm,
+    width=10.95cm,
+    height=6.4cm,
     ybar=2pt,
     enlarge x limits={abs=2.8cm},
     ymin=0,
     ymax=39,
-	ymajorgrids=true,
+    ymajorgrids=true,
     symbolic x coords={256, 4096},
-	ytick={0, 10, 20, 30},
+    ytick={0, 10, 20, 30},
     ylabel={Packet Rate {[}Mpps{]}},
     xlabel={Memory Pool Buffer Size {[}B{]}},
-	legend style={font=\fontsize{7}{8}\selectfont},
-	every axis legend/.append style={nodes={right}},
+    legend style={font=\fontsize{7}{8}\selectfont},
+    every axis legend/.append style={nodes={right}},
     legend entries={{AMD EPYC 7551P},{+ IOMMU},{Intel Xeon E5-2620v3},{+ IOMMU},
         {Intel Xeon E3-1230v2},{+ IOMMU}},
     transpose legend,
-	legend columns=2,
-	legend style={at={(0.5,1.02)}, anchor = south},
+    legend columns=2,
+    legend style={at={(0.5,1.02)}, anchor = south},
     xtick=data,
-]
+    ]
 
     \addplot [color=TUMGreen, fill=TUMGreen, thick] coordinates {
         (256,  16.84)
@@ -55,9 +55,11 @@
     };
 
     \addplot [color=TUMPurple, fill=TUMPurple, thick] coordinates {
+
     };
 
     \addplot [color=TUMPurple, pattern=north east lines, pattern color=TUMPurple] coordinates {
+
     };
 
 \end{axis}

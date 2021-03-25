@@ -23,91 +23,91 @@
     connection/.style={fill=TUMLightGray, text=TUMBlack, font=\bfseries, draw=TUMDarkGray}
 }
 
-    \begin{tikzpicture}
+\begin{tikzpicture}
 
-        \node (cpu) [cpupch, minimum width = 16cm, minimum height = 12.5cm, label={[shift={(0.0,-1.3)}]\fontsize{24}{30} \selectfont Processor}] at (0, 0) {};
+    \node (cpu) [cpupch, minimum width = 16cm, minimum height = 12.5cm, label={[shift={(0.0,-1.3)}]\fontsize{24}{30} \selectfont Processor}] at (0, 0) {};
 
-        \node (gpu) [gpu, above right=0.7cm and 0.9cm of cpu.south west, minimum width = 2cm, minimum height = 10cm] {\huge GPU};
+    \node (gpu) [gpu, above right=0.7cm and 0.9cm of cpu.south west, minimum width = 2cm, minimum height = 10cm] {\huge GPU};
 
-        \node (llc1) [llc, below right=0cm and 1.0cm of gpu.north east, minimum width = 0.7cm, minimum height = 4cm, label={[shift={(0.25,-1.0)}, text width=4em, text centered, rotate=90, llc]LLC}] {};
-        \node (core1) [core, below right=0cm and 0.2cm of llc1.north east, minimum width = 1.7cm, minimum height = 4cm] {Core};
-        \node (llc2) [llc, below right=0cm and 0.2cm of core1.north east, minimum width = 0.7cm, minimum height = 4cm, label={[shift={(0.25,-1.0)}, text width=4em, text centered, rotate=90, llc]LLC}] {};
+    \node (llc1) [llc, below right=0cm and 1.0cm of gpu.north east, minimum width = 0.7cm, minimum height = 4cm, label={[shift={(0.25,-1.0)}, text width=4em, text centered, rotate=90, llc]LLC}] {};
+    \node (core1) [core, below right=0cm and 0.2cm of llc1.north east, minimum width = 1.7cm, minimum height = 4cm] {Core};
+    \node (llc2) [llc, below right=0cm and 0.2cm of core1.north east, minimum width = 0.7cm, minimum height = 4cm, label={[shift={(0.25,-1.0)}, text width=4em, text centered, rotate=90, llc]LLC}] {};
 
-        \node (llc3) [llc, above right=0cm and 1.0cm of gpu.south east, minimum width = 0.7cm, minimum height = 4cm, label={[shift={(0.25,-3.0)}, text width=4em, text centered, rotate=90, llc]LLC}] {};
-        \node (core2) [core, above right=0cm and 0.2cm of llc3.south east, minimum width = 1.7cm, minimum height = 4cm] {Core};
-        \node (llc4) [llc, above right=0cm and 0.2cm of core2.south east, minimum width = 0.7cm, minimum height = 4cm, label={[shift={(0.25,-3.0)}, text width=4em, text centered, rotate=90, llc]LLC}] {};
+    \node (llc3) [llc, above right=0cm and 1.0cm of gpu.south east, minimum width = 0.7cm, minimum height = 4cm, label={[shift={(0.25,-3.0)}, text width=4em, text centered, rotate=90, llc]LLC}] {};
+    \node (core2) [core, above right=0cm and 0.2cm of llc3.south east, minimum width = 1.7cm, minimum height = 4cm] {Core};
+    \node (llc4) [llc, above right=0cm and 0.2cm of core2.south east, minimum width = 0.7cm, minimum height = 4cm, label={[shift={(0.25,-3.0)}, text width=4em, text centered, rotate=90, llc]LLC}] {};
 
-        \node (llc5) [llc, below right=0cm and 0.5cm of llc2.north east, minimum width = 0.7cm, minimum height = 4cm, label={[shift={(0.25,-1.0)}, text width=4em, text centered, rotate=90, llc]LLC}] {};
-        \node (core3) [core, below right=0cm and 0.2cm of llc5.north east, minimum width = 1.7cm, minimum height = 4cm] {Core};
-        \node (llc6) [llc, below right=0cm and 0.2cm of core3.north east, minimum width = 0.7cm, minimum height = 4cm, label={[shift={(0.25,-1.0)}, text width=4em, text centered, rotate=90, llc]LLC}] {};
+    \node (llc5) [llc, below right=0cm and 0.5cm of llc2.north east, minimum width = 0.7cm, minimum height = 4cm, label={[shift={(0.25,-1.0)}, text width=4em, text centered, rotate=90, llc]LLC}] {};
+    \node (core3) [core, below right=0cm and 0.2cm of llc5.north east, minimum width = 1.7cm, minimum height = 4cm] {Core};
+    \node (llc6) [llc, below right=0cm and 0.2cm of core3.north east, minimum width = 0.7cm, minimum height = 4cm, label={[shift={(0.25,-1.0)}, text width=4em, text centered, rotate=90, llc]LLC}] {};
 
-        \node (llc7) [llc, above right=0cm and 0.5cm of llc4.south east, minimum width = 0.7cm, minimum height = 4cm, label={[shift={(0.25,-3.0)}, text width=4em, text centered, rotate=90, llc]LLC}] {};
-        \node (core4) [core, above right=0cm and 0.2cm of llc7.south east, minimum width = 1.7cm, minimum height = 4cm] {Core};
-        \node (llc8) [llc, above right=0cm and 0.2cm of core4.south east, minimum width = 0.7cm, minimum height = 4cm, label={[shift={(0.25,-3.0)}, text width=4em, text centered, rotate=90, llc]LLC}] {};
+    \node (llc7) [llc, above right=0cm and 0.5cm of llc4.south east, minimum width = 0.7cm, minimum height = 4cm, label={[shift={(0.25,-3.0)}, text width=4em, text centered, rotate=90, llc]LLC}] {};
+    \node (core4) [core, above right=0cm and 0.2cm of llc7.south east, minimum width = 1.7cm, minimum height = 4cm] {Core};
+    \node (llc8) [llc, above right=0cm and 0.2cm of core4.south east, minimum width = 0.7cm, minimum height = 4cm, label={[shift={(0.25,-3.0)}, text width=4em, text centered, rotate=90, llc]LLC}] {};
 
-        \node (sysagent) [sysagent, above right=0cm and 1.0cm of llc8.south east, minimum width = 3cm, minimum height = 10cm, label={[shift={(0.0,-1.6)}, text width=6em, text centered, sysagent]\huge System \\[4pt] Agent}] {};
+    \node (sysagent) [sysagent, above right=0cm and 1.0cm of llc8.south east, minimum width = 3cm, minimum height = 10cm, label={[shift={(0.0,-1.6)}, text width=6em, text centered, sysagent]\huge System \\[4pt] Agent}] {};
 
-        \node (dmi) [connection, above=0.5cm of sysagent.south, minimum size = 1.5cm] {DMI};
-        \node (pcie) [connection, above=0.5cm of dmi.north, minimum size = 1.5cm] {PCIe};
-        \node (dram) [connection, above=0.5cm of pcie.north, minimum size = 1.5cm] {DRAM};
-        \node (display) [connection, above=0.5cm of dram.north, minimum size = 1.5cm] {Display};
+    \node (dmi) [connection, above=0.5cm of sysagent.south, minimum size = 1.5cm] {DMI};
+    \node (pcie) [connection, above=0.5cm of dmi.north, minimum size = 1.5cm] {PCIe};
+    \node (dram) [connection, above=0.5cm of pcie.north, minimum size = 1.5cm] {DRAM};
+    \node (display) [connection, above=0.5cm of dram.north, minimum size = 1.5cm] {Display};
 
-        \node (g-bus) [interconnect, right=0cm of gpu.east, minimum width=0.3cm, minimum height=0.04cm, inner sep=0pt] {};
-        \node (c1-bus) [interconnect, below=0cm of core1.south, minimum width=0.04cm, minimum height=0.3cm, inner sep=0pt] {};
-        \node (c2-bus) [interconnect, below=0cm of core3.south, minimum width=0.04cm, minimum height=0.3cm, inner sep=0pt] {};
-        \node (s-bus) [interconnect, left=0cm of sysagent.west, minimum width=0.3cm, minimum height=0.04cm, inner sep=0pt] {};
-        \node (c4-bus) [interconnect, above=0cm of core4.north, minimum width=0.04cm, minimum height=0.3cm, inner sep=0pt] {};
-        \node (c3-bus) [interconnect, above=0cm of core2.north, minimum width=0.04cm, minimum height=0.3cm, inner sep=0pt] {};
+    \node (g-bus) [interconnect, right=0cm of gpu.east, minimum width=0.3cm, minimum height=0.04cm, inner sep=0pt] {};
+    \node (c1-bus) [interconnect, below=0cm of core1.south, minimum width=0.04cm, minimum height=0.3cm, inner sep=0pt] {};
+    \node (c2-bus) [interconnect, below=0cm of core3.south, minimum width=0.04cm, minimum height=0.3cm, inner sep=0pt] {};
+    \node (s-bus) [interconnect, left=0cm of sysagent.west, minimum width=0.3cm, minimum height=0.04cm, inner sep=0pt] {};
+    \node (c4-bus) [interconnect, above=0cm of core4.north, minimum width=0.04cm, minimum height=0.3cm, inner sep=0pt] {};
+    \node (c3-bus) [interconnect, above=0cm of core2.north, minimum width=0.04cm, minimum height=0.3cm, inner sep=0pt] {};
 
-        \node (llc1-bus) [interconnect, below=0cm of llc1.south, minimum width=0.04cm, minimum height=0.3cm, inner sep=0pt] {};
-        \node (llc2-bus) [interconnect, below=0cm of llc2.south, minimum width=0.04cm, minimum height=0.3cm, inner sep=0pt] {};
-        \node (llc3-bus) [interconnect, above=0cm of llc3.north, minimum width=0.04cm, minimum height=0.3cm, inner sep=0pt] {};
-        \node (llc4-bus) [interconnect, above=0cm of llc4.north, minimum width=0.04cm, minimum height=0.3cm, inner sep=0pt] {};
-        \node (llc5-bus) [interconnect, below=0cm of llc5.south, minimum width=0.04cm, minimum height=0.3cm, inner sep=0pt] {};
-        \node (llc6-bus) [interconnect, below=0cm of llc6.south, minimum width=0.04cm, minimum height=0.3cm, inner sep=0pt] {};
-        \node (llc7-bus) [interconnect, above=0cm of llc7.north, minimum width=0.04cm, minimum height=0.3cm, inner sep=0pt] {};
-        \node (llc8-bus) [interconnect, above=0cm of llc8.north, minimum width=0.04cm, minimum height=0.3cm, inner sep=0pt] {};
+    \node (llc1-bus) [interconnect, below=0cm of llc1.south, minimum width=0.04cm, minimum height=0.3cm, inner sep=0pt] {};
+    \node (llc2-bus) [interconnect, below=0cm of llc2.south, minimum width=0.04cm, minimum height=0.3cm, inner sep=0pt] {};
+    \node (llc3-bus) [interconnect, above=0cm of llc3.north, minimum width=0.04cm, minimum height=0.3cm, inner sep=0pt] {};
+    \node (llc4-bus) [interconnect, above=0cm of llc4.north, minimum width=0.04cm, minimum height=0.3cm, inner sep=0pt] {};
+    \node (llc5-bus) [interconnect, below=0cm of llc5.south, minimum width=0.04cm, minimum height=0.3cm, inner sep=0pt] {};
+    \node (llc6-bus) [interconnect, below=0cm of llc6.south, minimum width=0.04cm, minimum height=0.3cm, inner sep=0pt] {};
+    \node (llc7-bus) [interconnect, above=0cm of llc7.north, minimum width=0.04cm, minimum height=0.3cm, inner sep=0pt] {};
+    \node (llc8-bus) [interconnect, above=0cm of llc8.north, minimum width=0.04cm, minimum height=0.3cm, inner sep=0pt] {};
 
-        \draw [interconnectline, thick, rounded corners] (g-bus.east) |- (c1-bus.south) -- (c2-bus.south) -| (s-bus.west) |- (c4-bus.north) -- (c3-bus.north) -| (g-bus.east);
-        \node (bus) [cpupch, draw=none, below right=-0.45cm and 2.5cm of gpu.east, minimum height=1.0cm] {\LARGE Ring Interconnect};
+    \draw [interconnectline, thick, rounded corners] (g-bus.east) |- (c1-bus.south) -- (c2-bus.south) -| (s-bus.west) |- (c4-bus.north) -- (c3-bus.north) -| (g-bus.east);
+    \node (bus) [cpupch, draw=none, below right=-0.45cm and 2.5cm of gpu.east, minimum height=1.0cm] {\LARGE Ring Interconnect};
 
-        \node (pch) [cpupch, above right=0.4cm and 4cm of cpu.south east, minimum width = 6cm, minimum height = 9cm, label={[shift={(0.0,-1.6)}, text width=4em, text centered]\fontsize{24}{30} \selectfont PCH}] {};
+    \node (pch) [cpupch, above right=0.4cm and 4cm of cpu.south east, minimum width = 6cm, minimum height = 9cm, label={[shift={(0.0,-1.6)}, text width=4em, text centered]\fontsize{24}{30} \selectfont PCH}] {};
 
-        \node (dmi2) [connection, right=6cm of dmi.east, minimum size = 1.5cm] {DMI};
+    \node (dmi2) [connection, right=6cm of dmi.east, minimum size = 1.5cm] {DMI};
 
-        \node (pcie2) [connection, right=1.5cm of dmi2.east, minimum size = 1.5cm] {PCIe};
-        \node (sata) [connection, above=0.5cm of pcie2.north, minimum size = 1.5cm] {SATA};
-        \node (usb) [connection, above=0.5cm of sata.north, minimum size = 1.5cm] {USB};
+    \node (pcie2) [connection, right=1.5cm of dmi2.east, minimum size = 1.5cm] {PCIe};
+    \node (sata) [connection, above=0.5cm of pcie2.north, minimum size = 1.5cm] {SATA};
+    \node (usb) [connection, above=0.5cm of sata.north, minimum size = 1.5cm] {USB};
 
-        \draw [thick] (dmi) -- (dmi2);
+    \draw [thick] (dmi) -- (dmi2);
 
-        \node (connend1) [above right=0.4cm and 2.6cm of display.east] {};
-        \node (connend2) [above right=0.4cm and 3cm of display.east] {};
-        \node (connend3) [above right=0.4cm and 3.4cm of display.east] {};
-        \node (connend4) [above=1cm of connend1.north] {};
-        \node (connend5) [above=1cm of connend2.north] {};
-        \node (connend6) [above=1cm of connend3.north] {};
-        \node (connend7) [right=1cm of usb.east] {};
-        \node (connend8) [right=1cm of sata.east] {};
-        \node (connend9) [right=1cm of pcie2.east] {};
-        \node (connend10) [right=0.6cm of connend7.east] {};
-        \node (connend11) [right=0.6cm of connend8.east] {};
-        \node (connend12) [right=0.6cm of connend9.east] {};
+    \node (connend1) [above right=0.4cm and 2.6cm of display.east] {};
+    \node (connend2) [above right=0.4cm and 3cm of display.east] {};
+    \node (connend3) [above right=0.4cm and 3.4cm of display.east] {};
+    \node (connend4) [above=1cm of connend1.north] {};
+    \node (connend5) [above=1cm of connend2.north] {};
+    \node (connend6) [above=1cm of connend3.north] {};
+    \node (connend7) [right=1cm of usb.east] {};
+    \node (connend8) [right=1cm of sata.east] {};
+    \node (connend9) [right=1cm of pcie2.east] {};
+    \node (connend10) [right=0.6cm of connend7.east] {};
+    \node (connend11) [right=0.6cm of connend8.east] {};
+    \node (connend12) [right=0.6cm of connend9.east] {};
 
-        \draw [thick] (display) -| (connend1);
-        \draw [thick] (dram) -| (connend2);
-        \draw [thick] (pcie) -| (connend3);
-        \draw [thick, dashed] (connend1.south) -- (connend4);
-        \draw [thick, dashed] (connend2.south) -- (connend5);
-        \draw [thick, dashed] (connend3.south) -- (connend6);
-        \draw [thick] (usb) -- (connend7);
-        \draw [thick] (sata) -- (connend8);
-        \draw [thick] (pcie2) -- (connend9);
-        \draw [thick, dashed] (connend7.west) -- (connend10);
-        \draw [thick, dashed] (connend8.west) -- (connend11);
-        \draw [thick, dashed] (connend9.west) -- (connend12);
+    \draw [thick] (display) -| (connend1);
+    \draw [thick] (dram) -| (connend2);
+    \draw [thick] (pcie) -| (connend3);
+    \draw [thick, dashed] (connend1.south) -- (connend4);
+    \draw [thick, dashed] (connend2.south) -- (connend5);
+    \draw [thick, dashed] (connend3.south) -- (connend6);
+    \draw [thick] (usb) -- (connend7);
+    \draw [thick] (sata) -- (connend8);
+    \draw [thick] (pcie2) -- (connend9);
+    \draw [thick, dashed] (connend7.west) -- (connend10);
+    \draw [thick, dashed] (connend8.west) -- (connend11);
+    \draw [thick, dashed] (connend9.west) -- (connend12);
 
-    \end{tikzpicture}
+\end{tikzpicture}
 
 \end{standaloneframe}
 \end{document}

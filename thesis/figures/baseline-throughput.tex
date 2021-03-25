@@ -12,25 +12,25 @@
 \tikzset{every mark/.append style={scale=1}}
 \begin{tikzpicture}
 \begin{axis}[
-	width=10.95cm,
-	height=6.4cm,
+    width=10.95cm,
+    height=6.4cm,
     ybar=2pt,
     enlarge x limits={abs=3.1cm},
     ymin=0,
     ymax=39,
-	ymajorgrids=true,
+    ymajorgrids=true,
     symbolic x coords={Forwarder, Generator},
-	ytick={0, 10, 20, 30},
+    ytick={0, 10, 20, 30},
     ylabel={Packet Rate {[}Mpps{]}},
-	xlabel={Benchmarking Application},
-	legend style={font=\fontsize{7}{8}\selectfont},
-	every axis legend/.append style={nodes={right}},
+    xlabel={Benchmarking Application},
+    legend style={font=\fontsize{7}{8}\selectfont},
+    every axis legend/.append style={nodes={right}},
     legend entries={{AMD EPYC 7551P},{Intel Xeon E5-2620v3},{Intel Xeon
     E3-1230v2}},
-	legend columns=3,
-	legend style={at={(0.5,1.02)}, anchor = south},
+    legend columns=3,
+    legend style={at={(0.5,1.02)}, anchor = south},
     xtick=data,
-]
+    ]
 
     \addplot [color=TUMGreen, fill=TUMGreen, thick] coordinates {
         (Forwarder, 17.58)

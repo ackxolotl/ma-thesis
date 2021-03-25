@@ -26,131 +26,132 @@
 }
 
 \begin{tikzpicture}[>=latex]
-     \node (troot) [draw, minimum width = 1.5cm, minimum height = 2.8cm] at (0,0) {};
-     \node (trootl) [below=0.3cm of troot.south] {Root Table};
-     \node (troote) [draw, above=0.5cm of troot.south, minimum width = 1.5cm, align=center, text width=1.2cm] {Root \\ Entry};
 
-     \node (p1) [draw, circle, minimum size=0.8cm, right=0.54cm of troote.east] {+};
-     \node (s1) [draw, circle, minimum size=0.8cm, above=0.6cm of p1.north] {<<4};
-     \node (w1) [above=0.3cm of s1.north] {};
+    \node (troot) [draw, minimum width = 1.5cm, minimum height = 2.8cm] at (0,0) {};
+    \node (trootl) [below=0.3cm of troot.south] {Root Table};
+    \node (troote) [draw, above=0.5cm of troot.south, minimum width = 1.5cm, align=center, text width=1.2cm] {Root \\ Entry};
 
-
-     \node (p0) [draw, circle, minimum size=0.8cm, left=0.54cm of troote.west] {+};
-     \node (s0) [draw, circle, minimum size=0.8cm, above=0.6cm of p0.north] {<<4};
-     \node (w0) [above=0.3cm of s0.north] {};
-
-     \node (rtar) [draw, left=0.7cm of p0, minimum width = 1.5cm, minimum height = 0.7cm, align=center, text width=1.2cm] {RTAR};
+    \node (p1) [draw, circle, minimum size=0.8cm, right=0.54cm of troote.east] {+};
+    \node (s1) [draw, circle, minimum size=0.8cm, above=0.6cm of p1.north] {<<4};
+    \node (w1) [above=0.3cm of s1.north] {};
 
 
-     \node (tcontext) [draw, right=1.9cm of troot.east, minimum width = 1.5cm, minimum height = 2.8cm] {};
-     \node (tcontextl) [below=0.3cm of tcontext.south] {Context Table};
-     \node (tcontexte) [draw, above=0.5cm of tcontext.south, minimum width = 1.5cm, align=center, text width=1.2cm] {Context \\ Entry};
+    \node (p0) [draw, circle, minimum size=0.8cm, left=0.54cm of troote.west] {+};
+    \node (s0) [draw, circle, minimum size=0.8cm, above=0.6cm of p0.north] {<<4};
+    \node (w0) [above=0.3cm of s0.north] {};
 
-     \node (p2) [draw, circle, minimum size=0.8cm, right=0.54cm of tcontexte.east] {+};
-     \node (s2) [draw, circle, minimum size=0.8cm, above=0.6cm of p2.north] {<<3};
-     \node (w2) [above=0.5cm of s2.north] {};
+    \node (rtar) [draw, left=0.7cm of p0, minimum width = 1.5cm, minimum height = 0.7cm, align=center, text width=1.2cm] {RTAR};
 
 
-     \node (tpml4) [draw, right=1.9cm of tcontext.east, minimum width = 1.5cm, minimum height = 2.8cm] {};
-     \node (tpml4l) [below=0.3cm of tpml4.south] {PML4 Table};
-     \node (tpml4e) [draw, above=0.5cm of tpml4.south, minimum width = 1.5cm, align=center, text width=1.2cm] {PML4 \\ Entry};
+    \node (tcontext) [draw, right=1.9cm of troot.east, minimum width = 1.5cm, minimum height = 2.8cm] {};
+    \node (tcontextl) [below=0.3cm of tcontext.south] {Context Table};
+    \node (tcontexte) [draw, above=0.5cm of tcontext.south, minimum width = 1.5cm, align=center, text width=1.2cm] {Context \\ Entry};
 
-     \node (p3) [draw, circle, minimum size=0.8cm, right=0.54cm of tpml4e.east] {+};
-     \node (s3) [draw, circle, minimum size=0.8cm, above=0.6cm of p3.north] {<<3};
-     \node (w3) [above=0.3cm of s3.north] {};
-
-
-     \node (tpdp) [draw, right=1.9cm of tpml4.east, minimum width = 1.5cm, minimum height = 2.8cm] {};
-     \node (tpdpl) [below=0.3cm of tpdp.south] {PDP Table};
-     \node (tpdpe) [draw, above=0.5cm of tpdp.south, minimum width = 1.5cm, align=center, text width=1.2cm] {PDP \\ Entry};
-
-     \node (p4) [draw, circle, minimum size=0.8cm, right=0.54cm of tpdpe.east] {+};
-     \node (s4) [draw, circle, minimum size=0.8cm, above=0.6cm of p4.north] {<<3};
-     \node (w4) [above=0.3cm of s4.north] {};
+    \node (p2) [draw, circle, minimum size=0.8cm, right=0.54cm of tcontexte.east] {+};
+    \node (s2) [draw, circle, minimum size=0.8cm, above=0.6cm of p2.north] {<<3};
+    \node (w2) [above=0.5cm of s2.north] {};
 
 
-     \node (tpd) [draw, right=1.9cm of tpdp.east, minimum width = 1.5cm, minimum height = 2.8cm] {};
-     \node (tpdl) [below=0.3cm of tpd.south] {PD Table};
-     \node (tpde) [draw, above=0.5cm of tpd.south, minimum width = 1.5cm, align=center, text width=1.2cm] {PD \\ Entry};
+    \node (tpml4) [draw, right=1.9cm of tcontext.east, minimum width = 1.5cm, minimum height = 2.8cm] {};
+    \node (tpml4l) [below=0.3cm of tpml4.south] {PML4 Table};
+    \node (tpml4e) [draw, above=0.5cm of tpml4.south, minimum width = 1.5cm, align=center, text width=1.2cm] {PML4 \\ Entry};
 
-     \node (p5) [draw, circle, minimum size=0.8cm, right=0.54cm of tpde.east] {+};
-     \node (s5) [draw, circle, minimum size=0.8cm, above=0.6cm of p5.north] {<<3};
-     \node (w5) [above=0.3cm of s5.north] {};
-
-
-     \node (tpt) [draw, right=1.9cm of tpd.east, minimum width = 1.5cm, minimum height = 2.8cm] {};
-     \node (tptl) [below=0.3cm of tpt.south] {Page Table};
-     \node (tpte) [draw, above=0.5cm of tpt.south, minimum width = 1.5cm, align=center, text width=1.2cm] {PT \\ Entry};
-
-     \node (p6) [draw, circle, minimum size=0.8cm, right=0.54cm of tpte.east] {+};
-     \node (s6) [circle, minimum size=0.8cm, above=0.6cm of p6.north] {};
-     \node (w6) [above=0.3cm of s6.north] {};
-     \node (fin) [below=1.8cm of p6.south, text width = 1.15cm, align=center] {Physical \\ Address};
-
-     \node (bdf) [draw, minimum width = 6cm, minimum height = 0.5cm] at (1.5,2.8) {};
-     \node (bus) [right=0cm of bdf.west, minimum width = 2cm, minimum height = 0.5cm] {Bus};
-     \node (device) [draw, above=0cm of bdf.south, minimum width = 2cm, minimum height = 0.5cm] {Device};
-     \node (function) [left=0cm of bdf.east, minimum width = 2cm, minimum height = 0.5cm] {Function};
-     \node (bdf15) [above=0.0cm of bdf.north west] {15};
-     \node (bdf7) [above=0.0cm of device.north west] {7};
-     \node (bdf2) [above=0.0cm of function.north west] {2};
-     \node (bdf0) [above=0.0cm of bdf.north east] {0};
-     \node (df) [above=0.6cm of bdf.north] {PCIe BDF};
-
-     \draw[thick,decorate, decoration={brace,mirror,amplitude=2mm,raise=0.1cm}] (device.south west) -- (function.south east);
-     \node (dfunder) [below=0.2cm of device.south east] {};
-
-     \node (iova) [draw, right=4.5cm of bdf, minimum width = 10cm, minimum height = 0.5cm] {};
-     \node (iova0) [right=0cm of iova.west, minimum width = 2cm, minimum height = 0.5cm] {};
-     \node (iova1) [draw, right=0cm of iova0.east, minimum width = 2cm, minimum height = 0.5cm] {};
-     \node (iova2) [right=0cm of iova1.east, minimum width = 2cm, minimum height = 0.5cm] {};
-     \node (iova3) [draw, right=0cm of iova2.east, minimum width = 2cm, minimum height = 0.5cm] {};
-     \node (iova4) [right=0cm of iova3.east, minimum width = 2cm, minimum height = 0.5cm] {Offset};
-     \node (iovabit47) [above=0.0cm of iova.north west] {47};
-     \node (iovabit38) [above=0.0cm of iova0.north east] {38};
-     \node (iovabit29) [above=0.0cm of iova1.north east] {29};
-     \node (iovabit20) [above=0.0cm of iova2.north east] {20};
-     \node (iovabit11) [above=0.0cm of iova3.north east] {11};
-     \node (iovabit0) [above=0.0cm of iova.north east] {0};
-     \node (va) [above=0.6cm of iova.north] {Virtual Address};
-
-     \draw [thick] (dfunder) |- (w1.center) -- (s1) -- (p1);
-     \draw [thick] (troote) -- (p1);
-     \draw [->, thick] (p1) -- (tcontexte);
+    \node (p3) [draw, circle, minimum size=0.8cm, right=0.54cm of tpml4e.east] {+};
+    \node (s3) [draw, circle, minimum size=0.8cm, above=0.6cm of p3.north] {<<3};
+    \node (w3) [above=0.3cm of s3.north] {};
 
 
-     \draw [thick] (bus) |- (w0.center) -- (s0);
+    \node (tpdp) [draw, right=1.9cm of tpml4.east, minimum width = 1.5cm, minimum height = 2.8cm] {};
+    \node (tpdpl) [below=0.3cm of tpdp.south] {PDP Table};
+    \node (tpdpe) [draw, above=0.5cm of tpdp.south, minimum width = 1.5cm, align=center, text width=1.2cm] {PDP \\ Entry};
 
-     \draw [thick] (rtar) -- (p0);
-     \draw [->, thick] (p0) -- (troote);
-     \draw [thick] (s0) -- (p0);
-
-
-     \draw [thick] (iova0) |- (w2.center) -- (s2) -- (p2);
-     \draw [thick] (tcontexte) -- (p2);
-     \draw [->, thick] (p2) -- (tpml4e);
+    \node (p4) [draw, circle, minimum size=0.8cm, right=0.54cm of tpdpe.east] {+};
+    \node (s4) [draw, circle, minimum size=0.8cm, above=0.6cm of p4.north] {<<3};
+    \node (w4) [above=0.3cm of s4.north] {};
 
 
-     \draw [thick] (iova1) |- (w3.center) -- (s3) -- (p3);
-     \draw [thick] (tpml4e) -- (p3);
-     \draw [->, thick] (p3) -- (tpdpe);
+    \node (tpd) [draw, right=1.9cm of tpdp.east, minimum width = 1.5cm, minimum height = 2.8cm] {};
+    \node (tpdl) [below=0.3cm of tpd.south] {PD Table};
+    \node (tpde) [draw, above=0.5cm of tpd.south, minimum width = 1.5cm, align=center, text width=1.2cm] {PD \\ Entry};
+
+    \node (p5) [draw, circle, minimum size=0.8cm, right=0.54cm of tpde.east] {+};
+    \node (s5) [draw, circle, minimum size=0.8cm, above=0.6cm of p5.north] {<<3};
+    \node (w5) [above=0.3cm of s5.north] {};
 
 
-     \draw [thick] (iova2) |- (w4.center) -- (s4) -- (p4);
-     \draw [thick] (tpdpe) -- (p4);
-     \draw [->, thick] (p4) -- (tpde);
+    \node (tpt) [draw, right=1.9cm of tpd.east, minimum width = 1.5cm, minimum height = 2.8cm] {};
+    \node (tptl) [below=0.3cm of tpt.south] {Page Table};
+    \node (tpte) [draw, above=0.5cm of tpt.south, minimum width = 1.5cm, align=center, text width=1.2cm] {PT \\ Entry};
+
+    \node (p6) [draw, circle, minimum size=0.8cm, right=0.54cm of tpte.east] {+};
+    \node (s6) [circle, minimum size=0.8cm, above=0.6cm of p6.north] {};
+    \node (w6) [above=0.3cm of s6.north] {};
+    \node (fin) [below=1.8cm of p6.south, text width = 1.15cm, align=center] {Physical \\ Address};
+
+    \node (bdf) [draw, minimum width = 6cm, minimum height = 0.5cm] at (1.5,2.8) {};
+    \node (bus) [right=0cm of bdf.west, minimum width = 2cm, minimum height = 0.5cm] {Bus};
+    \node (device) [draw, above=0cm of bdf.south, minimum width = 2cm, minimum height = 0.5cm] {Device};
+    \node (function) [left=0cm of bdf.east, minimum width = 2cm, minimum height = 0.5cm] {Function};
+    \node (bdf15) [above=0.0cm of bdf.north west] {15};
+    \node (bdf7) [above=0.0cm of device.north west] {7};
+    \node (bdf2) [above=0.0cm of function.north west] {2};
+    \node (bdf0) [above=0.0cm of bdf.north east] {0};
+    \node (df) [above=0.6cm of bdf.north] {PCIe BDF};
+
+    \draw[thick,decorate, decoration={brace,mirror,amplitude=2mm,raise=0.1cm}] (device.south west) -- (function.south east);
+    \node (dfunder) [below=0.2cm of device.south east] {};
+
+    \node (iova) [draw, right=4.5cm of bdf, minimum width = 10cm, minimum height = 0.5cm] {};
+    \node (iova0) [right=0cm of iova.west, minimum width = 2cm, minimum height = 0.5cm] {};
+    \node (iova1) [draw, right=0cm of iova0.east, minimum width = 2cm, minimum height = 0.5cm] {};
+    \node (iova2) [right=0cm of iova1.east, minimum width = 2cm, minimum height = 0.5cm] {};
+    \node (iova3) [draw, right=0cm of iova2.east, minimum width = 2cm, minimum height = 0.5cm] {};
+    \node (iova4) [right=0cm of iova3.east, minimum width = 2cm, minimum height = 0.5cm] {Offset};
+    \node (iovabit47) [above=0.0cm of iova.north west] {47};
+    \node (iovabit38) [above=0.0cm of iova0.north east] {38};
+    \node (iovabit29) [above=0.0cm of iova1.north east] {29};
+    \node (iovabit20) [above=0.0cm of iova2.north east] {20};
+    \node (iovabit11) [above=0.0cm of iova3.north east] {11};
+    \node (iovabit0) [above=0.0cm of iova.north east] {0};
+    \node (va) [above=0.6cm of iova.north] {Virtual Address};
+
+    \draw [thick] (dfunder) |- (w1.center) -- (s1) -- (p1);
+    \draw [thick] (troote) -- (p1);
+    \draw [->, thick] (p1) -- (tcontexte);
 
 
-     \draw [thick] (iova3) |- (w5.center) -- (s5) -- (p5);
-     \draw [thick] (tpde) -- (p5);
-     \draw [->, thick] (p5) -- (tpte);
+    \draw [thick] (bus) |- (w0.center) -- (s0);
+
+    \draw [thick] (rtar) -- (p0);
+    \draw [->, thick] (p0) -- (troote);
+    \draw [thick] (s0) -- (p0);
 
 
-     \draw [thick] (iova4) |- (w6.center) -- (s6.center) -- (p6);
-     \draw [thick] (tpte) -- (p6);
-     \draw [->, thick] (p6) -- (fin);
+    \draw [thick] (iova0) |- (w2.center) -- (s2) -- (p2);
+    \draw [thick] (tcontexte) -- (p2);
+    \draw [->, thick] (p2) -- (tpml4e);
 
-    \end{tikzpicture}
+
+    \draw [thick] (iova1) |- (w3.center) -- (s3) -- (p3);
+    \draw [thick] (tpml4e) -- (p3);
+    \draw [->, thick] (p3) -- (tpdpe);
+
+
+    \draw [thick] (iova2) |- (w4.center) -- (s4) -- (p4);
+    \draw [thick] (tpdpe) -- (p4);
+    \draw [->, thick] (p4) -- (tpde);
+
+
+    \draw [thick] (iova3) |- (w5.center) -- (s5) -- (p5);
+    \draw [thick] (tpde) -- (p5);
+    \draw [->, thick] (p5) -- (tpte);
+
+
+    \draw [thick] (iova4) |- (w6.center) -- (s6.center) -- (p6);
+    \draw [thick] (tpte) -- (p6);
+    \draw [->, thick] (p6) -- (fin);
+
+\end{tikzpicture}
 
 \end{standaloneframe}
 \end{document}

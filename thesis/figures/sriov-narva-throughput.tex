@@ -13,34 +13,32 @@
 \tikzset{every mark/.append style={scale=1}}
 \begin{tikzpicture}
 \begin{axis}[
-	width=10.95cm,
-	height=6.4cm,
+    width=10.95cm,
+    height=6.4cm,
     ybar=2pt,
     enlarge x limits={abs=2.8cm},
     ymin=0,
     ymax=39,
-	ymajorgrids=true,
+    ymajorgrids=true,
     symbolic x coords={Forwarder, Generator},
-	ytick={0, 10, 20, 30},
+    ytick={0, 10, 20, 30},
     ylabel={Packet Rate {[}Mpps{]}},
     xlabel={Benchmarking Application},
-	legend style={font=\fontsize{7}{8}\selectfont},
-	every axis legend/.append style={nodes={right}},
+    legend style={font=\fontsize{7}{8}\selectfont},
+    every axis legend/.append style={nodes={right}},
     legend entries={{Intel Xeon E3-1230v2}, {+ IOMMU}, {with VFs}, {+ IOMMU},
         {with VFs, no spoof check}, {+ IOMMU}},
     transpose legend,
-	legend columns=2,
-	legend style={at={(0.5,1.02)}, anchor = south},
+    legend columns=2,
+    legend style={at={(0.5,1.02)}, anchor = south},
     xtick=data,
-]
+    ]
 
-    % baseline
     \addplot [color=TUMPurple, fill=TUMPurple] coordinates {
         (Forwarder, 25.24)
         (Generator, 29.76)
     };
 
-    % iommu
     \addplot [color=TUMPurple, pattern=north east lines, pattern color=TUMPurple] coordinates {
         (Forwarder, 24.80)
         (Generator, 00.00)
@@ -51,9 +49,7 @@
         (Generator, 28.40)
     };
 
-    % iommu
-    \addplot [color=TUMDarkPurple, pattern=north east lines, pattern
-    color=TUMDarkPurple] coordinates {
+    \addplot [color=TUMDarkPurple, pattern=north east lines, pattern color=TUMDarkPurple] coordinates {
         (Forwarder, 00.00)
         (Generator, 00.00)
     };
@@ -63,9 +59,7 @@
         (Generator, 29.76)
     };
 
-    % iommu
-    \addplot [color=TUMPurple!60, pattern=north east lines, pattern
-    color=TUMPurple!60] coordinates {
+    \addplot [color=TUMPurple!60, pattern=north east lines, pattern color=TUMPurple!60] coordinates {
         (Forwarder, 00.00)
         (Generator, 00.00)
     };

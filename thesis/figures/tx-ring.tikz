@@ -13,6 +13,7 @@
 \begin{standaloneframe}[plain]%
 
 \begin{tikzpicture}[>=latex]
+
     \node[align=center,text width=3cm]{Descriptor \\ Ring};
 
     \begin{scope}[line width=7mm,rotate=10]
