@@ -49,13 +49,13 @@
     ]
 
     \addplot [mark=triangle*,color=TUMBlue, thick,mark repeat*=3] table[col
-    sep=comma,x=lat,y expr=1-\thisrow{cdf}] {data/sriov-baseline-omanyte-10mpps.csv};
+    sep=comma,x=lat,y expr=1-\thisrow{cdf}] {figures/data/sriov-baseline-omanyte-10mpps.csv};
     \addplot [mark=square*,color=TUMBlue!30, thick,mark repeat*=3] table[col
-    sep=comma,x=lat,y expr=1-\thisrow{cdf}] {data/sriov-iommu-omanyte-10mpps.csv};
+    sep=comma,x=lat,y expr=1-\thisrow{cdf}] {figures/data/sriov-iommu-omanyte-10mpps.csv};
     \addplot [mark=diamond*,color=TUMDarkBlue!60, thick,mark repeat*=3] table[col
-    sep=comma,x=lat,y expr=1-\thisrow{cdf}] {data/sriov-baseline-omanyte-vf-10mpps.csv};
+    sep=comma,x=lat,y expr=1-\thisrow{cdf}] {figures/data/sriov-baseline-omanyte-vf-10mpps.csv};
     \addplot [mark=x,color=TUMBlue!60, thick,mark repeat*=3] table[col
-    sep=comma,x=lat,y expr=1-\thisrow{cdf}] {data/sriov-iommu-omanyte-vf-10mpps.csv};
+    sep=comma,x=lat,y expr=1-\thisrow{cdf}] {figures/data/sriov-iommu-omanyte-vf-10mpps.csv};
 
     \addplot[mark=none,color=black!60,forget plot,dashed,thick] coordinates {
         (0,0.0001)

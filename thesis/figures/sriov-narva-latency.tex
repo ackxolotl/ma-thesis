@@ -49,11 +49,11 @@
     ]
 
     \addplot [mark=triangle*,color=TUMPurple, thick,mark repeat*=90] table[col
-    sep=comma,x=lat,y expr=1-\thisrow{cdf}] {data/sriov-baseline-narva-10mpps.csv};
+    sep=comma,x=lat,y expr=1-\thisrow{cdf}] {figures/data/sriov-baseline-narva-10mpps.csv};
     \addplot [mark=square*,color=TUMPurple!60, thick,mark repeat*=85] table[col
-    sep=comma,x=lat,y expr=1-\thisrow{cdf}] {data/sriov-iommu-narva-10mpps.csv};
+    sep=comma,x=lat,y expr=1-\thisrow{cdf}] {figures/data/sriov-iommu-narva-10mpps.csv};
     \addplot [mark=diamond*,color=TUMDarkPurple, thick,mark repeat*=12] table[col
-    sep=comma,x=lat,y expr=1-\thisrow{cdf}] {data/sriov-baseline-narva-vf-10mpps.csv};
+    sep=comma,x=lat,y expr=1-\thisrow{cdf}] {figures/data/sriov-baseline-narva-vf-10mpps.csv};
 
     \addplot[mark=none,color=black!60,forget plot,dashed,thick] coordinates {
         (0,0.0001)

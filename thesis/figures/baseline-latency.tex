@@ -50,11 +50,11 @@
     ]
 
     \addplot [mark=square*,color=TUMGreen, thick,mark repeat*=15] table[col
-    sep=comma,x=lat,y expr=1-\thisrow{cdf}] {data/baseline-amdexp0-10mpps.csv};
+    sep=comma,x=lat,y expr=1-\thisrow{cdf}] {figures/data/baseline-amdexp0-10mpps.csv};
     \addplot [mark=triangle*,color=TUMBlue, thick,mark repeat*=5] table[col
-    sep=comma,x=lat,y expr=1-\thisrow{cdf}] {data/baseline-omanyte-10mpps.csv};
+    sep=comma,x=lat,y expr=1-\thisrow{cdf}] {figures/data/baseline-omanyte-10mpps.csv};
     \addplot [mark=*,color=TUMPurple,mark repeat*=2] table[col sep=comma,x=lat,y
-    expr=1-\thisrow{cdf}] {data/baseline-narva-10mpps.csv};
+    expr=1-\thisrow{cdf}] {figures/data/baseline-narva-10mpps.csv};
 
     \addplot[mark=none,color=black!60,forget plot,dashed,thick] coordinates {
         (0,0.01)
