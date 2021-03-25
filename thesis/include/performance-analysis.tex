@@ -81,11 +81,6 @@ server by MoonGen. Forwarded and generated packets contain 60~B of data, i.e.,
 84~B with checksums and interpacket gap which is the minimum Ethernet frame
 size, such that line rate at 14.88 Mpps can be achieved in all measurements.
 
-For measurements including an \ac{iommu}, pass-through mode is used for the
-\ac{iommu} to reduce side effects from other \ac{io} devices on the host. All
-measurements are conducted with Rust 1.50.0 on Debian Buster 10.6 with a Linux
-4.19 kernel.
-
 \begin{table}
     \centering
     \begin{tabular}{l|l|r|r|r|r}
@@ -102,6 +97,11 @@ measurements are conducted with Rust 1.50.0 on Debian Buster 10.6 with a Linux
     Single Thread (ST) and all cores.}
     \label{tab:cpus}
 \end{table}
+
+For measurements including an \ac{iommu}, pass-through mode is used for the
+\ac{iommu} to reduce side effects from other \ac{io} devices on the host. All
+measurements are conducted with Rust 1.50.0 on Debian Buster 10.6 with a Linux
+4.19 kernel.
 
 
 \section{Baseline Measurements}
@@ -442,8 +442,8 @@ memory read requests varies in size depending on the address widths, for 32-bit
 addresses it is 4~B smaller. Thus, more packets can be transmitted at the
 \ac{pcie} level.
 
-We conclude from these results that IOVA address widths do not impact
-performance. 
+We conclude from these results that changes in performance with different IOVA
+address widths are not related to the \acp{iommu}.
 
 \begin{figure}%[!b]
 	\centering
@@ -494,23 +494,6 @@ without virtual functions, and on the Xeon E3 \ac{cpu} the forwarder with
 virtual functions reaches a new maximum of all measurements with 27.6~Mpps
 (0.15~Mpps faster compared to \Cref{fig:baseline-perf}).
 
-When running the generator application, we note that throughput is capped at
-14.20~Mpps per port. We disable the MAC anti-spoofing mechanism and reach line
-rate on the Xeon E3 \ac{cpu}, i.e., 14.88~Mpps per port. Thus, we put the cost
-of the spoof check at 0.68 Mpps per port or 1.36 Mpps in total. We repeat this
-experiment on the AMD EPYC \ac{cpu} and note that packet rate increases from
-14.08~Mpps to 14.35~Mpps when disabling the spoof check. To our surprise, on all
-hosts the physical function driver of the Linux kernel reports some spoofed
-packets when switching the spoof check on or off on the fly.
-
-We also measure the latency. On the Xeon E3, latency of forwarder, and forwarder
-with VFs resemble each other with, while latency of forwarder with \ac{iommu} is
-on average 1 microsecond greater than without \ac{iommu}. On the Xeon E5,
-latencies are also approximately the same, but tail latencies diverge.
-Interestingly, forwarder and \ac{iommu} achieve the lowest tail latencies,
-followed by the forwarder as-is, forwarder with VFs and forwarder with VFs and
-\ac{iommu}.
-
 \begin{figure}%[!b]
 	\centering
 	\subfloat[Throughput on Intel Xeon E5-2620v3]{%
@@ -536,6 +519,23 @@ followed by the forwarder as-is, forwarder with VFs and forwarder with VFs and
     a total packet rate of 10 Mpps.}
 	\label{fig:sriov-baseline}
 \end{figure}
+
+When running the generator application, we note that throughput is capped at
+14.20~Mpps per port. We disable the MAC anti-spoofing mechanism and reach line
+rate on the Xeon E3 \ac{cpu}, i.e., 14.88~Mpps per port. Thus, we put the cost
+of the spoof check at 0.68 Mpps per port or 1.36 Mpps in total. We repeat this
+experiment on the AMD EPYC \ac{cpu} and note that packet rate increases from
+14.08~Mpps to 14.35~Mpps when disabling the spoof check. To our surprise, on all
+hosts the physical function driver of the Linux kernel reports some spoofed
+packets when switching the spoof check on or off on the fly.
+
+We also measure the latency. On the Xeon E3, latency of forwarder, and forwarder
+with VFs resemble each other with, while latency of forwarder with \ac{iommu} is
+on average 1 microsecond greater than without \ac{iommu}. On the Xeon E5,
+latencies are also approximately the same, but tail latencies diverge.
+Interestingly, forwarder and \ac{iommu} achieve the lowest tail latencies,
+followed by the forwarder as-is, forwarder with VFs and forwarder with VFs and
+\ac{iommu}.
 
 We conclude that \acp{iommu} do not have a significant effect on throughput and
 latency of virtual functions.

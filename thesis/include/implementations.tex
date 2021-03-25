@@ -55,12 +55,6 @@ mapping memory gets more sophisticated when huge pages are used (as they are in
 \texttt{ixy.rs}) due to alignment requirements: huge pages have to be
 huge-page-aligned, i.e., at 2 MiB or 1 GiB boundaries.
 
-\begin{minipage}{\textwidth}
-    \lstinputlisting[label={lst:32-bit-map},language=Rust,caption={Mapping huge
-        pages into the first 2 GiB of the process address space.},captionpos=b]
-        {code/32-bit-map.rs}
-\end{minipage}
-
 To obey these requirements, we use \texttt{mmap} twice: to determine an
 appropriate address range and to map the huge pages into the address range.
 \Cref{lst:32-bit-map} illustrates the algorithm. First, a mapping of needed
@@ -76,6 +70,12 @@ Finally, huge pages of the needed size are mapped to the huge-page-aligned
 address by a second call to \texttt{mmap}, passing the aligned address as first
 argument to \texttt{mmap} and the flag \texttt{MAP\_FIXED} to force
 \texttt{mmap} to map the huge pages at the specified address.
+
+\begin{minipage}{\textwidth}
+    \lstinputlisting[label={lst:32-bit-map},language=Rust,caption={Mapping huge
+        pages into the first 2 GiB of the process address space.},captionpos=b]
+        {code/32-bit-map.rs}
+\end{minipage}
 
 Besides these newly implemented features in \texttt{ixy.rs}, some minor changes
 were made to the source code. We fixed a bug in the memory module where virtual
@@ -129,11 +129,6 @@ in conjunction with the kernel \texttt{ixgbe} driver as PF driver, messages must
 be coordinated and synchronized. Thus, we implement the same mailbox messages as
 the Linux kernel driver and DPDK.
 
-\begin{minipage}{\textwidth}
-    \lstinputlisting[label={lst:mbx},language=Rust,caption={Reading a message
-    from the VF mailbox.},captionpos=b] {code/mbx.rs}
-\end{minipage}
-
 \Cref{lst:mbx} shows how communication with the \ac{nic} mailbox is
 implemented in \texttt{ixgbevf}. \linebreak \texttt{read\_msg\_from\_mbx} is
 used to read a message from the mailbox buffer. It is expected to be called once
@@ -143,6 +138,11 @@ of unknown size to store the message from the mailbox. Before the message is
 copied to the slice, the mailbox is locked to prevent race conditions between VF
 and PF. Subsequently, the message is copied and receipt of the message
 acknowledged (releasing the mailbox at the same time).
+
+\begin{minipage}{\textwidth}
+    \lstinputlisting[label={lst:mbx},language=Rust,caption={Reading a message
+    from the VF mailbox.},captionpos=b] {code/mbx.rs}
+\end{minipage}
 
 Virtual function initialization of \texttt{ixgbevf} resembles to a large extent
 physical function initialization of \texttt{ixgbe}: Once the VF's registers are
