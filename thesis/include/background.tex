@@ -128,15 +128,15 @@ are used (commonly referred to as BDF, i.e., bus/device/function). See
 \end{figure}
 
 On system boot, every \ac{pcie} root complex is enumerated to determine which
-slots have devices installed. During enumeration, BIOS or \ac{os} probe the
-\ac{pcie} configuration space for all possible combinations of bus and device
-number, i.e., by reading vendor and device ID of \ac{pcie} switches and
-endpoints. It suffices to probe for function 0 for every combination of bus and
-device number to determine a device's presence since every device is required to
-implement function 0. For every detected device, the maximum payload size on the
-link is determined and the device is assigned its respective BDF. Bus and device
-numbers might be re-assigned by the enumeration software if a \ac{pcie} device
-is hotplugged.
+slots have devices installed. During enumeration, \acs{bios}/\acs{uefi} or
+\ac{os} probe the \ac{pcie} configuration space for all possible combinations of
+bus and device number, i.e., by reading vendor and device ID of \ac{pcie}
+switches and endpoints. It suffices to probe for function 0 for every
+combination of bus and device number to determine a device's presence since
+every device is required to implement function 0. For every detected device, the
+maximum payload size on the link is determined and the device is assigned its
+respective BDF. Bus and device numbers might be re-assigned by the enumeration
+software if a \ac{pcie} device is hotplugged.
 
 After a device's presence has been detected, every base address register field
 in the configuration space is read to determine the address space needed to
@@ -222,12 +222,13 @@ Access to main memory by hardware without \ac{cpu} involvement is known as
 \acf{dma}. In multi-core processors, \ac{dma} is sometimes used to transfer data
 between cores. In conjunction with \ac{pcie} devices, \ac{dma} is performed
 through \ac{pcie} memory read and write transactions. With \ac{pcie}, no
-separate \ac{dma} controller is used (third-party DMA), instead reads and writes
-are issued directly from bus masters (first-party DMA), i.e., \ac{pcie} devices
-allowed to read/write memory or \ac{io} space, to the root complex and
-subsequently to main memory via the memory controller. For ordinary \ac{dma},
-physical addresses are used to access main memory, just as they are used by the
-\ac{cpu} when accessing device registers through memory-mapped \ac{io}.
+separate \ac{dma} controller is used (third-party \ac{dma}), instead reads and
+writes are issued directly from bus masters (first-party \ac{dma}), i.e.,
+\ac{pcie} devices allowed to read/write memory or \ac{io} space, to the root
+complex and subsequently to main memory via the memory controller. For ordinary
+\ac{dma}, physical addresses are used to access main memory, just as they are
+used by the \ac{cpu} when accessing device registers through memory-mapped
+\ac{io}.
 
 Using physical addresses is disadvantageous as \ac{pcie} devices may read from
 and write to any memory address of main memory. This is a problem for
@@ -249,10 +250,10 @@ and write to any memory address of main memory. This is a problem for
 
 To solve these problems, virtual addresses are used for \ac{io} devices on
 modern computer systems instead of physical addresses. Similar to process
-virtual addresses and \acp{mmu}, \ac{io} virtual addresses (IOVAs) are assigned
-to devices and a translation unit is inserted into the data path that restricts
-memory accesses to a device's memory region. Such translation units are commonly
-known as \acfp{iommu}.
+virtual addresses and \acp{mmu}, \acp{iova} are assigned to devices and a
+translation unit is inserted into the data path that restricts memory accesses
+to a device's memory region. Such translation units are commonly known as
+\acfp{iommu}.
 
 
 \section{Input-Output Memory Management Units}
@@ -282,23 +283,23 @@ providing an abstract interface for any kind of \ac{io} devices and connections.
 \end{figure}
 
 The main task of \acp{iommu}, which is filtering requests and address
-translation, is performed by so-called \ac{dma} remapping (DMAR) hardware units:
-When \ac{io} devices attempt to access main memory, the request is intercepted
-by the DMAR unit, checked for admissibility and translated appropriately. This
+translation, is performed by so-called \ac{dmar} hardware units: When \ac{io}
+devices attempt to access main memory, the request is intercepted by the
+\ac{dmar} unit, checked for admissibility and translated appropriately. This
 procedure consists of two major steps: First, a device's domain is determined by
 it's bus/device/function (BDF) number. Second, the domain's translation tables
 are consulted to map the requested address to a host physical address.
 
-A \ac{pcie} root complex may contain one or multiple \acp{iommu} where each DMAR
-is responsible for a distinct set of \ac{io} buses (\Cref{fig:pcie-dmar}).
-Devices on \ac{iommu}-managed buses belong to protection domains, i.e., sets of
-address mappings and access permissions. While domains may consist of multiple
-devices, devices cannot be assigned to multiple domains (i.e., every device is
-mapped to exactly one domain).
+A \ac{pcie} root complex may contain one or multiple \acp{iommu} where each
+\ac{dmar} is responsible for a distinct set of \ac{io} buses
+(\Cref{fig:pcie-dmar}). Devices on \ac{iommu}-managed buses belong to protection
+domains, i.e., sets of address mappings and access permissions. While domains
+may consist of multiple devices, devices cannot be assigned to multiple domains
+(i.e., every device is mapped to exactly one domain).
 
-Data structures used for address translation by the DMARs are kept in main
-memory to be accessible for \ac{os} and \acp{iommu}. In case of multiple
-\acp{iommu}, DMARs may share the same data structures. On \ac{iommu}
+Data structures used for address translation by the \ac{dmar} units are kept in
+main memory to be accessible for \ac{os} and \acp{iommu}. In case of multiple
+\acp{iommu}, \ac{dmar} units may share the same data structures. On \ac{iommu}
 initialization, the \ac{os} sets up these data structures by creating domains
 and address mappings for the system's \ac{io} devices. Although this happens
 during system boot, mappings are not fixed: the device-to-domain mapping may
@@ -310,9 +311,8 @@ Depending on the usage model of the \ac{iommu}, addresses used by \ac{io}
 devices may be one of the following:
 
 \begin{itemize}
-    \item I/O virtual addresses (IOVAs) managed by software on the host,
-    \item guest I/O virtual addresses managed by software in a virtual
-        machine,
+    \item \acp{iova} managed by software on the host,
+    \item guest \acp{iova} managed by software in a virtual machine,
     \item guest physical addresses of a virtual machine,
     \item guest virtual addresses of software running in a virtual machine.
 \end{itemize}
@@ -333,38 +333,37 @@ a guest virtual address to a guest physical address, followed by a second-level
 translation translating the guest physical address to the host physical address.
 
 \Cref{fig:translation} depicts the single-level translation mechanism of an
-Intel \ac{iommu} for 48-bit IOVA addresses to 4 KiB pages. After an attempt to
-read or write main memory has been intercepted by the \ac{iommu}, the first
-table to be consulted -- if translation was enabled in the global command
-register of the \ac{iommu} -- is the root table. The physical address of the
-root table is stored in the Root Table Address Register (RTAR) of the
-\ac{iommu}. The root table consists of 256 root entries 16~B each, i.e., 4~KiB
-in total. Every root entry has a bit that indicates presence of a context table
-for this entry. The root table is indexed by the bus number of the device and --
-in conjunction with device and function number -- determines the context entry
-for this device.
+Intel \ac{iommu} for 48-bit \acp{iova} to 4 KiB pages. After an attempt to read
+or write main memory has been intercepted by the \ac{iommu}, the first table to
+be consulted -- if translation was enabled in the global command register of the
+\ac{iommu} -- is the root table. The physical address of the root table is
+stored in the Root Table Address Register (RTAR) of the \ac{iommu}. The root
+table consists of 256 root entries 16~B each, i.e., 4~KiB in total. Every root
+entry has a bit that indicates presence of a context table for this entry. The
+root table is indexed by the bus number of the device and -- in conjunction with
+device and function number -- determines the context entry for this device.
 
 Like the root table, the context table is a 4~KiB page with 256 16~B entries.
-Every context entry represents an IOMMU domain. Context entries contain a field
-indicating whether requests belonging to this domain may pass the \ac{iommu}
-untranslated, and -- in the more likely case that addresses must be translated
--- a pointer to the first table to be used for address translation for this
-domain, the PML4 table.
+Every context entry represents an \ac{iommu} domain. Context entries contain a
+field indicating whether requests belonging to this domain may pass the
+\ac{iommu} untranslated, and -- in the more likely case that addresses must be
+translated -- a pointer to the first table to be used for address translation
+for this domain, the PML4 table.
 
 Subsequently, PML4, PDP, PD and PT table are walked by the \ac{iommu} to
-determine the host physical address belonging to the IOVA address. Every table
-is a 4~KiB page with 512 8~B entries. If there is no translation for a requested
-address or the access rights for associated page do not permit access,
+determine the host physical address belonging to the \ac{iova}. Every
+table is a 4~KiB page with 512 8~B entries. If there is no translation for a
+requested address or the access rights for associated page do not permit access,
 translation faults and the request is rejected.
 
 In case of 2~MiB pages, no PT table is used for translation, and the last
-21~bits of the IOVA address represent the offset into the 2~MiB page. In case of
-1~GiB pages, no PT and no PD table are used, and the last 30~bits of the IOVA
-address represent the offset into the 1~GiB page.
+21~bits of the \ac{iova} represent the offset into the 2~MiB page. In case of
+1~GiB pages, no PT and no PD table are used, and the last 30~bits of the
+\ac{iova} represent the offset into the 1~GiB page.
 
-PML4, PDP, PD and PT table form a 4-level translation structure. For 57-bit IOVA
-addresses, a 5-level structure is used with an additional PML5 table. For 39-bit
-IOVA addresses, a 3-level structure is used.
+PML4, PDP, PD and PT table form a 4-level translation structure. For 57-bit
+\acp{iova}, a 5-level structure is used with an additional PML5 table. For
+39-bit \acp{iova}, a 3-level structure is used.
 
 To speed up address translation, \acp{iommu} cache translation information in a
 context cache and a \ac{tlb}, the \ac{iotlb}. Context cache and \ac{iotlb}
@@ -381,27 +380,27 @@ kernel also includes drivers for \acp{iommu} from ARM, Qualcomm, Texas
 Instruments, Samsung, Nvidia, IBM and other, less well-known manufacturers.
 
 \acp{iommu} are not used by default on all architectures. In case of Intel x86,
-Linux ignores any DMAR units and enables its own software \ac{iommu} called
+Linux ignores any \ac{dmar} units and enables its own software \ac{iommu} called
 SWIOTLB. The SWIOTLB is more of a poor man's \ac{iommu} that uses bounce
 buffers: At boot time, a contiguous chunk of memory (usually 64~MBs) is reserved
 in the lower address space of main memory and used for \ac{dma}-capable devices
 with limited addressing capabilities, e.g., legacy 32-bit devices. When an
-already allocated DMA buffer is to be used by a device that cannot address the
-buffer directly, memory in the lower address space, the so-called aperture, is
-linked to that buffer, passed to the device, and data is copied back and forth
-by the \ac{os} between the device-used memory in the aperture and the
+already allocated \ac{dma} buffer is to be used by a device that cannot address
+the buffer directly, memory in the lower address space, the so-called aperture,
+is linked to that buffer, passed to the device, and data is copied back and
+forth by the \ac{os} between the device-used memory in the aperture and the
 device-inaccessible buffer.
 
 On AMD systems, \acp{iommu} are enabled by default. For Intel, this behavior can
 be enforced through a kernel boot parameter. When \acp{iommu} are enabled, Linux
-checks the ACPI tables of BIOS/UEFI for DMARs on system boot. For every DMA
-Remapping Hardware Unit Definition (DRHD) in the DMA remapping (DMAR) reporting
-ACPI tables, Linux initializes the DMAR unit through its respective device
-driver, creates a default \ac{iommu} domain and assigns all \ac{pcie} devices to
-\ac{iommu} groups, where each group represents the smallest possible set of
-devices that can be distinguished by the \ac{iommu} (e.g., all devices behind a
-PCI bridge belong to the same group). Furthermore, each \ac{iommu} group is
-assigned to an \ac{iommu} domain.
+checks the \acs{acpi} tables of \ac{bios}/\ac{uefi} for \ac{dmar} units on
+system boot. For every DMA Remapping Hardware Unit Definition (DRHD) in the
+\ac{dmar} reporting \ac{acpi} tables, Linux initializes the \ac{dmar} unit
+through its respective device driver, creates a default \ac{iommu} domain and
+assigns all \ac{pcie} devices to \ac{iommu} groups, where each group represents
+the smallest possible set of devices that can be distinguished by the \ac{iommu}
+(e.g., all devices behind a PCI bridge belong to the same group). Furthermore,
+each \ac{iommu} group is assigned to an \ac{iommu} domain.
 
 Linux has a number of kernel boot parameters to change its default behavior in
 relation to \acp{iommu}. (SW-)\acp{iommu} can be disabled or enforced, the
@@ -424,34 +423,34 @@ action by the driver depending on the operation and settings (e.g., immediate
 flushing of all \acp{iotlb} by the \ac{iommu} driver).
 
 For controlled device access in user-space, e.g., by user-space network drivers,
-Linux offers a framework called Virtual Function I/O (VFIO). The framework
-consists of a device driver and various methods to interact with
-\ac{iommu}-controlled \ac{pcie} devices.
+Linux offers a framework called \ac{vfio}. The framework consists of a device
+driver and various methods to interact with \ac{iommu}-controlled \ac{pcie}
+devices.
 
-Devices to be used through VFIO have to be bound to the VFIO device driver. If a
-device's group contains multiple devices, all have to be bound to the driver or
-must be unbound from other host drivers (which will make the group available
-except the unbound devices). Device groups successfully bound to the VFIO driver
-appear as files in Linux's device filesystem at \linebreak
+Devices to be used through \ac{vfio} have to be bound to the \ac{vfio} device
+driver. If a device's group contains multiple devices, all have to be bound to
+the driver or must be unbound from other host drivers (which will make the group
+available except the unbound devices). Device groups successfully bound to the
+\ac{vfio} driver appear as files in Linux's device filesystem at \linebreak
 \texttt{/dev/vfio/\{group-number\}}. By chowning a device's group file to the
 current user, unprivileged access to the \ac{pcie} devices of the group is
 granted in a safe manner.
 
-In VFIO, every \ac{iommu} group in use belongs to a container. Depending on the
-\ac{iommu} driver's capabilities, one or multiple groups may be encapsulated
+In \ac{vfio}, every \ac{iommu} group in use belongs to a container. Depending on
+the \ac{iommu} driver's capabilities, one or multiple groups may be encapsulated
 into a container, and containers may contain groups of different \ac{iommu}
 domains.
 
-To access a VFIO-bound device in user-space, multiple steps have to be carried
-out by an application. First, a VFIO container is created and initialized for
-the device to be used or an existing container is re-used. Second, the device's
-group file is opened by the user-space application and the group is added to the
-VFIO container. Third, a file descriptor to the device is derived through a VFIO
-method on the group file. Fourth, the device file descriptor is used to map the
-device's registers into virtual memory. Finally, memory for \ac{dma} operations
-may be allocated in user-space and \ac{iommu} mappings to that memory may be
-created through the VFIO-API, returning IOVA addresses that can be passed to the
-device.
+To access a \ac{vfio}-bound device in user-space, multiple steps have to be
+carried out by an application. First, a \ac{vfio} container is created and
+initialized for the device to be used or an existing container is re-used.
+Second, the device's group file is opened by the user-space application and the
+group is added to the \ac{vfio} container. Third, a file descriptor to the
+device is derived through a \ac{vfio} method on the group file. Fourth, the
+device file descriptor is used to map the device's registers into virtual
+memory. Finally, memory for \ac{dma} operations may be allocated in user-space
+and \ac{iommu} mappings to that memory may be created through the \ac{vfio}-API,
+returning \acp{iova} that can be passed to the device.
 
 
 \section{Single-Root Input/Output Virtualization}

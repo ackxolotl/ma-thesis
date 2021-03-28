@@ -56,8 +56,8 @@
     long-plural-form    = {memory management units},
     list                = {\Acl{mmu}.},
     extra               = {%
-        Computer component that primarily translates virtual to physical memory
-        addresses. Often part of the \ac{cpu}.
+        Computer hardware component that primarily translates virtual to
+        physical memory addresses. Often part of the \ac{cpu}.
     }
 }
 \DeclareAcronym{iommu}{
@@ -98,8 +98,8 @@
     long-plural-form    = {network interface controllers},
     list                = {\Acl{nic}.},
     extra               = {%
-        Computer component that receives and transmits data via a computer
-        network.
+        Computer hardware component that receives and transmits data via a
+        computer network.
     }
 }
 \DeclareAcronym{os}{
@@ -119,5 +119,63 @@
     list                = {\Acl{pcie}.},
     extra               = {%
         High-speed serial bus standard designed to replace PCI.
+    }
+}
+\DeclareAcronym{bios}{
+    short               = {\sc{BIOS}},
+    short-plural-form   = {\sc*{BIOS}es},
+    long                = {Basic Input/Output System},
+    long-plural-form    = {Basic Input/Output Systems},
+    list                = {\Acl{bios}.},
+    extra               = {%
+        Firmware that initializes the hardware on boot before the \ac{os} is
+        loaded.
+    }
+}
+\DeclareAcronym{uefi}{
+    short               = {\sc{UEFI}},
+    long                = {Unified Extensible Firmware Interface},
+    list                = {\Acl{uefi}.},
+    extra               = {%
+        Standardized successor of the \acp{bios} found in IBM PC-compatible
+        computers.
+    }
+}
+\DeclareAcronym{vfio}{
+    short               = {\sc{VFIO}},
+    long                = {Virtual Function I/O},
+    list                = {\Acl{vfio}.},
+    extra               = {%
+        Linux driver framework that utilizes \acp{iommu} and allows direct
+        device access from userspace in a safe manner.
+    }
+}
+\DeclareAcronym{iova}{
+    short               = {\sc{IOVA}},
+    short-plural-form   = {\sc*{IOVA}s},
+    long                = {I/O virtual address},
+    long-plural-form    = {I/O virtual addresses},
+    list                = {\Acl{iova}.},
+    extra               = {%
+        Address used by \ac{io} devices for \ac{dma} access. \acp{iommu}
+        translate IOVAs to physical adresses.
+    }
+}
+\DeclareAcronym{acpi}{
+    short               = {\sc{ACPI}},
+    long                = {Advanced Configuration and Power Interface},
+    list                = {\Acl{acpi}.},
+    extra               = {%
+        Open standard for discovery and configuration of computer hardware
+        components by \acp{os}.
+    }
+}
+\DeclareAcronym{dmar}{
+    short               = {\sc{DMAR}},
+    long                = {DMA remapping},
+    list                = {\Acl{dmar}.},
+    extra               = {%
+        Part of \acp{iommu} that is responsible for address translation. Often
+        used synonymously with \ac{iommu}.
     }
 }

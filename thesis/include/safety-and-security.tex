@@ -52,10 +52,11 @@ for eligibility, i.e., whether ATS is enabled. Intel stores this information in
 the context entry of the domain, AMD in the device entry.
 
 Other attack vectors exist at boot-time: On some architectures, \acp{iommu}
-could be hidden from the \ac{os} by rewriting the DMAR ACPI tables at boot-time
-\cite{wojtczuk2009another}. Morgen et al. used another weakness and rewrote the
-tables of the \ac{iommu} during initialization, setting the translation type of
-\ac{iommu} domains to pass-through mode \cite{morgan2018iommu}.
+could be hidden from the \ac{os} by rewriting the \ac{dmar} \ac{acpi} tables at
+boot-time \cite{wojtczuk2009another}. Morgen et al. used another weakness and
+rewrote the tables of the \ac{iommu} during initialization, setting the
+translation type of \ac{iommu} domains to pass-through mode
+\cite{morgan2018iommu}.
 
 The flaws in how \aclp{os} configure \acp{iommu} are even worse. In 2019,
 Markettos et al. examined the behavior of all major \acp{os} and came to

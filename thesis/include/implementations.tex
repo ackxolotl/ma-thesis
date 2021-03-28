@@ -15,37 +15,36 @@ architecture.
 \section{ixy.rs}
 \label{sec:ixy_rs}
 
-Stefan Huber added basic IOMMU support to \texttt{ixy.rs} in 2019 through
-Linux's VFIO API \cite{huber2019using}. We complete the implementation by adding
-support for the following two use cases: accessing multiple devices associated
-to the same IOMMU group and using \texttt{ixy.rs} in conjunction with legacy
-\acp{iommu} not supporting 48-bit wide IOVA addresses.
+Stefan Huber added basic \ac{iommu} support to \texttt{ixy.rs} in 2019 through
+Linux's \ac{vfio} API \cite{huber2019using}. We complete the implementation by
+adding support for the following two use cases: accessing multiple devices
+associated to the same \ac{iommu} group and using \texttt{ixy.rs} in conjunction
+with legacy \acp{iommu} not supporting 48-bit wide \acp{iova}.
 
 For the former, only minor changes in the code are necessary. In the original
-implementation, a device's VFIO group file is opened on device setup and closed
-after the VFIO device file descriptor was derived from the group. However, a
-device group file cannot be re-opened if it is used through a derived device
-file descriptor, even if the descriptor of the group file was properly closed.
-Re-opening the group file in that case returns OS error 16, i.e., ``device or
-resource busy''. We mitigate this problem by keeping VFIO group files opened and
-storing the file descriptors in a \texttt{HashMap<i32, RawFd>} that maps IOMMU
-groups to group file descriptors. When a new device is initialized, the
-\texttt{HashMap} is checked for the VFIO group. In case there is no key-value
-pair for the group, the group file is opened and group number and descriptor are
-added to the \texttt{HashMap}. Otherwise, the group file descriptor from the
-\texttt{HashMap} is used.
+implementation, a device's \ac{vfio} group file is opened on device setup and
+closed after the \ac{vfio} device file descriptor was derived from the group.
+However, a device group file cannot be re-opened if it is used through a derived
+device file descriptor, even if the descriptor of the group file was properly
+closed.  Re-opening the group file in that case returns OS error 16, i.e.,
+``device or resource busy''. We mitigate this problem by keeping \ac{vfio} group
+files opened and storing the file descriptors in a \texttt{HashMap<i32, RawFd>}
+that maps \ac{iommu} groups to group file descriptors. When a new device is
+initialized, the \texttt{HashMap} is checked for the \ac{vfio} group. In case
+there is no key-value pair for the group, the group file is opened and group
+number and descriptor are added to the \texttt{HashMap}. Otherwise, the group
+file descriptor from the \texttt{HashMap} is used.
 
-To support IOMMUs with an IOVA address widths smaller than the host's virtual
-address widths (e.g., only 39 instead of 48 bits), smaller \ac{io} virtual
-addresses have to be chosen. Currently, \texttt{ixy.rs} uses a 1:1 mapping of
-process virtual addresses to \ac{io} virtual addresses when setting up the
-\ac{dma} mappings. Thus, \ac{mmu} and \ac{iommu} map the same (\ac{io}) virtual
-addresses to the same physical addresses and there is no need for
-\texttt{ixy.rs} to track which IOVA is used for which \ac{dma} buffer. We keep
-this mapping for simplicity but enforce all memory to be used by the \ac{nic} to
-be mapped into the lower 32-bit of the process address space. To our knowledge,
-there are no \acp{iommu} for the x86 architecture that do not support at least
-32 bit addresses.
+To support \acp{iommu} with an \ac{iova} widths smaller than the host's virtual
+address widths (e.g., only 39 instead of 48 bits), smaller \acp{iova} have to be
+chosen. Currently, \texttt{ixy.rs} uses a 1:1 mapping of process virtual
+addresses to \acp{iova} when setting up the \acp{dmar}. Thus, \ac{mmu} and
+\ac{iommu} map the same (\ac{io}) virtual addresses to the same physical
+addresses and there is no need for \texttt{ixy.rs} to track which \ac{iova} is
+used for which \ac{dma} buffer. We keep this mapping for simplicity but enforce
+all memory to be used by the \ac{nic} to be mapped into the lower 32-bit of the
+process address space. To our knowledge, there are no \acp{iommu} for the x86
+architecture that do not support at least 32-bit addresses.
 
 Mapping memory into the 32-bit address space of a process is no witchcraft.
 \texttt{mmap} can be forced through the \texttt{MAP\_32BIT} flag to create
@@ -89,7 +88,7 @@ improved (removal of superfluous casts, parantheses, etc.).
 \section{ixgbevf}
 \label{sec:ixgbevf}
 
-To analyse the effects of IOMMUs in context of \ac{sriov}, we implement
+To analyse the effects of \acp{iommu} in context of \ac{sriov}, we implement
 \texttt{ixgbevf} for \texttt{ixy.rs}, a variant of the \texttt{ixgbe} driver for
 virtual functions (VFs).
 

@@ -25,14 +25,14 @@ regions \cite{ben2006utilizing}. Performance evaluations of these \acp{iommu}
 focused on \ac{cpu} load: Ben-Yehuda et al. claim that IBM's Calgary/DART
 \acp{iommu} do not affect \ac{io} throughput, however, \ac{cpu} utilization
 increases by up to 60\% in some scenarios \cite{ben2007price}. They identify
-IOVA (de-)allocation as the primary factor of high \ac{cpu} load and thus
+\ac{iova} (de-)allocation as the primary factor of high \ac{cpu} load and thus
 propose batching memory map and unmap calls or eliminating them wherever
 possible.
 
 Later scientific work revealed more bottlenecks in hardware and software. Amit
 et al. focus on the \ac{iommu} IO-TLB \cite{amit2010iommu}. They note that the
 \ac{tlb} of their Intel Xeon X5570 \ac{iommu} gets thrashed when more than 16
-pages are used, increasing CPU execution time by up to 47\%. To evaluate
+pages are used, increasing \ac{cpu} execution time by up to 47\%. To evaluate
 different replacement strategies for IO-TLB entries, they implement a virtual
 \ac{iommu} for the KVM hypervisor which lets them trace map/unmap operations and
 analyse \ac{io} memory access patterns. Based on their results, they propose
