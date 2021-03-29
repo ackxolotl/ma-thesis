@@ -179,12 +179,13 @@ This complexity is reflected in several ways: On the one hand in manuals (the
 datasheet for network cards of the Intel 82599 family \cite{intel2016datasheet}
 consists of more than 1,000 pages) and drivers (exceeding 100,000 lines of code
 for some devices \cite{emmerich2019case}). On the other hand in devices like
-Intel's XL710 which follows a more firmware-driven design where much
+Intel's XL710 which follow a more firmware-driven design where much
 functionality is executed on the network card, and driver and \ac{nic}
 communicate via a message based interface \cite{emmerich2019user}. The downside
-of this development is a lack of reliability, safety and security in computer
-systems: in case of Linux, 39 out of 40 memory bugs found in the kernel in 2017
-were located in device drivers \cite{emmerich2019case}.
+of increasing complexity in the currently existing monolithic computer systems
+is a lack of reliability, safety and security: in case of Linux, 39 out of 40
+memory bugs found in the kernel in 2017 were located in device drivers
+\cite{emmerich2019case}.
 
 Although \acp{nic} have changed a lot in the last decades, most of them still
 use a seemingly simplistic interface to communicate reception or transmittal of
@@ -219,19 +220,24 @@ the \ac{nic}.
 \label{sec:dma}
 
 Access to main memory by hardware without \ac{cpu} involvement is known as
-\acf{dma}. In multi-core processors, \ac{dma} is sometimes used to transfer data
-between cores. In conjunction with \ac{pcie} devices, \ac{dma} is performed
-through \ac{pcie} memory read and write transactions. With \ac{pcie}, no
-separate \ac{dma} controller is used (third-party \ac{dma}), instead reads and
-writes are issued directly from bus masters (first-party \ac{dma}), i.e.,
-\ac{pcie} devices allowed to read/write memory or \ac{io} space, to the root
-complex and subsequently to main memory via the memory controller. For ordinary
-\ac{dma}, physical addresses are used to access main memory, just as they are
-used by the \ac{cpu} when accessing device registers through memory-mapped
-\ac{io}.
+\acf{dma}. By bypassing the \ac{cpu}, expensive memory operations can be
+offloaded and performance improves as the \ac{cpu} is no longer involved in
+(all) memory transactions and therefore able to perform other operations while
+data from/to main memory is transferred. In multi-core processors, \ac{dma} is
+sometimes used to transfer data between cores. In conjunction with \ac{pcie}
+devices, \ac{dma} is performed with \ac{pcie} memory read and write
+transactions.
 
-Using physical addresses is disadvantageous as \ac{pcie} devices may read from
-and write to any memory address of main memory. This is a problem for
+Using \ac{pcie}, no separate \ac{dma} controller is needed (third-party
+\ac{dma}), instead reads and writes are issued directly from bus masters
+(first-party \ac{dma}), i.e., \ac{pcie} devices allowed to read/write memory or
+\ac{io} space. Memory reads and writes of main memory travel up the \ac{pcie}
+tree to the root complex and subsequently to main memory via the memory
+controller. Typically, physical addresses are used to access main memory, just
+as they are used by the \ac{cpu} when accessing device registers through
+memory-mapped \ac{io}. However, use of physical addresses is troublesome as
+\ac{pcie} devices may read from or write to any memory address of main memory,
+which is a problem for
 
 \begin{itemize}
     \item device pass-through to virtual machines, since virtual machines might
@@ -301,11 +307,10 @@ Data structures used for address translation by the \ac{dmar} units are kept in
 main memory to be accessible for \ac{os} and \acp{iommu}. In case of multiple
 \acp{iommu}, \ac{dmar} units may share the same data structures. On \ac{iommu}
 initialization, the \ac{os} sets up these data structures by creating domains
-and address mappings for the system's \ac{io} devices. Although this happens
-during system boot, mappings are not fixed: the device-to-domain mapping may
-change (e.g., when a device is assigned to a virtual machine) and address
-mappings may be altered by the \ac{os} (e.g., when \ac{dma} memory is mapped or
-unmapped).
+and address mappings for the system's \ac{io} devices. Although this happens at
+system boot, mappings are not fixed: the device-to-domain mapping may change
+(e.g., when a device is assigned to a virtual machine) and address mappings may
+be altered by the \ac{os} (e.g., when \ac{dma} memory is mapped or unmapped).
 
 Depending on the usage model of the \ac{iommu}, addresses used by \ac{io}
 devices may be one of the following:
@@ -381,14 +386,14 @@ Instruments, Samsung, Nvidia, IBM and other, less well-known manufacturers.
 
 \acp{iommu} are not used by default on all architectures. In case of Intel x86,
 Linux ignores any \ac{dmar} units and enables its own software \ac{iommu} called
-SWIOTLB. The SWIOTLB is more of a poor man's \ac{iommu} that uses bounce
-buffers: At boot time, a contiguous chunk of memory (usually 64~MBs) is reserved
-in the lower address space of main memory and used for \ac{dma}-capable devices
-with limited addressing capabilities, e.g., legacy 32-bit devices. When an
-already allocated \ac{dma} buffer is to be used by a device that cannot address
-the buffer directly, memory in the lower address space, the so-called aperture,
-is linked to that buffer, passed to the device, and data is copied back and
-forth by the \ac{os} between the device-used memory in the aperture and the
+SWIOTLB. The SWIOTLB is a poor man's \ac{iommu} that uses bounce buffers: At
+boot time, a contiguous chunk of memory (usually 64~MBs) is reserved in the
+lower address space of main memory and used for \ac{dma}-capable devices with
+limited addressing capabilities, e.g., legacy 32-bit devices. When an already
+allocated \ac{dma} buffer is to be used by a device that cannot address the
+buffer directly, memory in the lower address space, the so-called aperture, is
+linked to that buffer, passed to the device, and data is copied back and forth
+by the \ac{os} between the device-used memory in the aperture and the
 device-inaccessible buffer.
 
 On AMD systems, \acp{iommu} are enabled by default. For Intel, this behavior can
@@ -399,39 +404,39 @@ system boot. For every DMA Remapping Hardware Unit Definition (DRHD) in the
 through its respective device driver, creates a default \ac{iommu} domain and
 assigns all \ac{pcie} devices to \ac{iommu} groups, where each group represents
 the smallest possible set of devices that can be distinguished by the \ac{iommu}
-(e.g., all devices behind a PCI bridge belong to the same group). Furthermore,
-each \ac{iommu} group is assigned to an \ac{iommu} domain.
+(e.g., all devices behind a \ac{pcie}-to-PCI bridge belong to the same group).
+Furthermore, each \ac{iommu} group is assigned to an \ac{iommu} domain.
 
 Linux has a number of kernel boot parameters to change its default behavior in
 relation to \acp{iommu}. (SW-)\acp{iommu} can be disabled or enforced, the
-default domain can be set to pass-through so that devices bypass the \ac{iommu}
-if not specified otherwise, and depending on the driver, the policy of
-\ac{iotlb} management can be changed as Linux defers \ac{iotlb} invalidation by
-default which increases performance but creates a window for invalid \ac{dma}
+default domain can be set to pass-through such that devices bypass the
+\ac{iommu} if not specified otherwise, and depending on the driver, the policy
+of \ac{iotlb} management can be changed as Linux defers \ac{iotlb} invalidation
+by default which increases performance but creates a window for invalid \ac{dma}
 accesses, i.e., devices may access some \ac{dma}-able memory that has been
 unmapped already as requests are still translated by the \ac{iotlb}. For the
 Intel \ac{iommu}, \ac{iotlb} invalidation can be set to strict mode to enforce
 immediate flushing of the \ac{iotlb}. The AMD \ac{iommu} driver provides a
-similar option called \texttt{fullflush}. If no deviating behavior was
-requested, Linux flushes the \acp{iotlb} every 10 ms or every 256 batched
-invalidation requests.
+similar option called \texttt{fullflush}. If no deviating behavior is specified,
+Linux flushes the \acp{iotlb} every 10 ms or every 256 batched invalidation
+requests.
 
-While all \acp{iommu} are managed by its respective device drivers, other kernel
-drivers implicitely change the \ac{iommu} configuration through Linux's
-\ac{dma}-API by allocating, mapping and unmapping \ac{dma} memory, enforcing
-action by the driver depending on the operation and settings (e.g., immediate
-flushing of all \acp{iotlb} by the \ac{iommu} driver).
+Device drivers do not configure \acp{iommu} directly. Instead, they change the
+\ac{iommu} configuration through Linux's \ac{dma}-API by allocating, mapping and
+unmapping \ac{dma} memory, enforcing action by the respective \ac{iommu}
+driver(s) depending on the operation and settings (e.g., immediate flushing of
+all \acp{iotlb}).
 
 For controlled device access in user-space, e.g., by user-space network drivers,
 Linux offers a framework called \ac{vfio}. The framework consists of a device
-driver and various methods to interact with \ac{iommu}-controlled \ac{pcie}
-devices.
+driver and various \texttt{ioctl}s to interact with \ac{iommu}-controlled
+\ac{pcie} devices.
 
 Devices to be used through \ac{vfio} have to be bound to the \ac{vfio} device
 driver. If a device's group contains multiple devices, all have to be bound to
 the driver or must be unbound from other host drivers (which will make the group
 available except the unbound devices). Device groups successfully bound to the
-\ac{vfio} driver appear as files in Linux's device filesystem at \linebreak
+\ac{vfio} driver appear as files in Linux's device filesystem at
 \texttt{/dev/vfio/\{group-number\}}. By chowning a device's group file to the
 current user, unprivileged access to the \ac{pcie} devices of the group is
 granted in a safe manner.
@@ -446,11 +451,20 @@ carried out by an application. First, a \ac{vfio} container is created and
 initialized for the device to be used or an existing container is re-used.
 Second, the device's group file is opened by the user-space application and the
 group is added to the \ac{vfio} container. Third, a file descriptor to the
-device is derived through a \ac{vfio} method on the group file. Fourth, the
-device file descriptor is used to map the device's registers into virtual
-memory. Finally, memory for \ac{dma} operations may be allocated in user-space
-and \ac{iommu} mappings to that memory may be created through the \ac{vfio}-API,
-returning \acp{iova} that can be passed to the device.
+device is derived through a \ac{vfio} \texttt{ioctl} call on the group file.
+Fourth, the device file descriptor is used to map the device's registers into
+virtual memory. Finally, memory for \ac{dma} operations may be allocated in
+user-space and \ac{iommu} mappings to that memory may be created through the
+\ac{vfio}-API, returning \acp{iova} that can be passed to the device.
+
+Internally, \ac{vfio} stores its \ac{iova} mappings in a red-black tree.
+Multiple mappings may be coalesced to reduce tracking overhead. When a new
+mapping is requested through the \ac{vfio}-API, the red-black tree is checked
+for overlapping mappings, validity of the requested \ac{iova} range is verified
+(e.g., supported address width by affected \acp{iommu} vs. provided \ac{iova}
+address width), the mapping is inserted into the tree, pages are pinned for
+\ac{dma} access and the mapping is created in the \ac{iommu} tables via the
+kernel-internal \ac{iommu}-API.
 
 
 \section{Single-Root Input/Output Virtualization}
@@ -458,23 +472,23 @@ returning \acp{iova} that can be passed to the device.
 
 Single-root input/output virtualization is a mechanism that allows a \ac{pcie}
 device to appear as multiple devices and thus be shared with multiple virtual
-machines. Devices that support SR-IOV report this ability to the host through
-their PCI configuration space which includes registers for SR-IOV Extended
-Capability.
+machines. Devices that support SR-IOV report this ability to the host via their
+PCI configuration space which includes registers for SR-IOV Extended Capability.
 
 When SR-IOV is enabled for a device, the device can be split into a physical
 (PF) and multiple virtual functions (VFs). The PF is the standard \ac{pcie}
 function of the device which has full control over the device, is used to reset
 and initialize it and to enable and disable VFs. Hence, access to the physical
-function is usually restricted to \ac{os}. VFs on the other hand only support a
-subset of device operations, primarily to manage packet receival and transmittal
-of the function, and can be passed to virtual machines in a safe manner.
+function is usually restricted to \ac{os} or virtual machine manager (VMM). VFs
+on the other hand only support a subset of device operations, primarily to
+manage packet receival and transmittal of the function, and can be passed to
+virtual machines in a safe manner.
 
-For virtual functions, slightly different drivers have to be used as virtual
-functions use different device registers and have to communicate with the
-physical function driver for certain operations like reset of the VF. A physical
-function driver on the other hand must be able to handle these requests and is
-therefore slightly more complex than the same driver without SR-IOV support.
+For virtual functions, separate drivers are used as virtual functions use
+different device registers and have to communicate with the physical function
+driver for certain operations like reset of the VF. A physical function driver
+on the other hand must be able to handle these requests and is hence slightly
+more complex than the same driver without SR-IOV support.
 
 On Linux, virtual functions of SR-IOV-capable devices can be created when
 loading the PF kernel driver, e.g., in case of \texttt{ixgbe}: \texttt{modprobe
@@ -485,11 +499,15 @@ number of virtual functions into a device \texttt{sysfs} file called
 
 When VFs are created by the PF driver, every VF is assigned a \ac{pcie}-BDF
 triple such that the virtual function can be adressed directly and identified on
-the \ac{pcie} bus. Usually, the PF also assigns MAC addresses to the VFs and
-configures the \ac{nic} such that each VF receives the packets destined to its
-MAC address. To prevent MAC address spoofing, outgoing packets must be sent from
-the VF's MAC address and are dropped by the \ac{nic} in case VFs do not comply.
-The MAC anti-spoofing mechanism can be disabled by the PF driver.
+the \ac{pcie} bus. Although the function part of the BDF is only 3 bits, i.e.,
+eight different functions, more VFs can be created by using different device
+numbers for the virtual functions.
+
+Usually, the PF also assigns MAC addresses to the VFs and configures the
+\ac{nic} such that each VF receives the packets destined to its MAC address. To
+prevent MAC address spoofing, outgoing packets must be sent from the VF's MAC
+address and are dropped by the \ac{nic} in case VFs do not comply. The MAC
+anti-spoofing mechanism can be disabled by the PF driver.
 
 While not required, SR-IOV can be used in conjunction with \acp{iommu} to pass
 VFs safely to virtual machines. When devices are passed-through without
