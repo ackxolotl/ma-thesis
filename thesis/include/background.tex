@@ -1,14 +1,13 @@
 \chapter{Background}
 \label{chap:background}
 
-\Ac{io} devices interact with the \acs{cpu} via three types of communication
-primitives: interrupts, registers and shared memory. The specific design of
-these primitives depends on the technologies used; we provide an overview of
-device-to-host and host-to-device communication in the following sections,
-focusing on \acs{pcie}, \acs{dma} and \acsp{iommu} in the context of
-(high-speed) network environments. The knowledgeable reader may skip ahead to
-the description of our software implementations (\Cref{chap:implementations}) or
-our performance analysis of \acp{iommu} (\Cref{chap:performance_analysis}).
+\Ac{io} devices interact with the \acs{cpu} via interrupts, registers and shared
+memory. We provide an overview of how these communication primitives work with
+\acp{iommu} in context of (high-speed) network environments in the following
+sections. We will focus on \acs{pcie}, \acs{dma} and \acsp{iommu}. The
+knowledgeable reader may skip ahead to the description of our software
+implementations (\Cref{chap:implementations}) or our performance analysis of
+\acp{iommu} (\Cref{chap:performance_analysis}).
 
 
 \section{Overview}
@@ -21,25 +20,23 @@ our performance analysis of \acp{iommu} (\Cref{chap:performance_analysis}).
     \label{fig:pch}
 \end{figure}
 
-On modern systems, peripherals, processor and main memory are interconnected
-with each other via a wide set of connection standards and protocols. Devices
-are either directly attached to the \ac{cpu} via \ac{pcie} or to an \acs{io} hub
-known as Platform Controller Hub~(Intel) or chipset~(AMD). Direct connections
-are preferred for \ac{io} devices with high performance requirements such as
-video cards or NVMe controllers. On enterprise hardware, e.g., servers, most if
-not all \ac{pcie} devices are directly attached to the \ac{cpu}, whereas the
-\ac{io} hub is connected to slower peripherals like on-board Gigabit network
-cards or USB 2.0 ports. On consumer hardware, more devices might be attached to
-the \ac{io} hub. The \ac{io} hub resides on a separate chip and is connected to
-the \ac{cpu} via Direct Media Interface (Intel) or Unified Media Interface
-(AMD). \Cref{fig:pch} illustrates the relationship between \ac{cpu}, \ac{io} hub
-and peripherals.
-
-Conceptually, system agent and Platform Controller Hub (PCH) depicted in
-\Cref{fig:pch} are successors of northbridge and southbridge from previous
-chipsets. While memory controller and other northbridge functions were
-incorporated into the \ac{cpu} as so-called system agent, southbridge and
-remaining northbridge functions were moved to the PCH.
+On modern systems, peripherals, processor and main memory are interconnected via
+a wide set of connection standards and protocols. Devices are either directly
+attached to the \ac{cpu} via \ac{pcie} or to an \acs{io} hub known as Platform
+Controller Hub~(Intel) or chipset~(AMD). Direct connections are preferred for
+\ac{io} devices with high performance requirements such as video cards or NVMe
+controllers. On enterprise hardware, e.g., servers, most \ac{pcie} devices are
+directly attached to the \ac{cpu}, whereas the \ac{io} hub is connected to
+slower peripherals like on-board Gigabit network cards. On consumer hardware,
+more devices might be attached to the \ac{io} hub. The \ac{io} hub resides on a
+separate chip and is connected to the \ac{cpu} via Direct Media Interface
+(Intel) or Unified Media Interface (AMD). \Cref{fig:pch} illustrates the
+relationship between \ac{cpu}, \ac{io} hub and peripherals. Conceptually,
+system agent and Platform Controller Hub (PCH) depicted in \Cref{fig:pch} are
+successors of northbridge and southbridge from previous chipsets. While memory
+controller and other northbridge functions were incorporated into the \ac{cpu}
+as so-called system agent, southbridge and remaining northbridge functions were
+moved to the PCH.
 
 
 \section{PCI Express}
@@ -48,17 +45,21 @@ remaining northbridge functions were moved to the PCH.
 As de-facto standard, \acf{pcie} is used for communication with most
 peripherals. \ac{pcie} is a high-speed serial bus that was designed to replace
 PCI and PCI-X. Unlike the former, \ac{pcie} is based on a point-to-point
-topology and encapsulates all communication data in \ac{pcie} packets.
-Additionally, \ac{pcie} supports hotplugging of devices. Similar to other
-network protocols, \ac{pcie} consists of various communication layers,
-acknowledgements and flow control for reliable data transmission.
+topology where all communication data is encapsulated in \ac{pcie} packets, and
+supports hotplugging of devices. Conceptually, \ac{pcie} consists of various
+communication layers and -- similar to TCP -- provides mechanisms like flow
+control and acknowledgements to ensure reliable data transmission.
 
 Physically, \ac{pcie} devices are connected via lanes which consist of two
 differential pairs each, i.e., four wires per lane. The two pairs of \ac{pcie}
 lanes are used unidirectionally as transmit / receive channels. Together, they
 form a bidirectional link. For interrupts, no physical pin is used. Instead,
-in-band messages signal interrupts to the interrupt controller which interrupts
-the \ac{cpu}.
+in-band messages signal interrupts to the interrupt controller which in turn
+interrupts the \ac{cpu}. To increase throughput, devices may use up to 32 lanes.
+With today's commonly used \ac{pcie} 4.0 (which was released in 2017), a serial
+data rate of 16 Gbps per lane which or 1.97 GB/s (taking the 128b/130b line code
+into account) can be achieved. Compared to \ac{pcie} 1.0 (released in 2003),
+throughput of the lanes has stepped up by a factor of eight.
 
 \begin{figure}
     \centering
@@ -67,13 +68,7 @@ the \ac{cpu}.
     \label{fig:pcie-topology}
 \end{figure}
 
-Devices may use up to 32 lanes to increase throughput. Transfer rates of the
-lanes have stepped up by a factor of ten since \ac{pcie} 1.0: Today's commonly
-used \ac{pcie} 4.0 (which was released in 2017) yields a serial data rate of 16
-Gbps per lane which corresponds to about 1.97 GB/s taking the 128b/130b line
-code into account.
-
-\ac{pcie} devices and processor are connected through switches.
+Between \ac{pcie} devices and processor, switches may be used.
 \Cref{fig:pcie-topology} depicts a typical \ac{pcie} tree. On the \ac{cpu} side,
 connections end in the \ac{pcie} root complex which is part of the system agent
 on Intel systems and the bridge between \ac{cpu}, main memory and devices. On
@@ -90,32 +85,36 @@ configuration data for the link, and routing information like transmitter and
 receiver IDs for memory or \ac{io} requests.
 
 Every \ac{pcie} transmission consists of four bytes that mark the start of a new
-packet, a header of 12 bytes (or 16 when using 64 bit addresses), a payload of
-up to 4,096 bytes (depending on the maximum payload size on the link), and four
-to eight bytes of packet checksums. Thus, minimal packet overhead for headers,
+packet, a header of 12 bytes (or 16 when using 64-bit addresses), a payload of
+up to 4,096 bytes (depending on the maximum payload size on the link), and 4 to
+8 bytes of packet checksums. Thus, minimal packet overhead for headers,
 checksums, etc. is 20 bytes.
 
 \ac{pcie} packets are categorised into requests and completions. Requests are
 memory, \ac{io} or configuration reads and writes (to the PCI configuration
-space) that are either posted or non-posted, i.e., expect a completion (reply)
-or not. The PCI configuration space is a standardized register space that
-contains information about a PCI(e) device such as vendor and device ID, device
-class or the physical addresses of the device's registers (i.e., the Base
-Address Registers or BARs). Among others, memory space is used by a device to
-access main memory and by the \ac{cpu} to access device registers. \ac{io} space
-is included for backwards compatibility and will probably be deprecated in the
+space) that are either posted, i.e., expect a completion (reply), or non-posted.
+The PCI configuration space is a standardized register space that contains
+information about a PCI(e) device such as vendor and device ID, device class or
+the physical addresses of the device's registers (i.e., the Base Address
+Registers or BARs). Among others, memory space is used by a device to access
+main memory and by the \ac{cpu} to access device registers. \ac{io} space is
+included for backwards compatibility and will probably be deprecated in the
 future.
 
 Device registers can be accessed via memory-mapped \ac{io} or port-mapped
 \ac{io}. With memory-mapped \ac{io}, main memory and \ac{io} share the same
-address space, i.e., addresses refer to devices and main memory. With
-port-mapped \ac{io}, special \ac{cpu} instructions and an \ac{io} pin on the
-\ac{cpu} or a separate \ac{io} bus to perform \ac{io} are used.
+address space, i.e., all physical addresses refer to devices or main memory.
+With port-mapped \ac{io}, special \ac{cpu} instructions and an \ac{io} pin on
+the \ac{cpu} or a separate \ac{io} bus are used to perform \ac{io}.
 
 To access the configuration space of \ac{pcie} devices, addresses consisting of
 an eight bit bus number, five bit device number and three bit function number
 are used (commonly referred to as BDF, i.e., bus/device/function). See
-\Cref{fig:pcie-bdf} for reference.
+\Cref{fig:pcie-bdf} for reference. \ac{pcie} also specifies an ``Alternative
+Routing-ID'' format where the 16-bit \ac{pcie} ID is split in an 8-bit bus
+number and an 8-bit function number, i.e., device and function number merge into
+one. However, this scheme does not yet seem to be used in practice
+\cite[p.~24]{rothwell2018exploitation}.
 
 \begin{figure}
     \centering
@@ -153,10 +152,10 @@ device.
 \section{Network Interface Controllers}
 \label{sec:nics}
 
-A very common kind of \ac{pcie} peripherals are network cards used for
-communication between computer systems via wireless (e.g., WLAN) or wired (e.g.,
-LAN) networks, often connecting hosts via a gateway to the Internet. Another
-term for network cards is \acfp{nic}.
+A common kind of \ac{pcie} peripherals are network cards used for communication
+between computer systems via wireless (e.g., WLAN) or wired (e.g., LAN)
+networks, often connecting hosts via a gateway to the Internet. Another term for
+network card is \acf{nic}.
 
 \begin{figure}[!b]
     \centering
@@ -165,26 +164,25 @@ term for network cards is \acfp{nic}.
     \label{fig:tx-ring}
 \end{figure}
 
-Various manufacturers produce a wide range of \acp{nic} for various
-applications, be it for data centers with special performance requirements or
-for the consumer sector. As versatile as these \acp{nic} are, so are the drivers
-used for their operation, and complexity of drivers and devices increases
-steadily: whereas early \acp{nic} were merely capable of receiving and
-transmitting network packets, modern network cards offer huge amounts of
-(hardware-offloading) features like checksum calculations, encryption and
-authentication of packets, VLAN tagging and flow control, time syncing, traffic
-shaping, etc.
+Manufacturers produce \acp{nic} for a wide range of applications, be it for data
+centers with high performance requirements, or mobile phones and desktop
+computers of the consumer sector. As versatile as these \acp{nic} are, so are
+their drivers, and complexity of drivers and devices has increased over the
+years: whereas early \acp{nic} were solely capable of receiving and transmitting
+network packets, modern network cards offer plenty of (hardware-offloading)
+features like checksum calculations, encryption and authentication of packets,
+VLAN tagging and flow control, time syncing, traffic shaping, etc.
 
-This complexity is reflected in several ways: On the one hand in manuals (the
-datasheet for network cards of the Intel 82599 family \cite{intel2016datasheet}
-consists of more than 1,000 pages) and drivers (exceeding 100,000 lines of code
-for some devices \cite{emmerich2019case}). On the other hand in devices like
-Intel's XL710 which follow a more firmware-driven design where much
-functionality is executed on the network card, and driver and \ac{nic}
-communicate via a message based interface \cite{emmerich2019user}. The downside
-of increasing complexity in the currently existing monolithic computer systems
-is a lack of reliability, safety and security: in case of Linux, 39 out of 40
-memory bugs found in the kernel in 2017 were located in device drivers
+Complexity of \acp{nic} and drivers is reflected in several ways: On the one
+hand in manuals (the datasheet for network cards of the Intel 82599 family
+\cite{intel2019datasheet} consists of more than 1,000 pages) and driver size
+(exceeding 100,000 lines of code for some devices \cite{emmerich2019case}). On
+the other hand in devices like Intel's XL710 which follow a more firmware-driven
+design where much functionality is executed on the network card, and driver and
+\ac{nic} communicate via a message based interface \cite{emmerich2019user}. The
+downside of this complexity in the currently dominant monolithic computer
+systems is a lack of reliability, safety and security: in case of Linux, 39 out
+of 40 memory bugs found in the kernel in 2017 were located in device drivers
 \cite{emmerich2019case}.
 
 Although \acp{nic} have changed a lot in the last decades, most of them still
@@ -205,7 +203,7 @@ the \ac{nic} manages the head pointer (TDH) while the device driver manages the
 tail pointer (TDT). At device initialization, head and tail pointer are set to
 the first descriptor. Once a packet is queued by the driver, i.e., the
 descriptor in the TX descriptor ring has been changed appropriately, the driver
-updates the tail pointer to the next descriptor, thereby transfering ownership
+updates the tail pointer to the next descriptor, thereby transferring ownership
 of all descriptors between head and tail pointer to the \ac{nic}. Conversely,
 the \ac{nic} updates the head pointer once a descriptor was processed and the
 corresponding packet data has been fetched from main memory by the \ac{nic}.
@@ -221,20 +219,20 @@ the \ac{nic}.
 
 Access to main memory by hardware without \ac{cpu} involvement is known as
 \acf{dma}. By bypassing the \ac{cpu}, expensive memory operations can be
-offloaded and performance improves as the \ac{cpu} is no longer involved in
-(all) memory transactions and therefore able to perform other operations while
-data from/to main memory is transferred. In multi-core processors, \ac{dma} is
-sometimes used to transfer data between cores. In conjunction with \ac{pcie}
-devices, \ac{dma} is performed with \ac{pcie} memory read and write
-transactions.
+offloaded, potentially improving performance as the \ac{cpu} is no longer
+involved in all memory transactions and therefore able to perform other
+operations while data from/to main memory is transferred. In multi-core
+processors, \ac{dma} is sometimes used to transfer data between cores. In
+conjunction with \ac{pcie} devices, \ac{dma} is performed with \ac{pcie} memory
+read and write transactions.
 
 Using \ac{pcie}, no separate \ac{dma} controller is needed (third-party
 \ac{dma}), instead reads and writes are issued directly from bus masters
 (first-party \ac{dma}), i.e., \ac{pcie} devices allowed to read/write memory or
 \ac{io} space. Memory reads and writes of main memory travel up the \ac{pcie}
 tree to the root complex and subsequently to main memory via the memory
-controller. Typically, physical addresses are used to access main memory, just
-as they are used by the \ac{cpu} when accessing device registers through
+controller. Typically, physical addresses are used to access main memory in the
+same way they are used by the \ac{cpu} when accessing device registers through
 memory-mapped \ac{io}. However, use of physical addresses is troublesome as
 \ac{pcie} devices may read from or write to any memory address of main memory,
 which is a problem for
@@ -273,8 +271,8 @@ devices to virtual machines for performance reasons.
 
 Conceptually, \acp{iommu} may be used for any kind of \ac{io} devices and any
 kind of connection standards. In practice, \acp{iommu} are implemented in the
-\ac{pcie} root complex since in today's systems almost all if not all \ac{io}
-devices are connected to the \ac{cpu} via the \ac{pcie} root complex: modern
+\ac{pcie} root complex since almost all if not all \ac{io} devices in today's
+systems are connected to the \ac{cpu} via the \ac{pcie} root complex: modern
 interfaces like Thunderbolt, NVMe and SATA Express are directly built on top of
 \ac{pcie}, whereas for older connection standards like USB or I$^2$C, \ac{pcie}
 hubs are used. Focus of \acp{iommu} on \ac{pcie} is also reflected in code like
@@ -337,10 +335,10 @@ used for nested translation of addresses: a first-level translation to translate
 a guest virtual address to a guest physical address, followed by a second-level
 translation translating the guest physical address to the host physical address.
 
-\Cref{fig:translation} depicts the single-level translation mechanism of an
-Intel \ac{iommu} for 48-bit \acp{iova} to 4 KiB pages. After an attempt to read
-or write main memory has been intercepted by the \ac{iommu}, the first table to
-be consulted -- if translation was enabled in the global command register of the
+\Cref{fig:translation} depicts the address translation mechanism of an Intel
+\ac{iommu} for 48-bit \acp{iova} to 4 KiB pages. After an attempt to read or
+write main memory has been intercepted by the \ac{iommu}, the first table to be
+consulted -- if translation was enabled in the global command register of the
 \ac{iommu} -- is the root table. The physical address of the root table is
 stored in the Root Table Address Register (RTAR) of the \ac{iommu}. The root
 table consists of 256 root entries 16~B each, i.e., 4~KiB in total. Every root
@@ -368,7 +366,7 @@ In case of 2~MiB pages, no PT table is used for translation, and the last
 
 PML4, PDP, PD and PT table form a 4-level translation structure. For 57-bit
 \acp{iova}, a 5-level structure is used with an additional PML5 table. For
-39-bit \acp{iova}, a 3-level structure is used.
+39-bit \acp{iova}, only three tables are used.
 
 To speed up address translation, \acp{iommu} cache translation information in a
 context cache and a \ac{tlb}, the \ac{iotlb}. Context cache and \ac{iotlb}
@@ -427,6 +425,20 @@ unmapping \ac{dma} memory, enforcing action by the respective \ac{iommu}
 driver(s) depending on the operation and settings (e.g., immediate flushing of
 all \acp{iotlb}).
 
+\ac{dma}-mapping functions of the kernel return physical addresses as \ac{dma}
+address when the \ac{pcie} device uses no \ac{iommu} and \acp{iova} with
+\ac{iommu}. In both cases, memory is allocated using one of the kernel memory
+allocator functions. Only in the second case, however, an \ac{iova} from the
+device \ac{iommu} domain is allocated and the mapping from \ac{iova} to physical
+address of the allocated memory is created through the \ac{iommu} driver.
+
+For each \ac{iommu} domain, a base address and the upper boundary of
+device-addressable \acp{iova} are assigned on initialization. Allocated
+\acp{iova} are stored in a red-black tree which on allocation is searched for a
+fitting address range bottom-up, i.e., from the highest \ac{iova} to the lowest.
+To speed up \ac{iova} allocation, magazines are used, i.e., per core caches for
+previously deallocated \acp{iova}.
+
 For controlled device access in user-space, e.g., by user-space network drivers,
 Linux offers a framework called \ac{vfio}. The framework consists of a device
 driver and various \texttt{ioctl}s to interact with \ac{iommu}-controlled
@@ -447,15 +459,16 @@ into a container, and containers may contain groups of different \ac{iommu}
 domains.
 
 To access a \ac{vfio}-bound device in user-space, multiple steps have to be
-carried out by an application. First, a \ac{vfio} container is created and
-initialized for the device to be used or an existing container is re-used.
-Second, the device's group file is opened by the user-space application and the
-group is added to the \ac{vfio} container. Third, a file descriptor to the
-device is derived through a \ac{vfio} \texttt{ioctl} call on the group file.
-Fourth, the device file descriptor is used to map the device's registers into
-virtual memory. Finally, memory for \ac{dma} operations may be allocated in
-user-space and \ac{iommu} mappings to that memory may be created through the
-\ac{vfio}-API, returning \acp{iova} that can be passed to the device.
+carried out by an application. The steps follow this scheme: First, a \ac{vfio}
+container is created and initialized for the device to be used or an existing
+container is re-used. Second, the device's group file is opened by the
+user-space application and the group is added to the \ac{vfio} container. Third,
+a file descriptor to the device is derived through a \ac{vfio} \texttt{ioctl}
+call on the group file. Fourth, the device file descriptor is used to map the
+device's registers into virtual memory. Finally, memory for \ac{dma} operations
+may be allocated in user-space and \ac{iommu} mappings to that memory may be
+created through the \ac{vfio}-API, returning \acp{iova} that can be passed to
+the device.
 
 Internally, \ac{vfio} stores its \ac{iova} mappings in a red-black tree.
 Multiple mappings may be coalesced to reduce tracking overhead. When a new
