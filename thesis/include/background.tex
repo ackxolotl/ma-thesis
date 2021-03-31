@@ -4,10 +4,10 @@
 \Ac{io} devices interact with the \acs{cpu} via interrupts, registers and shared
 memory. We provide an overview of how these communication primitives work with
 \acp{iommu} in context of (high-speed) network environments in the following
-sections. We will focus on \acs{pcie}, \acs{dma} and \acsp{iommu}. The
-knowledgeable reader may skip ahead to the description of our software
-implementations (\Cref{chap:implementations}) or our performance analysis of
-\acp{iommu} (\Cref{chap:performance_analysis}).
+sections, focusing on \acs{pcie}, \acsp{nic}, \acsp{iommu} on Linux, and
+\acs{sriov}. The knowledgeable reader may skip ahead to the description of our
+software implementations (\Cref{chap:implementations}) or our performance
+analysis of \acp{iommu} (\Cref{chap:performance_analysis}).
 
 
 \section{Overview}
@@ -28,11 +28,11 @@ Controller Hub~(Intel) or chipset~(AMD). Direct connections are preferred for
 controllers. On enterprise hardware, e.g., servers, most \ac{pcie} devices are
 directly attached to the \ac{cpu}, whereas the \ac{io} hub is connected to
 slower peripherals like on-board Gigabit network cards. On consumer hardware,
-more devices might be attached to the \ac{io} hub. The \ac{io} hub resides on a
-separate chip and is connected to the \ac{cpu} via Direct Media Interface
+more devices are usually attached to the \ac{io} hub. The \ac{io} hub resides on
+a separate chip and is connected to the \ac{cpu} via Direct Media Interface
 (Intel) or Unified Media Interface (AMD). \Cref{fig:pch} illustrates the
-relationship between \ac{cpu}, \ac{io} hub and peripherals. Conceptually,
-system agent and Platform Controller Hub (PCH) depicted in \Cref{fig:pch} are
+relationship between \ac{cpu}, \ac{io} hub and peripherals. Conceptually, system
+agent and Platform Controller Hub (PCH) depicted in \Cref{fig:pch} are
 successors of northbridge and southbridge from previous chipsets. While memory
 controller and other northbridge functions were incorporated into the \ac{cpu}
 as so-called system agent, southbridge and remaining northbridge functions were
@@ -48,18 +48,18 @@ PCI and PCI-X. Unlike the former, \ac{pcie} is based on a point-to-point
 topology where all communication data is encapsulated in \ac{pcie} packets, and
 supports hotplugging of devices. Conceptually, \ac{pcie} consists of various
 communication layers and -- similar to TCP -- provides mechanisms like flow
-control and acknowledgements to ensure reliable data transmission.
+control and acknowledgement messages to ensure reliable data transmission.
 
 Physically, \ac{pcie} devices are connected via lanes which consist of two
 differential pairs each, i.e., four wires per lane. The two pairs of \ac{pcie}
-lanes are used unidirectionally as transmit / receive channels. Together, they
-form a bidirectional link. For interrupts, no physical pin is used. Instead,
-in-band messages signal interrupts to the interrupt controller which in turn
-interrupts the \ac{cpu}. To increase throughput, devices may use up to 32 lanes.
-With today's commonly used \ac{pcie} 4.0 (which was released in 2017), a serial
-data rate of 16 Gbps per lane which or 1.97 GB/s (taking the 128b/130b line code
-into account) can be achieved. Compared to \ac{pcie} 1.0 (released in 2003),
-throughput of the lanes has stepped up by a factor of eight.
+lanes are used unidirectionally as one transmit and one receive channel.
+Together, they form a bidirectional link. For interrupts, no physical pin is
+used. Instead, in-band messages signal interrupts to the interrupt controller
+which in turn interrupts the \ac{cpu}. To increase throughput, devices may use
+up to 32 lanes.  With today's commonly used \ac{pcie} 4.0 (which was released in
+2017), a serial data rate of 16 Gbps per lane or 1.97 GB/s (taking the 128b/130b
+line code into account) can be achieved. Compared to \ac{pcie} 1.0 (released in
+2003), throughput of the lanes has increased by a factor of eight.
 
 \begin{figure}
     \centering
@@ -76,13 +76,13 @@ the device side, connections end at \ac{pcie} endpoints. \ac{pcie} devices may
 initiate transfers to main memory through the \ac{pcie} root complex, acting as
 \acs{dma} bus masters that access main memory independently of the \ac{cpu}.
 
-\ac{pcie} uses three layers for communication: physical layer, data link layer
-and transaction layer. The physical layer of \ac{pcie} is responsible for link
-initialization and point-to-point data transfer. The data link layer ensures
-reliable transport of data between individual \ac{pcie} endpoints, or endpoints
-and the root complex. The transaction layer contains user application data or
-configuration data for the link, and routing information like transmitter and
-receiver IDs for memory or \ac{io} requests.
+\ac{pcie} uses three layers for communication: a physical layer, a data link
+layer and a transaction layer. The physical layer of \ac{pcie} is responsible
+for link initialization and point-to-point data transfer. The data link layer
+ensures reliable transport of data between individual \ac{pcie} endpoints, or
+endpoints and the root complex. The transaction layer contains user application
+data or configuration data for the link, and routing information like
+transmitter and receiver IDs for memory or \ac{io} requests.
 
 Every \ac{pcie} transmission consists of four bytes that mark the start of a new
 packet, a header of 12 bytes (or 16 when using 64-bit addresses), a payload of
@@ -102,10 +102,10 @@ included for backwards compatibility and will probably be deprecated in the
 future.
 
 Device registers can be accessed via memory-mapped \ac{io} or port-mapped
-\ac{io}. With memory-mapped \ac{io}, main memory and \ac{io} share the same
-address space, i.e., all physical addresses refer to devices or main memory.
-With port-mapped \ac{io}, special \ac{cpu} instructions and an \ac{io} pin on
-the \ac{cpu} or a separate \ac{io} bus are used to perform \ac{io}.
+\ac{io}. With memory-mapped \ac{io}, main memory and \ac{io} devices share the
+same address space, i.e., all physical addresses refer to devices or main
+memory. With port-mapped \ac{io}, special \ac{cpu} instructions and an \ac{io}
+pin on the \ac{cpu} or a separate \ac{io} bus are used to perform \ac{io}.
 
 To access the configuration space of \ac{pcie} devices, addresses consisting of
 an eight bit bus number, five bit device number and three bit function number
@@ -180,9 +180,9 @@ hand in manuals (the datasheet for network cards of the Intel 82599 family
 the other hand in devices like Intel's XL710 which follow a more firmware-driven
 design where much functionality is executed on the network card, and driver and
 \ac{nic} communicate via a message based interface \cite{emmerich2019user}. The
-downside of this complexity in the currently dominant monolithic computer
-systems is a lack of reliability, safety and security: in case of Linux, 39 out
-of 40 memory bugs found in the kernel in 2017 were located in device drivers
+downside of this complexity in the currently dominant monolithic \aclp{os} is a
+lack of reliability, safety and security: in case of Linux, 39 out of 40 memory
+bugs found in the kernel in 2017 were located in device drivers
 \cite{emmerich2019case}.
 
 Although \acp{nic} have changed a lot in the last decades, most of them still
@@ -223,8 +223,8 @@ offloaded, potentially improving performance as the \ac{cpu} is no longer
 involved in all memory transactions and therefore able to perform other
 operations while data from/to main memory is transferred. In multi-core
 processors, \ac{dma} is sometimes used to transfer data between cores. In
-conjunction with \ac{pcie} devices, \ac{dma} is performed with \ac{pcie} memory
-read and write transactions.
+conjunction with \ac{pcie} devices, \ac{dma} is performed through \ac{pcie}
+memory read and write transactions.
 
 Using \ac{pcie}, no separate \ac{dma} controller is needed (third-party
 \ac{dma}), instead reads and writes are issued directly from bus masters
@@ -263,55 +263,75 @@ to a device's memory region. Such translation units are commonly known as
 \section{Input-Output Memory Management Units}
 \label{sec:iommus}
 
-\acp{iommu} are multipurpose devices that virtualize the memory space of
-peripherals. Although there is a trend to use \acp{iommu} as a protection
-mechanism against malicious or faulty peripherals, the primary application for
-\acp{iommu} is and remains virtualization, i.e., direct pass-through of \ac{io}
-devices to virtual machines for performance reasons.
+\acp{iommu} are multipurpose devices that primarily virtualize the memory space
+of peripherals and provide interrupt remapping. Although there is a trend to use
+\acp{iommu} as a protection mechanism against malicious or faulty peripherals,
+the primary application for \acp{iommu} is and remains virtualization, i.e.,
+direct pass-through of \ac{io} devices to virtual machines for higher throughput
+and lower latency.
 
 Conceptually, \acp{iommu} may be used for any kind of \ac{io} devices and any
-kind of connection standards. In practice, \acp{iommu} are implemented in the
-\ac{pcie} root complex since almost all if not all \ac{io} devices in today's
-systems are connected to the \ac{cpu} via the \ac{pcie} root complex: modern
-interfaces like Thunderbolt, NVMe and SATA Express are directly built on top of
-\ac{pcie}, whereas for older connection standards like USB or I$^2$C, \ac{pcie}
-hubs are used. Focus of \acp{iommu} on \ac{pcie} is also reflected in code like
-Linux's \ac{iommu} API that is closely centered around \ac{pcie} instead of
-providing an abstract interface for any kind of \ac{io} devices and connections.
+kind of connection standard. In practice, \acp{iommu} are implemented in the
+\ac{pcie} root complex since most if not all \ac{io} devices in today's systems
+are connected to the \ac{cpu} via the \ac{pcie} root complex: modern interfaces
+like Thunderbolt, NVMe and SATA Express are directly built on top of \ac{pcie},
+and for older connection standards like USB or I$^2$C, \ac{pcie} hubs are used.
+The focus of \acp{iommu} on \ac{pcie} is also reflected in code like Linux's
+\ac{iommu} API that is closely centered around \ac{pcie} instead of providing an
+abstract interface (e.g., focusing on \ac{pcie} BDF instead of generic groups).
 
-\begin{figure}
-    \centering
+Vendors use different marketing names for their \ac{iommu} solutions. Intel
+calls it ``Intel Virtualization Technology for Directed I/O'' (VT-d), AMD uses
+the term ``AMD I/O Virtualization Technology'' (AMD-V), and ARM does without
+such a designation, simply denoting its \acp{iommu} as System Memory Management
+Units (SMMUs).
+
+In the VT-d specification, Intel describes different virtualization models for
+\ac{io} devices, like direct assignment to virtual machines and \ac{io} device
+sharing (see \ac{sriov} in \Cref{sec:sriov}), as well as the capabilities
+provided by Intel VT-d required for these models, namely \ac{io} device
+assignment, \ac{dma} remapping, interrupt remapping and ``reliability''
+features. Besides virtualization, Intel also suggests some intra-\ac{os} use
+cases for \ac{dma} remapping: protection of critical \ac{os} data from \ac{io}
+devices, isolation of \ac{dma} accesses, support of high memory addresses for
+legacy \ac{io} devices.
+
+\ac{dma} remapping, i.e., address translation and access validation, is executed
+by the remapping hardware inside of the \ac{iommu}. Intel calls this hardware
+``DMA Remapping Hardware'', AMD uses the term ``I/O Virtualization Hardware'',
+and ARM omits an additional term for this part of the hardware. In the following
+paragraphs, we will use ``\acs{dmar} units'' when referring to the remapping
+hardware.
+
+\begin{figure} \centering
     \includegraphics[width=0.7\textwidth]{figures/pcie-dmar}
     \caption{DMAR units in the PCIe root complex of an Intel system.}
     \label{fig:pcie-dmar}
 \end{figure}
 
-The main task of \acp{iommu}, which is filtering requests and address
-translation, is performed by so-called \ac{dmar} hardware units: When \ac{io}
-devices attempt to access main memory, the request is intercepted by the
-\ac{dmar} unit, checked for admissibility and translated appropriately. This
-procedure consists of two major steps: First, a device's domain is determined by
-it's bus/device/function (BDF) number. Second, the domain's translation tables
-are consulted to map the requested address to a host physical address.
-
-A \ac{pcie} root complex may contain one or multiple \acp{iommu} where each
-\ac{dmar} is responsible for a distinct set of \ac{io} buses
+Every \ac{pcie} root complex may contain one or multiple \acp{iommu} where each
+\ac{dmar} unit is responsible for a distinct set of \ac{io} buses
 (\Cref{fig:pcie-dmar}). Devices on \ac{iommu}-managed buses belong to protection
 domains, i.e., sets of address mappings and access permissions. While domains
-may consist of multiple devices, devices cannot be assigned to multiple domains
-(i.e., every device is mapped to exactly one domain).
+may consist of multiple devices, devices belong to exactly one domain.
 
-Data structures used for address translation by the \ac{dmar} units are kept in
-main memory to be accessible for \ac{os} and \acp{iommu}. In case of multiple
+Data structures used for address translation by \ac{dmar} units are kept in main
+memory to be accessible for \ac{os} and \acp{iommu}. In case of multiple
 \acp{iommu}, \ac{dmar} units may share the same data structures. On \ac{iommu}
 initialization, the \ac{os} sets up these data structures by creating domains
 and address mappings for the system's \ac{io} devices. Although this happens at
-system boot, mappings are not fixed: the device-to-domain mapping may change
+system boot, mappings are not fix: the device-to-domain mapping may change
 (e.g., when a device is assigned to a virtual machine) and address mappings may
 be altered by the \ac{os} (e.g., when \ac{dma} memory is mapped or unmapped).
 
-Depending on the usage model of the \ac{iommu}, addresses used by \ac{io}
-devices may be one of the following:
+When \ac{io} devices attempt to access main memory, the request is intercepted
+by the \ac{dmar} unit, checked for admissibility and translated appropriately.
+This procedure consists of two major steps: First, a device's domain is
+determined by it's bus/device/function (BDF) number. Second, the domain's
+translation tables are consulted to map the requested address to a host physical
+address, taking into account the domain's translation scheme. Depending on the
+usage model of the \ac{iommu}, the addresses used by \ac{io} devices may be one
+of the following:
 
 \begin{itemize}
     \item \acp{iova} managed by software on the host,
@@ -353,26 +373,48 @@ field indicating whether requests belonging to this domain may pass the
 translated -- a pointer to the first table to be used for address translation
 for this domain, the PML4 table.
 
-Subsequently, PML4, PDP, PD and PT table are walked by the \ac{iommu} to
-determine the host physical address belonging to the \ac{iova}. Every
-table is a 4~KiB page with 512 8~B entries. If there is no translation for a
-requested address or the access rights for associated page do not permit access,
+Subsequently, PML4, PDP, PD and the page table are walked by the \ac{iommu} to
+determine the host physical address belonging to the \ac{iova}. Every table is a
+4~KiB page with 512 8~B entries. If there is no translation for a requested
+address or the access rights for the associated page do not permit access,
 translation faults and the request is rejected.
 
 In case of 2~MiB pages, no PT table is used for translation, and the last
 21~bits of the \ac{iova} represent the offset into the 2~MiB page. In case of
 1~GiB pages, no PT and no PD table are used, and the last 30~bits of the
-\ac{iova} represent the offset into the 1~GiB page.
+\ac{iova} represent the offset into the 1~GiB page. PML4, PDP, PD and PT table
+form a 4-level translation structure. For 57-bit \acp{iova} and 4~KiB pages, a
+5-level structure is used with an additional PML5 table. For 39-bit \acp{iova}
+and 4~KiB pages, only three tables are used.
 
-PML4, PDP, PD and PT table form a 4-level translation structure. For 57-bit
-\acp{iova}, a 5-level structure is used with an additional PML5 table. For
-39-bit \acp{iova}, only three tables are used.
+Intel's \ac{iommu} uses two different formats for the page table entries. For
+first-level translation, entries equal the format used by the \ac{mmu} such that
+the \ac{cpu} page tables can be re-used for address translation. For
+second-level translation, a unique format is used.
 
-To speed up address translation, \acp{iommu} cache translation information in a
-context cache and a \ac{tlb}, the \ac{iotlb}. Context cache and \ac{iotlb}
-increase performance but also complexity: Caches have to be kept up-to-date and
-entries must be purged from the caches when they become invalid, necessitating
-some kind of invalidation mechanism.
+AMD's \ac{iommu} is mostly identical to Intel's. One of the major differences is
+that the AMD \ac{iommu} uses one table (called device table) to determine the
+\ac{iommu} domain from the \ac{pcie} BDF identifier while Intel uses two, root
+table and context table. With 65,536 possible BDF combinations, AMD's device
+table consists of up to 65,536 entries with 256~bit each, i.e., up to 2~MiB.
+Another difference of AMD's \ac{iommu} is consistent usage of the \ac{mmu} page
+table entries format for all translations.
+
+ARM on the other hand uses a completely different design for its \ac{iommu}. Its
+SMMUv2 specification describes a register-based architecture for small-scale
+systems, and SMMUv3 with \ac{iommu} configuration stored in memory for larger
+systems. The translation tables of these \acp{iommu} are compatible to the ARMv8
+architecture. Like AMD's and Intel's \ac{iommu}, ARM determines the context of
+the supplied address before address translation, however, context does not
+depend on the BDF but a stream ID that is transmitted with every memory
+transaction.
+
+Common to all \acp{iommu} is caching of translation information in a context
+cache and a \ac{tlb}, the \ac{iotlb}, to speed up address translation. While
+context cache and \ac{iotlb} increase performance, they also increase complexity
+as caches have to be kept up-to-date and entries must be purged from the caches
+when they become invalid. If not implemented properly, this creates new
+vulnerabilities as previous attacks have shown.
 
 
 \section{IOMMUs on Linux}
@@ -483,8 +525,8 @@ kernel-internal \ac{iommu}-API.
 \section{Single-Root Input/Output Virtualization}
 \label{sec:sriov}
 
-Single-root input/output virtualization is a mechanism that allows a \ac{pcie}
-device to appear as multiple devices and thus be shared with multiple virtual
+Single-root input/output virtualization is a mechanism that allows \ac{pcie}
+devices to appear as multiple devices and thus be shared with multiple virtual
 machines. Devices that support SR-IOV report this ability to the host via their
 PCI configuration space which includes registers for SR-IOV Extended Capability.
 
@@ -510,7 +552,7 @@ for every \texttt{ixgbe}-bound device in the system, or by writing the required
 number of virtual functions into a device \texttt{sysfs} file called
 \texttt{sriov\_numvfs}.
 
-When VFs are created by the PF driver, every VF is assigned a \ac{pcie}-BDF
+When VFs are created by the PF driver, every VF is assigned a \ac{pcie} BDF
 triple such that the virtual function can be adressed directly and identified on
 the \ac{pcie} bus. Although the function part of the BDF is only 3 bits, i.e.,
 eight different functions, more VFs can be created by using different device
