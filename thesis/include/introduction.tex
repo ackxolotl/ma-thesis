@@ -1,5 +1,61 @@
 \chapter{Introduction}
 \label{chap:introduction}
 
-TODO
+High-speed network environments have seen a major shift towards virtualization
+and cloud computing in the last two decades. This development began in the early
+2000s, when Internet giants like Amazon, Google and Facebook had to cope with a
+sharp expansion of their infrastructure due to rapid company growth. By
+virtualizing their servers, these companies managed to create scalable platforms
+for their services while utilizing existing hardware resources more efficiently.
+
+Telecommunication providers have undergone a similar trend. Through
+software-defined networking, providers have created more flexible, centrally
+managed networks that were complemented by network function virtualization,
+i.e., virtualization of functionality traditionally implemented in dedicated
+hardware like load balancers and firewalls.
+
+A side effect of infrastructure virtualization by the large IT companies was the
+invention of cloud computing. Like virtualization, cloud computing is primarily
+a cost-saving measure: Companies rent out their scalable platforms to other
+companies and end users to maximize utilization of their infrastructure. Major
+companies use cloud computing as one of their business models, namely Amazon
+with AWS since 2006, Google with the Google Cloud Platform since 2008 and
+Microsoft with Microsoft Azure since 2010.
+
+Cloud computing offers a wide range of possible applications and is an active
+subject of research by companies and universities. Topics of interests are, for
+example, secure computing in the cloud, large scale data analysis or load
+balancing.
+
+In most areas of cloud computing and for virtualized network hardware,
+developers focus on performance. One of the limiting factors in virtualized
+environments are I/O devices. In order to achieve high throughput rates and low
+latency, direct pass-through of devices to virtualized environments is
+essential. However, as hardware in current computer systems is generally
+considered trustworthy and I/O devices have unrestriced access to host memory by
+design, devices as they are cannot be passed-through in a safe manner since
+virtual environments could take over the host by abusing the device's memory
+access privileges.
+
+The fact that I/O devices have unrestricted access to memory is a consequence of
+historic developments to improve performance. In the earliest computers, data
+transfer between memory, CPU and peripherals was done by the CPU. Using the CPU,
+data was copied in a safe manner. However, CPUs are not particularly good at
+copying data, and I/O operations are expensive. To reduce the time spent on
+memory transactions by the CPU, Direct Memory Access (DMA) was introduced. With
+DMA, data transfers between I/O devices and memory were initially performed by a
+separate controller (third-party DMA) and later by the I/O devices themselves
+(first-party DMA). DMA uses physical addresses with unrestricted access to host
+memory. This technique is still employed today by I/O devices, first and
+foremost with PCIe.
+
+For direct pass-through of devices with real hardware isolation, computer
+manufacturers included a new component in their systems called \acf{iommu}.
+Similar to \acp{mmu}, \acp{iommu} introduced virtual memory for I/O devices and
+a mechanism to restrict DMA accesses of peripherals to the virtualized memory.
+With such an \ac{iommu} that can only be configured by the hypervisor or the
+operating system, pass-through can be performed in a safe manner.
+
+Some of the first machines with an \ac{iommu} were the SPARC stations of the
+Sun-4 architecture launched in 1987.
 
