@@ -39,7 +39,7 @@ moved to the PCH.
 \section{PCI Express}
 \label{sec:pcie}
 
-As de-facto standard, \ac{pcie} is used for communication with most
+As de-facto standard, \acf{pcie} is used for communication with most
 peripherals. \ac{pcie} is a high-speed serial bus that was designed to replace
 PCI and PCI-X. Unlike the former, \ac{pcie} is based on a point-to-point
 topology where all communication data is encapsulated in \ac{pcie} packets, and
@@ -394,9 +394,9 @@ AMD's \ac{iommu} is mostly identical to Intel's. One of the major differences is
 that the AMD \ac{iommu} uses one table (called device table) to determine the
 \ac{iommu} domain from the \ac{pcie} BDF identifier while Intel uses two, root
 table and context table. With 65,536 possible BDF combinations, AMD's device
-table consists of up to 65,536 entries with 256~bit each, i.e., up to \SI{2}{\mebi\byte}.
-Another difference of AMD's \ac{iommu} is consistent usage of the \ac{mmu} page
-table entries format for all translations.
+table consists of up to 65,536 entries with \SI{256}{\bit} each, i.e., up to
+\SI{2}{\mebi\byte}. Another difference of AMD's \ac{iommu} is consistent usage
+of the \ac{mmu} page table entries format for all translations.
 
 ARM on the other hand uses a completely different design for its \ac{iommu}. Its
 SMMUv2 specification describes a register-based architecture for small-scale
@@ -523,47 +523,48 @@ kernel-internal \ac{iommu}-API.
 \section{Single-Root Input/Output Virtualization}
 \label{sec:sriov}
 
-Single-root input/output virtualization is a mechanism that allows \ac{pcie}
-devices to appear as multiple devices and thus be shared with multiple virtual
-machines. Devices that support SR-IOV report this ability to the host via their
-PCI configuration space which includes registers for SR-IOV Extended Capability.
+% TODO: image physical function vs virtual function?
 
-When SR-IOV is enabled for a device, the device can be split into a physical
-(PF) and multiple virtual functions (VFs). The PF is the standard \ac{pcie}
-function of the device which has full control over the device, is used to reset
-and initialize it and to enable and disable VFs. Hence, access to the physical
-function is usually restricted to \ac{os} or virtual machine manager (VMM). VFs
-on the other hand only support a subset of device operations, primarily to
-manage packet receival and transmittal of the function, and can be passed to
-virtual machines in a safe manner.
+\Acf{sriov} is a mechanism that allows \ac{pcie} devices to appear as multiple
+devices and thus be shared with multiple virtual machines. Devices that support
+\ac{sriov} report this ability to the host via their PCI configuration space
+which includes registers for \ac{sriov} Extended Capability.
 
-For virtual functions, separate drivers are used as virtual functions use
-different device registers and have to communicate with the physical function
-driver for certain operations like reset of the VF. A physical function driver
-on the other hand must be able to handle these requests and is hence slightly
-more complex than the same driver without SR-IOV support.
+When \ac{sriov} is enabled for a device, the device can be split into a \ac{pf}
+and multiple \acp{vf}. The \ac{pf} is the standard \ac{pcie} function of the
+device which has full control over the device, is used to reset and initialize
+it and to enable and disable \acp{vf}. Hence, access to the \ac{pf} is usually
+restricted to \ac{os} or virtual machine manager (VMM). \acp{vf} on the other
+hand only support a subset of device operations, primarily to manage packet
+receival and transmittal of the function, and can be passed to virtual machines
+in a safe manner.
 
-On Linux, virtual functions of SR-IOV-capable devices can be created when
-loading the PF kernel driver, e.g., in case of \texttt{ixgbe}: \texttt{modprobe
-ixgbe max\_vfs=2}, which results in the PF driver creating two virtual functions
-for every \texttt{ixgbe}-bound device in the system, or by writing the required
-number of virtual functions into a device \texttt{sysfs} file called
-\texttt{sriov\_numvfs}.
+For \acp{vf}, separate drivers are used as \acp{vf} use different device
+registers and have to communicate with the \ac{pf} driver for certain operations
+like reset of the \ac{vf}. A \ac{pf} driver on the other hand must be able to
+handle these requests and is hence slightly more complex than the same driver
+without \ac{sriov} support.
 
-When VFs are created by the PF driver, every VF is assigned a \ac{pcie} BDF
-triple such that the virtual function can be adressed directly and identified on
-the \ac{pcie} bus. Although the function part of the BDF is only \SI{3}{\bit},
-i.e., eight different functions, more VFs can be created by using different
-device numbers for the virtual functions.
+On Linux, \acp{vf} of \ac{sriov}-capable devices can be created when loading the
+\ac{pf} kernel driver, e.g., in case of \texttt{ixgbe}: \texttt{modprobe ixgbe
+max\_vfs=2}, which results in the \ac{pf} driver creating two \acp{vf} for every
+\texttt{ixgbe}-bound device in the system, or by writing the required number of
+\acp{vf} into a device \texttt{sysfs} file called \texttt{sriov\_numvfs}.
 
-Usually, the PF also assigns MAC addresses to the VFs and configures the
-\ac{nic} such that each VF receives the packets destined to its MAC address. To
-prevent MAC address spoofing, outgoing packets must be sent from the VF's MAC
-address and are dropped by the \ac{nic} in case VFs do not comply. The MAC
-anti-spoofing mechanism can be disabled by the PF driver.
+When \acp{vf} are created by the \ac{pf} driver, every \ac{vf} is assigned a
+\ac{pcie} BDF triple such that the \ac{vf} can be identified on the \ac{pcie}
+bus and adressed directly. Although the function part of the BDF is only
+\SI{3}{\bit}, i.e., eight different functions, more \acp{vf} can be created by
+using different device numbers for the \acp{vf}.
 
-While not required, SR-IOV can be used in conjunction with \acp{iommu} to pass
-VFs safely to virtual machines. When devices are passed-through without
-\acp{iommu}, virtual machines have unlimited access to the machine's main memory
-through the virtual function (see \Cref{sec:dma}).
+Usually, the \ac{pf} also assigns MAC addresses to the \acp{vf} and configures
+the \ac{nic} such that each \ac{vf} receives the packets destined to its MAC
+address. To prevent MAC address spoofing, outgoing packets must be sent from the
+\ac{vf}'s MAC address and are dropped by the \ac{nic} in case \acp{vf} do not
+comply. The MAC anti-spoofing mechanism can be disabled by the \ac{pf} driver.
+
+While not required, \ac{sriov} can be used in conjunction with \acp{iommu} to
+pass \acp{vf} safely to virtual machines. When devices are passed-through
+without \acp{iommu}, virtual machines have unlimited access to the machine's
+main memory through the virtual function (see \Cref{sec:dma}).
 

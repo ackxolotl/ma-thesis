@@ -1,10 +1,10 @@
 \chapter{Performance Analysis}
 \label{chap:performance_analysis}
 
-We conduct various benchmarks to determine the performance impact of IOMMUs on
-throughput and latency. We use the implementations described in
-\Cref{chap:implementations} for our performance analysis, i.e. \texttt{ixy.rs},
-\texttt{ixgbevf} and \texttt{iommu-leaks}.
+To determine the performance impact of IOMMUs on throughput and latency, we
+conduct various measurements using the implementations described in
+\Cref{chap:implementations}, i.e., \texttt{ixy.rs}, \texttt{ixgbevf} and
+\texttt{iommu-leaks}.
 
 
 \section{Methodology}
@@ -35,12 +35,13 @@ throughput and latency. We use the implementations described in
     \label{tab:servers}
 \end{table}
 
-We perform our measurements on server pairs connected via two 10 Gbit/s links.
-The devices under test use Intel \acp{nic} of the \texttt{ixgbe} family that are
-compatible with our drivers, i.e., X520, X540 and X550. Each device under test
-is equipped with two of these cards since two separate \acp{nic} yield better
-performance than a dual-ported one (probably due to hardware limitations of the
-PCIe connection). \Cref{tab:servers} lists the devices under test.
+All measurements are performed on server pairs connected via two 10 Gbit/s
+links. The devices under test use Intel \acp{nic} of the \texttt{ixgbe} family
+that are compatible with our drivers, i.e., X520, X540 and X550. Each device
+under test is equipped with two of these cards since two separate \acp{nic}
+yield better performance than a dual-ported one (probably due to hardware
+limitations of the PCIe connection). \Cref{tab:servers} lists the devices under
+test.
 
 On the devices under test, we run the different implementations. For the
 measurements, two applications are used on top of the drivers, a traffic
@@ -111,12 +112,12 @@ To determine the baseline performance of our devices under test, we run the
 forwarder and the generator application in default configuration on all servers.
 \Cref{fig:baseline-perf} shows the results. Since the generator application
 generates traffic on a single port only, we run two instances on two different
-devices for our measurements. Consequently, the bars on the left side of
+devices for our measurements. Consequently, the bars on the left of
 \Cref{fig:baseline-perf-throughput} show single core forwarding rate while the
 bars on the right show dual core packet generation rate. Since the two instances
 of the packet generator are executed independently of each other on two
-different \ac{cpu} cores and devices, single core packet generation rate can be
-determined by dividing the results by two.
+different \ac{cpu} cores and devices, single core packet generation rate equals
+(approximately) the measured results divided by two.
 
 \begin{figure}%[!b]
 	\centering
@@ -136,17 +137,16 @@ determined by dividing the results by two.
 \end{figure}
 
 From \Cref{fig:baseline-perf-throughput}, it is particularly striking that the
-AMD EPYC \ac{cpu} with a packet rate of 17.6 Mpps is about one third slower than
-the Intel Xeon E5 \ac{cpu} with a packet rate of 24.4 Mpps when forwarding
-packets although clockspeeds differ only by one sixth.
+packet forwarder on the AMD EPYC \ac{cpu} (packet rate: 17.6~Mpps) is about one
+third slower than on the Intel Xeon E5 \ac{cpu} (packet rate: 24.4~Mpps)
+although clockspeeds differ only by one sixth.
 
 We use \ac{cpu} performance counters to profile the forwarder with both
-\acp{cpu} and identify two reasons for the relatively poor performance of the
-AMD \ac{cpu}: the AMD \ac{cpu} executes about 1.75 instructions per cycle (IPC)
-while the Intel \ac{cpu} runs about 2.1, and while 0.01-0.03\% of all branches
-are mispredicted on the Intel \ac{cpu}, the AMD \ac{cpu} has a misprediction
-rate of 0.40\% (i.e., 15-40 times more branch mispredictions than the Intel
-\ac{cpu}).
+\acp{cpu} and identify two reasons for the poor performance of the AMD \ac{cpu}:
+the AMD \ac{cpu} executes about 1.75 instructions per cycle (IPC) while the
+Intel \ac{cpu} runs about 2.1, and while 0.01-0.03\% of all branches are
+mispredicted on the Intel \ac{cpu}, the AMD \ac{cpu} has a misprediction rate of
+0.40\%.
 
 Although AMD EPYC's Naples architecture is based on Zen, we find reports on poor
 IPC counts and branch misses for the successor architecture of Zen -- Zen 2 --
@@ -380,11 +380,11 @@ of \Cref{fig:page-size-4k-omanyte} such that every device belongs to another
 domain, and, since the devices can no longer access each other's \ac{dma}
 memory, mirror packets received by the devices back onto the link. We check
 packet rates in bullet point manner and note that there is almost no difference
-in performance (~0.1~Mpps) when using one or two domains for the devices. We
-also modify the packet generator \Cref{fig:page-size-generator} to generate
-traffic on two devices, i.e., using only one domain for both devices. Again,
-there is no noticeable performance difference between one and two domains being
-used.
+in performance (\textasciitilde 0.1~Mpps) when using one or two domains for the
+devices. We also modify the packet generator \Cref{fig:page-size-generator} to
+generate traffic on two devices, i.e., using only one domain for both devices.
+Again, there is no noticeable performance difference between one and two domains
+being used.
 
 Our final guess as to why packet rate drops with the forwarder but not the
 generator is that while both allocate 512~pages per device, the forwarder uses
@@ -407,24 +407,25 @@ numbers of pages in use, this is not confirmed by our packet generator.
 \section{IOVA Address Widths}
 \label{sec:iova_address_widths}
 
-For \ac{io} virtual addresses, any mappings can be chosen. Depending on page
-size and IOVA address widths, \acp{iommu} use different paging structures: To
-translate a 57-bit address to 4~KiB pages, an Intel \ac{iommu} uses a 5-level
-paging structure, for 48-bit and 39-bit addresses, 4 and 3 levels are used
+For \acp{iova}, any mappings can be chosen. Depending on page size and \ac{iova}
+address widths, \acp{iommu} use different paging structures: To translate a
+57-bit address to 4~KiB pages, an Intel \ac{iommu} uses a 5-level paging
+structure, for 48-bit and 39-bit addresses, 4 and 3 levels are used
 respectively.
 
 We run our packet forwarder application to determine the performance impact of
-different IOVA address widths. \Cref{fig:iova-address-widths-throughput} shows
-the results of our measurements. We run the forwarder on two ports of a single
-\ac{nic} (\Cref{fig:iova-address-widths-single-device-throughput}) and on two
-distinct \acp{nic} (\Cref{fig:iova-address-widths-two-devices-throughput}).
+different \ac{iova} address widths. \Cref{fig:iova-address-widths-throughput}
+shows the results of our measurements. We run the forwarder on two ports of a
+single \ac{nic} (\Cref{fig:iova-address-widths-single-device-throughput}) and on
+two distinct \acp{nic} (\Cref{fig:iova-address-widths-two-devices-throughput}).
 There are no values for the Intel Xeon E-3 \ac{cpu} and 48-bit addresses as they
-exceed the maximum IOVA address widths of the Xeon's \ac{iommu} which is 39 bit.
+exceed the maximum \ac{iova} address widths of the Xeon's \ac{iommu} which is 39
+bit.
 
 When using a single dual-ported \ac{nic} for the forwarder, packet rate indeed
 decreases by about 1.7 Mpps on both Intel \acp{cpu} with 48-bit addresses
 instead of 32-bit addresses. We repeat our measurements and note that the loss
-of performance occurs as soon as IOVA address widths surpass the 32-bit
+of performance occurs as soon as \ac{iova} address widths surpass the 32-bit
 boundary.
 
 When using two \acp{nic} for the forwarder, no significant change in performance
@@ -442,8 +443,8 @@ memory read requests varies in size depending on the address widths, for 32-bit
 addresses it is 4~B smaller. Thus, more packets can be transmitted at the
 \ac{pcie} level.
 
-We conclude from these results that changes in performance with different IOVA
-address widths are not related to the \acp{iommu}.
+We conclude from these results that changes in performance with different
+\ac{iova} address widths are not related to the \acp{iommu}.
 
 \begin{figure}%[!b]
 	\centering
@@ -456,8 +457,7 @@ address widths are not related to the \acp{iommu}.
 		\label{fig:iova-address-widths-two-devices-throughput}
 	}
 
-    \caption{Throughput of forwarder with 32, 33 and 48 bit wide \acs{io} virtual
-        addresses.}
+    \caption{Throughput of forwarder with 32, 33 and 48 bit wide IOVAs.}
 	\label{fig:iova-address-widths-throughput}
 \end{figure}
 
@@ -465,21 +465,21 @@ address widths are not related to the \acp{iommu}.
 \section{Virtualization}
 \label{sec:virtualization}
 
-We take a look at \ac{iommu} impact on virtualization, i.e., SR-IOV. For
+We take a look at \ac{iommu} impact on virtualization, i.e., \ac{sriov}. For
 baseline measurements, we run the packet forwarder and packet generator
-application on top of two virtual functions (VFs), with one virtual function per
-device. We modify the applications slightly to work with SR-IOV: instead of
-incrementing one byte in the packets, the forwarder sets the source MAC address
-of each packet to its own address -- otherwise, packets are dropped by the
-\ac{nic} due to its anti-spoofing mechanism.
+application on top of two \acp{vf}, with one \ac{vf} per device. We modify the
+applications slightly to work with \ac{sriov}: instead of incrementing one byte
+in the packets, the forwarder sets the source MAC address of each packet to its
+own address -- otherwise, packets are dropped by the \ac{nic} due to its
+anti-spoofing mechanism.
 
 \Cref{fig:sriov-baseline} shows the results of our measurements. The AMD EPYC
 \ac{cpu} is missing as only one of the two \ac{pcie} ports on the board supports
-SR-IOV. Some values for the Intel Xeon E5 \ac{cpu} are also missing due to
-\ac{iommu} group restrictions: On our server, VFs and PFs of the \acp{nic}
-belong to the same \ac{iommu} group, making it impossible to access them at the
-same time by multiple applications through VFIO, or through VFIO and the native
-driver for the physical function.
+\ac{sriov}. Some values for the Intel Xeon E5 \ac{cpu} are also missing due to
+\ac{iommu} group restrictions: On our server, \acp{vf} and \acp{pf} of the
+\acp{nic} belong to the same \ac{iommu} group, making it impossible to access
+them at the same time by multiple applications through \ac{vfio}, or through
+\ac{vfio} and the native driver for the \ac{pf}.
 
 As in our other measurements, two instances of the generator are run for the
 measurements, one per device. Notably, compared to the unmodified forwarder in
@@ -488,11 +488,11 @@ slower on the Intel Xeon E5 \ac{cpu}, and about 2~Mpps slower on the Intel Xeon
 E3 \ac{cpu}.
 
 The packet rates show that the \acp{iommu} have almost no impact on performance,
-neither in the base configuration nor with virtual functions. Absurdly, packet
-rate with virtual functions is 5.3~Mpps greater on the Xeon E5 \ac{cpu} than
-without virtual functions, and on the Xeon E3 \ac{cpu} the forwarder with
-virtual functions reaches a new maximum of all measurements with 27.6~Mpps
-(0.15~Mpps faster compared to \Cref{fig:baseline-perf}).
+neither in the base configuration nor with \acp{vf}. Absurdly, packet rate with
+\acp{vf} is 5.3~Mpps greater on the Xeon E5 \ac{cpu} than without \acp{vf}, and
+on the Xeon E3 \ac{cpu} the forwarder with \acp{vf} reaches a new maximum of all
+measurements with 27.6~Mpps (0.15~Mpps faster compared to
+\Cref{fig:baseline-perf}).
 
 \begin{figure}%[!b]
 	\centering
@@ -526,19 +526,19 @@ rate on the Xeon E3 \ac{cpu}, i.e., 14.88~Mpps per port. Thus, we put the cost
 of the spoof check at 0.68 Mpps per port or 1.36 Mpps in total. We repeat this
 experiment on the AMD EPYC \ac{cpu} and note that packet rate increases from
 14.08~Mpps to 14.35~Mpps when disabling the spoof check. To our surprise, on all
-hosts the physical function driver of the Linux kernel reports some spoofed
-packets when switching the spoof check on or off on the fly.
+hosts the \ac{pf} driver of the Linux kernel reports some spoofed packets when
+switching the spoof check on or off on the fly.
 
 We also measure the latency. On the Xeon E3, latency of forwarder, and forwarder
-with VFs resemble each other with, while latency of forwarder with \ac{iommu} is
-on average 1 microsecond greater than without \ac{iommu}. On the Xeon E5,
-latencies are also approximately the same, but tail latencies diverge.
+with \acp{vf} resemble each other with, while latency of forwarder with
+\ac{iommu} is on average 1 microsecond greater than without \ac{iommu}. On the
+Xeon E5, latencies are also approximately the same, but tail latencies diverge.
 Interestingly, forwarder and \ac{iommu} achieve the lowest tail latencies,
-followed by the forwarder as-is, forwarder with VFs and forwarder with VFs and
-\ac{iommu}.
+followed by the forwarder as-is, forwarder with \acp{vf} and forwarder with
+\acp{vf} and \ac{iommu}.
 
 We conclude that \acp{iommu} do not have a significant effect on throughput and
-latency of virtual functions.
+latency of \acp{vf}.
 
 
 \section{Summary}
@@ -553,12 +553,12 @@ we assume that the \ac{iotlb} gets thrashed the more pages are used.
 This assumption is not unreasonable: The datasheet for the Intel 82599 \acp{nic}
 mentions changes in the \ac{pcie} transaction size to decrease the number of
 \ac{pcie} transactions and thus thrashing of the \ac{iotlb}
-\cite[p.~34]{intel2016datasheet}. And Neugebauer et al.
+\cite[p.~34]{intel2019datasheet}. And Neugebauer et al.
 \cite{neugebauer2018understanding} report \ac{iotlb} thrashing on their Intel
 Xeon E5-2630v4 based system, and determine an \ac{iotlb} size of 64 entries for
 that particular \ac{iommu}. Unfortunately, our measurements confirm the
 correlation between throughput and used pages only to some extent.
 
 We were not able to identify any striking performance differences in relation to
-IOVA addresses or virtualization.
+\ac{iova} addresses or virtualization.
 

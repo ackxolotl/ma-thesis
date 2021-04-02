@@ -5,11 +5,8 @@ To analyse performance, safety and security implications of \acp{iommu}, we use
 \texttt{ixy.rs} \cite{ellmann2018writing}, a high-speed user space network
 driver written in Rust for Intel 10G \acp{nic} of the \texttt{ixgbe} family, and
 adapt it to our needs. Changes to the existing implementation and new code are
-described in the following sections.
-
-Since \texttt{ixy.rs} is a network driver written for Linux on x86, all remarks
-on specific behavior refer to this combination of operating system and
-architecture.
+described in the following sections. All architectural and \ac{os}-related
+remarks refer to Linux on x86-64, the target platform of \texttt{ixy.rs}.
 
 
 \section{ixy.rs}
@@ -26,7 +23,7 @@ implementation, a device's \ac{vfio} group file is opened on device setup and
 closed after the \ac{vfio} device file descriptor was derived from the group.
 However, a device group file cannot be re-opened if it is used through a derived
 device file descriptor, even if the descriptor of the group file was properly
-closed.  Re-opening the group file in that case returns OS error 16, i.e.,
+closed. Re-opening the group file in that case returns OS error 16, i.e.,
 ``device or resource busy''. We mitigate this problem by keeping \ac{vfio} group
 files opened and storing the file descriptors in a \texttt{HashMap<i32, RawFd>}
 that maps \ac{iommu} groups to group file descriptors. When a new device is
@@ -35,40 +32,51 @@ there is no key-value pair for the group, the group file is opened and group
 number and descriptor are added to the \texttt{HashMap}. Otherwise, the group
 file descriptor from the \texttt{HashMap} is used.
 
-To support \acp{iommu} with an \ac{iova} widths smaller than the host's virtual
-address widths (e.g., only 39 instead of 48 bits), smaller \acp{iova} have to be
-chosen. Currently, \texttt{ixy.rs} uses a 1:1 mapping of process virtual
-addresses to \acp{iova} when setting up the \acp{dmar}. Thus, \ac{mmu} and
-\ac{iommu} map the same (\ac{io}) virtual addresses to the same physical
-addresses and there is no need for \texttt{ixy.rs} to track which \ac{iova} is
-used for which \ac{dma} buffer. We keep this mapping for simplicity but enforce
-all memory to be used by the \ac{nic} to be mapped into the lower 32-bit of the
-process address space. To our knowledge, there are no \acp{iommu} for the x86
-architecture that do not support at least 32-bit addresses.
+To use \texttt{ixy.rs} with \acp{iommu} with a maximum second-level translation
+\ac{iova} widths smaller than the host's virtual address widths (e.g., only 39
+instead of 48 bits), we reduce the \ac{iova} widths in \texttt{ixy.rs}.
+Currently, \texttt{ixy.rs} uses a 1:1 mapping of process virtual addresses to
+\acp{iova} when setting up the \acp{dmar}. Hence, \ac{mmu} and \ac{iommu} map
+the same (\ac{io}) virtual addresses to the same physical addresses and there is
+no need for \texttt{ixy.rs} to track which \ac{iova} is used for which \ac{dma}
+buffer. We keep this mapping for simplicity but enforce all memory to be used by
+the \ac{nic} to be mapped into the lower 32~bit of the process address space.
+To our knowledge, there are no \acp{iommu} for the x86 architecture that do not
+support addresses up to 39~bit.
 
-Mapping memory into the 32-bit address space of a process is no witchcraft.
+On a side note: a 1:1 mapping of process virtual addresses to \acp{iova} is one
+of the use cases mentioned in Intel's \ac{iommu} specification as Shared Virtual
+Memory (SVM) \cite[p.~21]{intel2019iommu}. Unfortunately, we cannot make use of
+SVM since neither the \texttt{ixgbe} \acp{nic} nor Linux's \ac{vfio} framework
+support the required \ac{pcie} feature (PASID). In general, PASID seems to be a
+rather rare feature: Rothwell states in his dissertation that he has not seen it
+used in practice \cite[p.~31]{rothwell2018exploitation}.
+
+Mapping memory into the 32-bit address space of a process is not rocket science.
 \texttt{mmap} can be forced through the \texttt{MAP\_32BIT} flag to create
 mappings in the first 4 GiB of the process address space (indeed, only 2 GiB are
 used, making some authors call it the \texttt{MAP\_31BIT} flag). However,
 mapping memory gets more sophisticated when huge pages are used (as they are in
 \texttt{ixy.rs}) due to alignment requirements: huge pages have to be
-huge-page-aligned, i.e., at 2 MiB or 1 GiB boundaries.
+huge-page-aligned, i.e., at 2 MiB or 1 GiB boundaries. Due to the alignment
+requirements, calling \texttt{mmap} with \texttt{MAP\_32BIT} and
+\texttt{MAP\_HUGETLB} fails.
 
-To obey these requirements, we use \texttt{mmap} twice: to determine an
-appropriate address range and to map the huge pages into the address range.
-\Cref{lst:32-bit-map} illustrates the algorithm. First, a mapping of needed
-size + one huge page size is created (whereby needed size is equivalent to one
-or multiple huge pages). We know that any address range of size $s$ contains a
-$s$-aligned address, i.e., for any \texttt{mmap}-returned address $r$ we know
+To obey the alignment, we use \texttt{mmap} twice: to determine an appropriate
+address range and to map the huge pages into the address range.
+\Cref{lst:32-bit-map} illustrates the algorithm. First, a mapping of needed size
++ one huge page size is created (whereby needed size is equivalent to one or
+multiple huge pages). We know that any address range of size $s$ contains a
+$s$-aligned address, i.e., for any address $r$ returned by \texttt{mmap} we know
 that ${\exists a \in \{r, r + 1, ..., r + s - 1\}: a \equiv 0 \mod s}$. Thus we
 use the additionally mapped huge page to find the huge-page-aligned address $a$.
-After that, excess memory is freed, i.e., memory between the
-\texttt{mmap}-returned address and the huge-page-aligned address and any
-remaining bytes of the additionaly mapped huge page at the end of the mapping.
-Finally, huge pages of the needed size are mapped to the huge-page-aligned
-address by a second call to \texttt{mmap}, passing the aligned address as first
-argument to \texttt{mmap} and the flag \texttt{MAP\_FIXED} to force
-\texttt{mmap} to map the huge pages at the specified address.
+After that, excess memory is freed, i.e., memory between the \texttt{mmap}-
+returned address and the huge-page-aligned address and any remaining bytes of
+the additionaly mapped huge page at the end of the mapping. Finally, huge pages
+of the needed size are mapped to the huge-page-aligned address by a second call
+to \texttt{mmap}, passing the aligned address as first argument to \texttt{mmap}
+and the flag \texttt{MAP\_FIXED} to force \texttt{mmap} to map the huge pages at
+the specified address.
 
 \begin{minipage}{\textwidth}
     \lstinputlisting[label={lst:32-bit-map},language=Rust,caption={Mapping huge
@@ -90,52 +98,51 @@ improved (removal of superfluous casts, parantheses, etc.).
 
 To analyse the effects of \acp{iommu} in context of \ac{sriov}, we implement
 \texttt{ixgbevf} for \texttt{ixy.rs}, a variant of the \texttt{ixgbe} driver for
-virtual functions (VFs).
+\ac{sriov} \acp{vf}.
 
-While \texttt{ixgbe} (physical function driver) and \texttt{ixgbevf} (virtual
-function driver) have great similarities, device setup and communication between
-driver and \ac{nic} differ, and there are some tasks on virtual functions (like
-reset) that have to be executed cooperatively by both drivers. Besides these
-differences in the drivers, there are also differences in the devices: the PCI
-configuration space of virtual functions returns \texttt{0xffff} for vendor and
-device ID, making it necessary to grab the values from files in the
-\texttt{sysfs} or from the physical functions' configuration spaces to determine
-the correct driver to be used, and virtual functions support only up to 8 RX/TX
-queues in contrast to 64 of the physical function.
+While \texttt{ixgbe} (\ac{pf} driver) and \texttt{ixgbevf} (\ac{vf} driver)
+share large parts of their code base, device setup and communication between
+driver and \ac{nic} differ, and there are some tasks on \acp{vf} (like reset)
+that have to be executed cooperatively by both drivers. Besides these
+differences in the drivers, there are also differences in the devices: \acp{vf}
+support only up to 8 RX/TX queues in contrast to 64 of the \ac{pf}, and the PCI
+configuration space of \acp{vf} returns \texttt{0xffff} for vendor and device
+ID, making it necessary to grab the values from files in the \texttt{sysfs} or
+from the \acp{pf}' configuration spaces to determine the correct driver to be
+used.
 
-Reset and initialization of the physical function, i.e., the device itself, and
-creation of virtual functions is initiated by the physical function driver. The
-physical function driver brings the \ac{nic} into an operational state and
-creates virtual functions when requested to do so, e.g., by the \ac{os}.
+Reset and initialization of the \ac{pf}, i.e., the device itself, and creation
+of \acp{vf} is initiated by the \ac{pf} driver. The \ac{pf} driver brings the
+\ac{nic} into an operational state and creates \acp{vf} when requested to do so,
+e.g., by the \ac{os}.
 
-Reset and initialization of the virtual function is initiated by the virtual
-function driver. To reset the VF, communication with the physical function
-driver is necessary. In general, VF driver communication happens in two
-different ways: Directly with the \ac{nic} via memory-mapped \ac{io} and by
-passing messages to the physical function driver via a mailbox system. For
-direct communication with the \ac{nic}, only a part of the device configuration
-space can be accessed by the virtual function. The registers in this
-configuration space allow the VF driver to set up the descriptor rings, enable
-or disable interrupts, send and receive packets, etc. For operations that have
-global impact like configuring VLAN filters or resetting the virtual function,
-the VF driver has to communicate with the PF driver and request the needed
-operations. This is done via the mailbox system that is implemented in hardware
-in the \ac{nic}.
+Reset and initialization of the \ac{vf} is initiated by the \ac{vf} driver. To
+reset the \ac{vf}, communication with the \ac{pf} driver is necessary. In
+general, \ac{vf} driver communication happens in two different ways: Directly
+with the \ac{nic} via memory-mapped \ac{io} and by passing messages to the
+\ac{pf} driver via a mailbox system. For direct communication with the \ac{nic},
+only a part of the device configuration space can be accessed by the \ac{vf}.
+The registers in this configuration space allow the \ac{vf} driver to set up the
+descriptor rings, enable or disable interrupts, send and receive packets, etc.
+For operations that have global impact like configuring VLAN filters or
+resetting the \ac{vf}, the \ac{vf} driver has to communicate with the \ac{pf}
+driver and request the needed operations. This is done via a mailbox system that
+is implemented in hardware in the \ac{nic}.
 
 Messages used for mailbox communication are hardware-independent and can be
 freely chosen by driver implementations. However, to be able to use our driver
-in conjunction with the kernel \texttt{ixgbe} driver as PF driver, messages must
-be coordinated and synchronized. Thus, we implement the same mailbox messages as
-the Linux kernel driver and DPDK.
+in conjunction with the kernel \texttt{ixgbe} driver as \ac{pf} driver, we have
+to use the same messages for the same operations. Hence, we implement the
+mailbox in the way the Linux kernel driver and DPDK do.
 
-\Cref{lst:mbx} shows how communication with the \ac{nic} mailbox is
-implemented in \texttt{ixgbevf}. \linebreak \texttt{read\_msg\_from\_mbx} is
-used to read a message from the mailbox buffer. It is expected to be called once
-a new message for the virtual function arrives (which can be determined through
-the \texttt{IXGBE\_VFMAILBOX} register). The method takes a slice \texttt{msg}
-of unknown size to store the message from the mailbox. Before the message is
-copied to the slice, the mailbox is locked to prevent race conditions between VF
-and PF. Subsequently, the message is copied and receipt of the message
+\Cref{lst:mbx} shows how communication with the \ac{nic} mailbox is implemented
+in \texttt{ixgbevf}. \linebreak \texttt{read\_msg\_from\_mbx} is used to read a
+message from the mailbox buffer. It is expected to be called once a new message
+for the \ac{vf} arrives (which can be determined through the
+\texttt{IXGBE\_VFMAILBOX} register). The method takes a slice \texttt{msg} of
+unknown size to store the message from the mailbox. Before the message is copied
+to the slice, the mailbox is locked to prevent race conditions between \ac{vf}
+and \ac{pf}. Subsequently, the message is copied and receipt of the message
 acknowledged (releasing the mailbox at the same time).
 
 \begin{minipage}{\textwidth}
@@ -143,23 +150,23 @@ acknowledged (releasing the mailbox at the same time).
     from the VF mailbox.},captionpos=b] {code/mbx.rs}
 \end{minipage}
 
-Virtual function initialization of \texttt{ixgbevf} resembles to a large extent
-physical function initialization of \texttt{ixgbe}: Once the VF's registers are
-mapped into memory and DMA bus master is enabled for the virtual function,
-interrupts are disabled and the VF is reset by prompting the physical function
-driver for function reset. When the PF driver has acknowledged function reset,
-the MAC address of the virtual function is derived from the PF through mailbox
-communication or generated locally. Subsequently, RX and TX descriptor rings are
-set up and initialization of the virtual function is complete.
+\ac{vf} initialization of \texttt{ixgbevf} resembles to a large extent \ac{pf}
+initialization of \texttt{ixgbe}: Once the \ac{vf}'s registers are mapped into
+memory and \ac{dma} bus master is enabled for the \ac{vf}, interrupts are
+disabled and the \ac{vf} is reset by prompting the \ac{pf} driver for function
+reset. When the \ac{pf} driver has acknowledged function reset, the MAC address
+of the \ac{vf} is derived from the \ac{pf} through mailbox communication or
+generated locally. Subsequently, RX and TX descriptor rings are set up and
+initialization of the \ac{vf} is complete.
 
-Unlike with \texttt{ixgbe}, there is no link setup since the physical function
-driver is responsible for the link. Indeed, virtual functions can only be used
-once the device's link is up. If the link is down, virtual function reset hangs.
+Unlike in \texttt{ixgbe}, there is no link setup since the \ac{pf} driver is
+responsible for the link. Indeed, \acp{vf} can only be used once the device's
+link is up. If the link is down, \ac{vf} reset stalls.
 
 Deriving the MAC address and using it as source address for outgoing packets is
 crucial for \texttt{ixgbevf} as the kernel driver enables MAC anti-spoofing by
 default, i.e., all TX packets are checked for deviating MAC addresses by the
-\ac{nic} and discarded if necessary.
+\ac{nic} and get discarded if a deviating address was detected.
 
 
 \section{iommu-leaks}
@@ -168,7 +175,7 @@ default, i.e., all TX packets are checked for deviating MAC addresses by the
 For precise time measurements on \ac{nic} operations and to analyse effects of
 the \ac{iotlb}, we implement some additional functionality in \texttt{ixy.rs}.
 
-To be independent of the physical link we add methods to enable loopback
+To be independent of the physical link, we add methods to enable loopback
 operations on the \ac{nic}. In loopback mode, packets are transmitted from the
 \ac{nic}'s TX queues via its internal 10 Gigabit Media Independent Interface
 (XGMII) to the RX queues without leaving the device.
@@ -181,7 +188,7 @@ access to the TX queue page and another \ac{dma} access to the packet buffer.
 To measure \ac{cpu} cycles for \ac{nic} operations, we use the x86
 \texttt{rdtsc} instruction. We implement a rdtsc function as shown in
 \Cref{lst:rdtsc}. We use intrinsic functions to avoid inline assembler. Since
-intrinsic functions are inherently unsafe, we need a \texttt{unsafe} block.
+intrinsic functions are inherently unsafe, we need an \texttt{unsafe} block.
 Note our use of memory fences to serialize instruction execution.
 \texttt{lfence}s deter the compiler from reordering code and the \ac{cpu} from
 speculatively executing subsequent instructions, namely the \texttt{rdtsc}

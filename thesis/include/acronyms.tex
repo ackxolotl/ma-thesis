@@ -179,3 +179,25 @@
         used synonymously with \ac{iommu}.
     }
 }
+\DeclareAcronym{vf}{
+    short               = {\sc{VF}},
+    short-plural-form   = {\sc*{VF}s},
+    long                = {virtual function},
+    long-plural-form    = {virtual functions},
+    list                = {\Acl{vf}.},
+    extra               = {%
+        A lightweight \ac{pcie} function of a \ac{sriov}-capable device that can
+        be passed-through to a virtual environment.
+    }
+}
+\DeclareAcronym{pf}{
+    short               = {\sc{PF}},
+    short-plural-form   = {\sc*{PF}s},
+    long                = {physical function},
+    long-plural-form    = {physical functions},
+    list                = {\Acl{pf}.},
+    extra               = {%
+        A fully featured \ac{pcie} function that supports \ac{sriov} and creates
+        and manages one or multiple \acp{vf} if required.
+    }
+}
