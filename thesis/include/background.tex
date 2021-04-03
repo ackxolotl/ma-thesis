@@ -2,8 +2,8 @@
 \label{chap:background}
 
 \Ac{io} devices interact with the \acs{cpu} via interrupts, registers and shared
-memory. We provide an overview of how these communication primitives work with
-\acp{iommu} in context of network environments in the following sections,
+memory. We present an overview of how these communication primitives work with
+\acp{iommu} in high-speed network environments in the following sections,
 focusing on \acs{pcie}, \acsp{nic}, \acsp{iommu} on Linux, and \acs{sriov}.
 
 
@@ -93,10 +93,10 @@ memory, \ac{io} or configuration reads and writes (to the PCI configuration
 space) that are either posted, i.e., expect a completion (reply), or non-posted.
 The PCI configuration space is a standardized register space that contains
 information about a PCI(e) device such as vendor and device ID, device class or
-the physical addresses of the device's registers (i.e., the Base Address
-Registers or BARs). Among others, memory space is used by a device to access
-main memory and by the \ac{cpu} to access device registers. \ac{io} space is
-included for backwards compatibility and will probably be deprecated in the
+memory access type and addresses of the device's registers (stored in the Base
+Address Registers or BARs). Among others, memory space is used by a device to
+access main memory and by the \ac{cpu} to access device registers. \ac{io} space
+is included for backwards compatibility and will probably be deprecated in the
 future.
 
 Device registers can be accessed via memory-mapped \ac{io} or port-mapped
