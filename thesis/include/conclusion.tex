@@ -5,11 +5,12 @@ We investigated the effects of hardware isolation in high-speed network
 environments with a focus on Intel's and AMD's \acp{iommu}. We used the
 \texttt{ixy.rs} user space network driver for our analyses, and adapted it to
 our needs. We implemented support for multiple devices in an \ac{iommu} group
-and \acp{iommu} with limited IOVA translation capabilities. We also implemented
-a whole new driver in \texttt{ixy.rs} for virtual functions, \texttt{ixgbevf}.
-And we implemented methods for precise timing measurements on \ac{nic}
-operations to investigate the \ac{iotlb} of \acp{iommu}, including a brute-force
-memory allocator to allocate physically contiguous memory in user space.
+and \acp{iommu} with limited second-level \ac{iova} translation capabilities. We
+also implemented a whole new driver in \texttt{ixy.rs} for virtual functions,
+\texttt{ixgbevf}. And we implemented methods for precise timing measurements on
+\ac{nic} operations to investigate the \ac{iotlb} of \acp{iommu}, including a
+brute-force memory allocator to allocate physically contiguous memory in user
+space.
 
 Our findings with \texttt{ixy.rs} paint a multi-layered picture of \acp{iommu}.
 In regards to performance, our results show that on most configurations, neither
@@ -56,6 +57,6 @@ restricted to virtualization and high-speed networking.
 
 Future work could continue our work on the \ac{iotlb}, investigate \acp{iommu}
 on mobile platforms, e.g., the \ac{iommu} of Apple's iPhones, or focus on
-Linux's VFIO API and its different ways of handling IOVA address mappings, e.g.,
-coalescing of addresses and mapping with different page sizes.
+Linux's \ac{vfio} API and its different ways of handling \ac{iova} address
+mappings, e.g., coalescing of addresses and mapping with different page sizes.
 

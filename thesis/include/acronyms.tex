@@ -67,7 +67,7 @@
     long-plural-form    = {input-output memory management units},
     list                = {\Acl{iommu}.},
     extra               = {%
-        A \ac{mmu} between \acs{dma}-capable devices and main memory.
+        A \ac{mmu} for \ac{io} devices.
     }
 }
 \DeclareAcronym{tlb}{
@@ -128,8 +128,8 @@
     long-plural-form    = {Basic Input/Output Systems},
     list                = {\Acl{bios}.},
     extra               = {%
-        Firmware that initializes the hardware on boot before the \ac{os} is
-        loaded.
+        Firmware that initializes a computer's hardware on boot before the
+        \ac{os} is loaded.
     }
 }
 \DeclareAcronym{uefi}{
@@ -175,7 +175,7 @@
     long                = {DMA remapping},
     list                = {\Acl{dmar}.},
     extra               = {%
-        Part of \acp{iommu} that is responsible for address translation. Often
+        Component of \acp{iommu} responsible for address translation. Often
         used synonymously with \ac{iommu}.
     }
 }
@@ -186,7 +186,7 @@
     long-plural-form    = {virtual functions},
     list                = {\Acl{vf}.},
     extra               = {%
-        A lightweight \ac{pcie} function of a \ac{sriov}-capable device that can
+        Lightweight \ac{pcie} function of \ac{sriov}-capable devices that can
         be passed-through to a virtual environment.
     }
 }
@@ -197,7 +197,24 @@
     long-plural-form    = {physical functions},
     list                = {\Acl{pf}.},
     extra               = {%
-        A fully featured \ac{pcie} function that supports \ac{sriov} and creates
-        and manages one or multiple \acp{vf} if required.
+        Fully featured \ac{pcie} function that supports \ac{sriov} and creates
+        and manages one or multiple \acp{vf} when required.
+    }
+}
+\DeclareAcronym{bdf}{
+    short               = {\sc{BDF}},
+    long                = {bus/device/function number},
+    list                = {\Acl{bdf}.},
+    extra               = {%
+        Identifier triple of \ac{pcie} devices.
+    }
+}
+\DeclareAcronym{mac}{
+	short				= {\sc{MAC}},
+	long				= {medium access control},
+	list				= {\Acl{mac}.},
+    extra               = {%
+        Sublayer of the data link layer responsible for flow control and
+        multiplexing of the transmission medium.
     }
 }

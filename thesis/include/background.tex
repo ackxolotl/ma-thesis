@@ -107,12 +107,11 @@ pin on the \ac{cpu} or a separate \ac{io} bus are used to perform \ac{io}.
 
 To access the configuration space of \ac{pcie} devices, addresses consisting of
 an eight bit bus number, five bit device number and three bit function number
-are used (commonly referred to as BDF, i.e., bus/device/function). See
-\Cref{fig:pcie-bdf} for reference. \ac{pcie} also specifies an ``Alternative
-Routing-ID'' format where the 16-bit \ac{pcie} ID is split in an 8-bit bus
-number and an 8-bit function number, i.e., device and function number merge into
-one. However, this scheme does not yet seem to be used in practice
-\cite[p.~24]{rothwell2018exploitation}.
+are used (commonly referred to as \ac{bdf} number). See \Cref{fig:pcie-bdf} for
+reference. \ac{pcie} also specifies an ``Alternative Routing-ID'' format where
+the 16-bit \ac{pcie} ID is split in an 8-bit bus number and an 8-bit function
+number, i.e., device and function number merge into one. However, this scheme
+does not yet seem to be used in practice \cite[p.~24]{rothwell2018exploitation}.
 
 \begin{figure}
     \centering
@@ -132,8 +131,8 @@ switches and endpoints. It suffices to probe for function 0 for every
 combination of bus and device number to determine a device's presence since
 every device is required to implement function 0. For every detected device, the
 maximum payload size on the link is determined and the device is assigned its
-respective BDF. Bus and device numbers might be re-assigned by the enumeration
-software if a \ac{pcie} device is hotplugged.
+respective \ac{bdf}. Bus and device numbers might be re-assigned by the
+enumeration software if a \ac{pcie} device is hotplugged.
 
 After a device's presence has been detected, every base address register field
 in the configuration space is read to determine the address space needed to
@@ -142,8 +141,8 @@ portion of the host physical address space. If software sets one of the device's
 registers through memory-mapped \ac{io}, e.g., during device setup by a device
 driver, a memory write to the physical address is issued. The \ac{pcie} root
 complex -- which unites the physical address space of all its devices --
-receives the memory write, translates the physical address to the BDF of the
-respective device and initiates a \ac{pcie} memory write transaction to the
+receives the memory write, translates the physical address to the \ac{bdf} of
+the respective device and initiates a \ac{pcie} memory write transaction to the
 device.
 
 
@@ -276,7 +275,8 @@ like Thunderbolt, NVMe and SATA Express are directly built on top of \ac{pcie},
 and for older connection standards like USB or I$^2$C, \ac{pcie} hubs are used.
 The focus of \acp{iommu} on \ac{pcie} is also reflected in code like Linux's
 \ac{iommu} API that is closely centered around \ac{pcie} instead of providing an
-abstract interface (e.g., focusing on \ac{pcie} BDF instead of generic groups).
+abstract interface (e.g., focusing on \ac{pcie} \ac{bdf} instead of generic
+groups).
 
 Vendors use different marketing names for their \ac{iommu} solutions. Intel
 calls it ``Intel Virtualization Technology for Directed I/O'' (VT-d), AMD uses
@@ -325,7 +325,7 @@ be altered by the \ac{os} (e.g., when \ac{dma} memory is mapped or unmapped).
 When \ac{io} devices attempt to access main memory, the request is intercepted
 by the \ac{dmar} unit, checked for admissibility and translated appropriately.
 This procedure consists of two major steps: First, a device's domain is
-determined by its BDF number. Second, the domain's translation tables are
+determined by its \ac{bdf} number. Second, the domain's translation tables are
 consulted to map the requested address to the host physical address, taking into
 account the domain's translation scheme. Depending on the usage model of the
 \ac{iommu}, the addresses used by \ac{io} devices may be one of the following:
@@ -392,11 +392,11 @@ second-level translation, a unique format is used.
 
 AMD's \ac{iommu} is mostly identical to Intel's. One of the major differences is
 that the AMD \ac{iommu} uses one table (called device table) to determine the
-\ac{iommu} domain from the \ac{pcie} BDF identifier while Intel uses two, root
-table and context table. With 65,536 possible BDF combinations, AMD's device
-table consists of up to 65,536 entries with \SI{256}{\bit} each, i.e., up to
-\SI{2}{\mebi\byte}. Another difference of AMD's \ac{iommu} is consistent usage
-of the \ac{mmu} page table entries format for all translations.
+\ac{iommu} domain from the \ac{pcie} \ac{bdf} identifier while Intel uses two,
+root table and context table. With 65,536 possible \ac{bdf} combinations, AMD's
+device table consists of up to 65,536 entries with \SI{256}{\bit} each, i.e., up
+to \SI{2}{\mebi\byte}. Another difference of AMD's \ac{iommu} is consistent
+usage of the \ac{mmu} page table entries format for all translations.
 
 ARM on the other hand uses a completely different design for its \ac{iommu}. Its
 SMMUv2 specification describes a register-based architecture for small-scale
@@ -404,7 +404,7 @@ systems, and SMMUv3 with \ac{iommu} configuration stored in memory for larger
 systems. The translation tables of these \acp{iommu} are compatible to the ARMv8
 architecture. Like AMD's and Intel's \ac{iommu}, ARM determines the context of
 the supplied address before address translation, however, context does not
-depend on the BDF but a stream ID that is transmitted with every memory
+depend on the \ac{bdf} but a stream ID that is transmitted with every memory
 transaction.
 
 Common to all \acp{iommu} is caching of translation information in a context
@@ -552,16 +552,17 @@ max\_vfs=2}, which results in the \ac{pf} driver creating two \acp{vf} for every
 \acp{vf} into a device \texttt{sysfs} file called \texttt{sriov\_numvfs}.
 
 When \acp{vf} are created by the \ac{pf} driver, every \ac{vf} is assigned a
-\ac{pcie} BDF triple such that the \ac{vf} can be identified on the \ac{pcie}
-bus and adressed directly. Although the function part of the BDF is only
-\SI{3}{\bit}, i.e., eight different functions, more \acp{vf} can be created by
-using different device numbers for the \acp{vf}.
+\ac{pcie} \ac{bdf} triple such that the \ac{vf} can be identified on the
+\ac{pcie} bus and adressed directly. Although the function part of the \ac{bdf}
+is only \SI{3}{\bit}, i.e., eight different functions, more \acp{vf} can be
+created by using different device numbers for the \acp{vf}.
 
-Usually, the \ac{pf} also assigns MAC addresses to the \acp{vf} and configures
-the \ac{nic} such that each \ac{vf} receives the packets destined to its MAC
-address. To prevent MAC address spoofing, outgoing packets must be sent from the
-\ac{vf}'s MAC address and are dropped by the \ac{nic} in case \acp{vf} do not
-comply. The MAC anti-spoofing mechanism can be disabled by the \ac{pf} driver.
+Usually, the \ac{pf} also assigns \ac{mac} addresses to the \acp{vf} and
+configures the \ac{nic} such that each \ac{vf} receives the packets destined to
+its \ac{mac} address. To prevent \ac{mac} address spoofing, outgoing packets
+must be sent from the \ac{vf}'s \ac{mac} address and are dropped by the \ac{nic}
+in case \acp{vf} do not comply. The \ac{mac} anti-spoofing mechanism can be
+disabled by the \ac{pf} driver.
 
 While not required, \ac{sriov} can be used in conjunction with \acp{iommu} to
 pass \acp{vf} safely to virtual machines. When devices are passed-through

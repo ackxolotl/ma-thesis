@@ -1,7 +1,7 @@
 \chapter{Performance Analysis}
 \label{chap:performance_analysis}
 
-To determine the performance impact of IOMMUs on throughput and latency, we
+To determine the performance impact of \acp{iommu} on throughput and latency, we
 conduct various measurements using the implementations described in
 \Cref{chap:implementations}, i.e., \texttt{ixy.rs}, \texttt{ixgbevf} and
 \texttt{iommu-leaks}.
@@ -40,8 +40,8 @@ links. The devices under test use Intel \acp{nic} of the \texttt{ixgbe} family
 that are compatible with our drivers, i.e., X520, X540 and X550. Each device
 under test is equipped with two of these cards since two separate \acp{nic}
 yield better performance than a dual-ported one (probably due to hardware
-limitations of the PCIe connection). \Cref{tab:servers} lists the devices under
-test.
+limitations of the \ac{pcie} connection). \Cref{tab:servers} lists the devices
+under test.
 
 On the devices under test, we run the different implementations. For the
 measurements, two applications are used on top of the drivers, a traffic
@@ -74,8 +74,8 @@ our baseline measurements (\Cref{sec:baseline_measurements}).
 To reduce architecture-dependent overhead and assimilate the results of our
 measurements, packet-prefetching is disabled in all implementations. If not
 specified otherwise, packets are processed in batches of 32, ring sizes of 512
-are used for RX and TX descriptors, and all DMA-able memory is allocated on 2
-MiB huge pages. On RX overload, packets are dropped by the \ac{nic}.
+are used for RX and TX descriptors, and all \ac{dma}-able memory is allocated on
+2 MiB huge pages. On RX overload, packets are dropped by the \ac{nic}.
 
 Throughput and latency results of the implementations are measured on the second
 server by MoonGen. Forwarded and generated packets contain 60~B of data, i.e.,
@@ -433,9 +433,9 @@ can be observed. Throughput increases slightly on the Intel \acp{cpu} by 0.3
 Mpps.
 
 We take a closer look at \Cref{fig:iova-address-widths-single-device-throughput}
-with the different packet rates for different IOVA address widths. We note that
-32~bit is not a boundary in the Intel \ac{iommu} paging structure. Compared to
-\Cref{fig:iova-address-widths-two-devices-throughput}, throughput of the
+with the different packet rates for different \ac{iova} address widths. We note
+that 32~bit is not a boundary in the Intel \ac{iommu} paging structure. Compared
+to \Cref{fig:iova-address-widths-two-devices-throughput}, throughput of the
 forwarder is capped at a certain packet rate. We suspect that this is a
 bottleneck at the \ac{pcie} level. A sufficient explanation is given by the
 \ac{pcie} specification \cite{pcie2017specification}: The header of \ac{pcie}
@@ -469,8 +469,8 @@ We take a look at \ac{iommu} impact on virtualization, i.e., \ac{sriov}. For
 baseline measurements, we run the packet forwarder and packet generator
 application on top of two \acp{vf}, with one \ac{vf} per device. We modify the
 applications slightly to work with \ac{sriov}: instead of incrementing one byte
-in the packets, the forwarder sets the source MAC address of each packet to its
-own address -- otherwise, packets are dropped by the \ac{nic} due to its
+in the packets, the forwarder sets the source \ac{mac} address of each packet to
+its own address -- otherwise, packets are dropped by the \ac{nic} due to its
 anti-spoofing mechanism.
 
 \Cref{fig:sriov-baseline} shows the results of our measurements. The AMD EPYC
@@ -521,13 +521,13 @@ measurements with 27.6~Mpps (0.15~Mpps faster compared to
 \end{figure}
 
 When running the generator application, we note that throughput is capped at
-14.20~Mpps per port. We disable the MAC anti-spoofing mechanism and reach line
-rate on the Xeon E3 \ac{cpu}, i.e., 14.88~Mpps per port. Thus, we put the cost
-of the spoof check at 0.68 Mpps per port or 1.36 Mpps in total. We repeat this
-experiment on the AMD EPYC \ac{cpu} and note that packet rate increases from
-14.08~Mpps to 14.35~Mpps when disabling the spoof check. To our surprise, on all
-hosts the \ac{pf} driver of the Linux kernel reports some spoofed packets when
-switching the spoof check on or off on the fly.
+14.20~Mpps per port. We disable the \ac{mac} anti-spoofing mechanism and reach
+line rate on the Xeon E3 \ac{cpu}, i.e., 14.88~Mpps per port. Thus, we put the
+cost of the spoof check at 0.68 Mpps per port or 1.36 Mpps in total. We repeat
+this experiment on the AMD EPYC \ac{cpu} and note that packet rate increases
+from 14.08~Mpps to 14.35~Mpps when disabling the spoof check. To our surprise,
+on all hosts the \ac{pf} driver of the Linux kernel reports some spoofed packets
+when switching the spoof check on or off on the fly.
 
 We also measure the latency. On the Xeon E3, latency of forwarder, and forwarder
 with \acp{vf} resemble each other with, while latency of forwarder with

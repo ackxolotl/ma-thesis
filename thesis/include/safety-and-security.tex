@@ -13,9 +13,9 @@ that the \ac{iotlb} is susceptible to timing attacks.
 \label{sec:known_vulnerabilities}
 
 On the \ac{pcie} level, two flaws stand out. First, devices can impersonate
-other \ac{pcie} devices by spoofing their \ac{pcie} ID (i.e., the BDF). Since
-\acp{iommu} perform address translation and check access permissions based on
-the \ac{pcie} ID of \ac{pcie} packets, devices can access memory assigned to
+other \ac{pcie} devices by spoofing their \ac{pcie} ID (i.e., the \ac{bdf}).
+Since \acp{iommu} perform address translation and check access permissions based
+on the \ac{pcie} ID of \ac{pcie} packets, devices can access memory assigned to
 other devices by spoofing their ID. When \acp{iommu} are used in pass-through
 mode, i.e., only some devices use the \ac{iommu}, devices may even bypass the
 \ac{iommu} completely and access all memory of a host. Access in this context
@@ -75,7 +75,7 @@ mitigations against the newly discovered vulnerabilities. Besides, Microsoft
 announced to support \acp{iommu} as of Windows 10 version 1803, and Linux
 disabled ATS entirely for external devices (e.g., Thunderbolt). However,
 internal hardware is still considered trustworthy. To reduce the surface area
-for attacks sustainably, Markettos et al. call for a fundamental change in
+for attacks sustainably, Markettos et al. call for a fundamental change of the
 thread models of operating systems and drivers.
 
 
@@ -95,8 +95,8 @@ We implement an application on top of the methods described in
 Our application follows the idea of priming and probing: By carefully
 controlling the \ac{dma} accesses of the \ac{nic}, we try to bring the
 \ac{iotlb} into a known state. We run our measurements on the Intel Xeon E5
-\ac{cpu} as it is the only \ac{cpu} that supports SR-IOV with \ac{iommu} and two
-devices.
+\ac{cpu} as it is the only \ac{cpu} that supports \ac{sriov} with \ac{iommu} and
+two devices.
 
 We assume that the \ac{iotlb} of this \ac{cpu} has 64 entries. We allocate 64
 physically and virtually contiguous 4~KiB pages, place the TX descriptor ring on
@@ -136,7 +136,7 @@ to-be-transmitted packets.
 
 We run the application with and without \ac{iommu}. We warm up the caches before
 starting our measurements. For every run of the application, we measure the
-\ac{cpu} cycles for 500k batches, and mean and standard deviation of the
+\ac{cpu} cycles for 500k batches and mean and standard deviation of the
 \ac{cpu} cycles. \Cref{fig:cycles-no-iommu} shows the results of five runs
 without \ac{iommu}. The plots are cut off at 50,000~\ac{cpu} cycles, all spikes
 that end up at 50,000 cycles go up to 400,000 \ac{cpu} cycles.
@@ -174,13 +174,14 @@ still vary greatly although all runs were executed on the same \ac{cpu} core
 with the same memory addresses and no dynamic overclocking. Again, we note a
 periodicity of the peaks of 1.0 and 2.0 seconds.
 
+
 \section{Summary}
 \label{sec:sec_summary}
 
-\acp{iommu} do not protect against malicious or faulty peripherals due to
-weaknesses in the \ac{pcie} protocol. Besides, architectural flaws, missing
-support and incorrect handling of \acp{iommu} by \aclp{os} reduce the benefit of
-employing an \ac{iommu} significantly.
+\acp{iommu} provide limited protection against malicious or faulty peripherals
+due to weaknesses in the \ac{pcie} protocol. Besides, architectural flaws,
+missing support and incorrect handling of \acp{iommu} by \aclp{os} further
+reduce the safety / security benefits of employing \acp{iommu}.
 
 Although we suspect the possiblity of side-channel attacks using the \ac{iotlb},
 our timing measurements in \Cref{sec:iotlb} do not reveal any significant

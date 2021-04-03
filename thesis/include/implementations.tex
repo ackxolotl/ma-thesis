@@ -23,7 +23,7 @@ implementation, a device's \ac{vfio} group file is opened on device setup and
 closed after the \ac{vfio} device file descriptor was derived from the group.
 However, a device group file cannot be re-opened if it is used through a derived
 device file descriptor, even if the descriptor of the group file was properly
-closed. Re-opening the group file in that case returns OS error 16, i.e.,
+closed. Re-opening the group file in that case returns \ac{os} error 16, i.e.,
 ``device or resource busy''. We mitigate this problem by keeping \ac{vfio} group
 files opened and storing the file descriptors in a \texttt{HashMap<i32, RawFd>}
 that maps \ac{iommu} groups to group file descriptors. When a new device is
@@ -154,19 +154,20 @@ acknowledged (releasing the mailbox at the same time).
 initialization of \texttt{ixgbe}: Once the \ac{vf}'s registers are mapped into
 memory and \ac{dma} bus master is enabled for the \ac{vf}, interrupts are
 disabled and the \ac{vf} is reset by prompting the \ac{pf} driver for function
-reset. When the \ac{pf} driver has acknowledged function reset, the MAC address
-of the \ac{vf} is derived from the \ac{pf} through mailbox communication or
-generated locally. Subsequently, RX and TX descriptor rings are set up and
+reset. When the \ac{pf} driver has acknowledged function reset, the \ac{mac}
+address of the \ac{vf} is derived from the \ac{pf} through mailbox communication
+or generated locally. Subsequently, RX and TX descriptor rings are set up and
 initialization of the \ac{vf} is complete.
 
 Unlike in \texttt{ixgbe}, there is no link setup since the \ac{pf} driver is
 responsible for the link. Indeed, \acp{vf} can only be used once the device's
 link is up. If the link is down, \ac{vf} reset stalls.
 
-Deriving the MAC address and using it as source address for outgoing packets is
-crucial for \texttt{ixgbevf} as the kernel driver enables MAC anti-spoofing by
-default, i.e., all TX packets are checked for deviating MAC addresses by the
-\ac{nic} and get discarded if a deviating address was detected.
+Deriving the \ac{mac} address and using it as source address for outgoing
+packets is crucial for \texttt{ixgbevf} as the kernel driver enables \ac{mac}
+anti-spoofing by default, i.e., all TX packets are checked for deviating
+\ac{mac} addresses by the \ac{nic} and get discarded if a deviating address was
+detected.
 
 
 \section{iommu-leaks}

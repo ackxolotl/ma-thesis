@@ -8,7 +8,7 @@ sharp expansion of their infrastructure due to rapid company growth. By
 virtualizing their servers, these companies managed to create scalable platforms
 for their services while utilizing existing hardware resources more efficiently.
 
-Telecommunication providers have undergone a similar trend. Through
+Telecommunication providers have undergone a similar change. Through
 software-defined networking, providers have created more flexible, centrally
 managed networks that were complemented by network function virtualization,
 i.e., virtualization of functionality traditionally implemented in dedicated
@@ -29,32 +29,32 @@ balancing.
 
 In most areas of cloud computing and for virtualized network hardware,
 developers focus on performance. One of the limiting factors in virtualized
-environments are I/O devices. In order to achieve high throughput rates and low
-latency, direct pass-through of devices to virtualized environments is
+environments are \acs{io} devices. In order to achieve high throughput rates and
+low latency, direct pass-through of devices to virtualized environments is
 essential. However, as hardware in current computer systems is generally
-considered trustworthy and I/O devices have unrestriced access to host memory by
-design, devices as they are cannot be passed-through in a safe manner since
-virtual environments could take over the host by abusing the device's memory
-access privileges.
+considered trustworthy and \ac{io} devices have unrestriced access to host
+memory by design, devices as they are cannot be passed-through in a safe manner
+since virtual environments could take over the host by abusing the device's
+memory access privileges.
 
-The fact that I/O devices have unrestricted access to memory is a consequence of
-historic developments to improve performance. In the earliest computers, data
-transfer between memory, CPU and peripherals was done by the CPU. Using the CPU,
-data was copied in a safe manner. However, CPUs are not particularly good at
-copying data, and I/O operations are expensive. To reduce the time spent on
-memory transactions by the CPU, Direct Memory Access (DMA) was introduced. With
-DMA, data transfers between I/O devices and memory were initially performed by a
-separate controller (third-party DMA) and later by the I/O devices themselves
-(first-party DMA). DMA uses physical addresses with unrestricted access to host
-memory. This technique is still employed today by I/O devices, first and
-foremost with PCIe.
+The fact that \ac{io} devices have unrestricted access to memory is a
+consequence of historic developments to improve performance. In the earliest
+computers, data transfer between memory, \acs{cpu} and peripherals was done by
+the \ac{cpu}. Using the \ac{cpu}, data was copied in a safe manner. However,
+\acp{cpu} are not particularly good at copying data, and \ac{io} operations are
+expensive. To reduce the time spent on memory transactions by the CPU, \ac{dma}
+was introduced. With \ac{dma}, data transfers between \ac{io} devices and memory
+were initially performed by a separate controller (third-party \ac{dma}) and
+later by the \ac{io} devices themselves (first-party \ac{dma}). \ac{dma} uses
+physical addresses with unrestricted access to host memory. This technique is
+still employed today by \ac{io} devices, first and foremost with \ac{pcie}.
 
 For direct pass-through of devices with real hardware isolation, computer
 manufacturers included a new component in their systems called \acf{iommu}.
-Similar to \acp{mmu}, \acp{iommu} introduced virtual memory for I/O devices and
-a mechanism to restrict DMA accesses of peripherals to the virtualized memory.
-With such an \ac{iommu} that can only be configured by the hypervisor or the
-operating system, pass-through can be performed in a safe manner.
+Similar to \acp{mmu}, \acp{iommu} introduced virtual memory for \ac{io} devices
+and a mechanism to restrict \ac{dma} accesses of peripherals to the virtualized
+memory. With such an \ac{iommu} that can only be configured by the hypervisor
+or the operating system, pass-through can be performed in a safe manner.
 
 Some of the first machines with an \ac{iommu} were the SPARC stations of the
 Sun-4 architecture launched in 1987.
