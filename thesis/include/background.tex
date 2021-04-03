@@ -188,11 +188,11 @@ packets: descriptor rings. Descriptor rings are circular buffers that contain
 information about network packets and are shared between \ac{nic} and host.
 \acp{nic} that use descriptor rings have RX and TX descriptor rings.
 \Cref{fig:tx-ring} shows a TX descriptor ring. Descriptors in TX descriptor
-rings describe outgoing packets, i.e., the amount of data to be sent, location
-in memory (e.g., of buffers in a memory pool), whether transmittal of the packet
-should be reported by the \ac{nic} through updating its descriptor, etc.
-Conversely, descriptors in RX descriptor rings describe where incoming packets
-can be stored by the \ac{nic}.
+rings describe outgoing packets, i.e., size of the packet to be sent, memory
+location of packet data (e.g., of buffers in a memory pool), whether transmittal
+of the packet should be reported by the \ac{nic} by updating the \texttt{DD}-bit
+of the descriptor, etc. Conversely, descriptors in RX descriptor rings describe
+incoming packets, e.g., where packet data can be stored by the \ac{nic}.
 
 Ownership of descriptor rings is shared between \ac{nic} and host through two
 queue pointers, a head and a tail pointer. In case of the TX descriptor ring,
