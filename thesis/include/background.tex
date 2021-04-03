@@ -246,7 +246,7 @@ which is a problem for
         read from main memory and \ac{os} data structures can be corrupted;
     \item avoiding harm from malicious or faulty devices;
     \item providing secure unprivileged access to hardware, e.g., in case of
-        user-space network drivers.
+        user space network drivers.
 \end{itemize}
 
 To solve these problems, virtual addresses are used for \ac{io} devices on
@@ -479,7 +479,7 @@ fitting address range bottom-up, i.e., from the highest \ac{iova} to the lowest.
 To speed up \ac{iova} allocation, magazines are used, i.e., per core caches for
 previously deallocated \acp{iova}.
 
-For controlled device access in user-space, e.g., by user-space network drivers,
+For controlled device access in user space, e.g., by user space network drivers,
 Linux offers a framework called \ac{vfio}. The framework consists of a device
 driver and various \texttt{ioctl}s to interact with \ac{iommu}-controlled
 \ac{pcie} devices.
@@ -498,15 +498,15 @@ the \ac{iommu} driver's capabilities, one or multiple groups may be encapsulated
 into a container, and containers may contain groups of different \ac{iommu}
 domains.
 
-To access a \ac{vfio}-bound device in user-space, multiple steps have to be
+To access a \ac{vfio}-bound device in user space, multiple steps have to be
 carried out by an application. The steps follow this scheme: First, a \ac{vfio}
 container is created and initialized for the device to be used or an existing
 container is re-used. Second, the device's group file is opened by the
-user-space application and the group is added to the \ac{vfio} container. Third,
+user space application and the group is added to the \ac{vfio} container. Third,
 a file descriptor to the device is derived through a \ac{vfio} \texttt{ioctl}
 call on the group file. Fourth, the device file descriptor is used to map the
 device's registers into virtual memory. Finally, memory for \ac{dma} operations
-may be allocated in user-space and \ac{iommu} mappings to that memory may be
+may be allocated in user space and \ac{iommu} mappings to that memory may be
 created through the \ac{vfio}-API, returning \acp{iova} that can be passed to
 the device.
 
