@@ -3,22 +3,22 @@
 
 High-speed network environments have seen a major shift towards virtualization
 and cloud computing in the last two decades. This development began in the early
-2000s, when Internet giants like Amazon, Google and Facebook had to cope with a
-sharp expansion of their infrastructure due to rapid company growth. By
+2000s, when Internet giants like Amazon, Google and Facebook had to cope with
+rapid company growth and a sharp expansion of their infrastructure. By
 virtualizing their servers, these companies managed to create scalable platforms
 for their services while utilizing existing hardware resources more efficiently.
 
 Telecommunication providers have undergone a similar change. Through
 software-defined networking, providers have created more flexible, centrally
-managed networks that were complemented by network function virtualization,
-i.e., virtualization of functionality traditionally implemented in dedicated
-hardware like load balancers and firewalls.
+managed networks. Networks that to an ever greater extent make use of network
+function virtualization, i.e., virtualization of functionality traditionally
+implemented in dedicated hardware like load balancers and firewalls.
 
 A side effect of infrastructure virtualization by the large IT companies was the
 invention of cloud computing. Like virtualization, cloud computing is primarily
 a cost-saving measure: Companies rent out their scalable platforms to other
 companies and end users to maximize utilization of their infrastructure. Major
-companies use cloud computing as one of their business models, namely Amazon
+companies use cloud computing as part of their business models, namely Amazon
 with AWS since 2006, Google with the Google Cloud Platform since 2008 and
 Microsoft with Microsoft Azure since 2010.
 
@@ -27,35 +27,44 @@ subject of research by companies and universities. Topics of interests are, for
 example, secure computing in the cloud, large scale data analysis or load
 balancing.
 
-In most areas of cloud computing and for virtualized network hardware,
-developers focus on performance. One of the limiting factors in virtualized
-environments are \acs{io} devices. In order to achieve high throughput rates and
-low latency, direct pass-through of devices to virtualized environments is
-essential. However, as hardware in current computer systems is generally
-considered trustworthy and \ac{io} devices have unrestriced access to host
-memory by design, devices as they are cannot be passed-through in a safe manner
-since virtual environments could take over the host by abusing the device's
-memory access privileges.
+One of the limiting factors in virtualized environments are \acs{io} devices. In
+order to achieve high throughput rates and low latency, direct pass-through of
+devices to virtualized environments is essential. However, as hardware in
+current computer systems is generally considered trustworthy and \ac{io} devices
+have unrestriced access to host memory by design, devices cannot be
+passed-through in a safe manner as they are since software in virtual
+environments could take over the host by abusing the device's memory access
+privileges.
 
 The fact that \ac{io} devices have unrestricted access to memory is a
-consequence of historic developments to improve performance. In the earliest
-computers, data transfer between memory, \acs{cpu} and peripherals was done by
-the \ac{cpu}. Using the \ac{cpu}, data was copied in a safe manner. However,
-\acp{cpu} are not particularly good at copying data, and \ac{io} operations are
-expensive. To reduce the time spent on memory transactions by the CPU, \ac{dma}
-was introduced. With \ac{dma}, data transfers between \ac{io} devices and memory
+consequence of historic developments. In the earliest computers, data transfer
+between memory, \acs{cpu} and peripherals was done by the \ac{cpu}. Using the
+\ac{cpu}, data was copied in a safe manner. However, \acp{cpu} are not
+particularly good at copying data, and \ac{io} operations are expensive. To
+reduce the time spent on memory transactions by the CPU, \ac{dma} was
+introduced. With \ac{dma}, data transfers between \ac{io} devices and memory
 were initially performed by a separate controller (third-party \ac{dma}) and
-later by the \ac{io} devices themselves (first-party \ac{dma}). \ac{dma} uses
-physical addresses with unrestricted access to host memory. This technique is
-still employed today by \ac{io} devices, first and foremost with \ac{pcie}.
+later by the \ac{io} devices themselves (first-party \ac{dma}). As the term
+implies, devices that use \ac{dma} address memory directly, hence have
+unrestricted access to host memory. This technique is still employed by \ac{io}
+devices today, first and foremost by \acs{pcie} devices.
 
-For direct pass-through of devices with real hardware isolation, computer
+For fast pass-through of \ac{io} devices with real hardware isolation, computer
 manufacturers included a new component in their systems called \acf{iommu}.
 Similar to \acp{mmu}, \acp{iommu} introduced virtual memory for \ac{io} devices
 and a mechanism to restrict \ac{dma} accesses of peripherals to the virtualized
-memory. With such an \ac{iommu} that can only be configured by the hypervisor
-or the operating system, pass-through can be performed in a safe manner.
+memory. With such an \ac{iommu}, that can only be configured by the hypervisor
+or the operating system of the host, pass-through can be performed in a safe
+manner.
 
-Some of the first machines with an \ac{iommu} were the SPARC stations of the
-Sun-4 architecture launched in 1987.
+In fact, \acp{iommu} or their predecessors were sporadically used before the
+advent of hardware virtualization on x86 in 2005/2006. Some of the first
+machines with an \ac{iommu} were the SPARC stations of the Sun-4 architecture
+launched in 1987.  As early bus protocols at times supported smaller address
+spaces than the hosts they were used in, it is suspected that these early
+\acp{iommu} were included into the SPARC computers to improve \ac{io}
+performance by avoiding bounce buffers, i.e., expensive copying of memory
+between \ac{dma}-able memory and software buffers in non-\ac{dma}-able memory
+\cite[pp.~28~ff.]{rothwell2018exploitation}.
+
 

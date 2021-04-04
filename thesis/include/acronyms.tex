@@ -186,8 +186,9 @@
     long-plural-form    = {virtual functions},
     list                = {\Acl{vf}.},
     extra               = {%
-        Lightweight \ac{pcie} function of \ac{sriov}-capable devices that can
-        be passed-through to a virtual environment.
+        Lightweight \ac{pcie} function of \ac{sriov}-capable devices that is
+        associated with a \ac{pf} and shares resources with its \ac{pf} and
+        other \acp{vf}. Often passed-through to virtual environments.
     }
 }
 \DeclareAcronym{pf}{
@@ -197,8 +198,8 @@
     long-plural-form    = {physical functions},
     list                = {\Acl{pf}.},
     extra               = {%
-        Fully featured \ac{pcie} function that supports \ac{sriov} and creates
-        and manages one or multiple \acp{vf} when required.
+        Fully featured \ac{pcie} function that supports \ac{sriov}. Creates
+        and manages \acp{vf} and shared resources such as the link.
     }
 }
 \DeclareAcronym{bdf}{
