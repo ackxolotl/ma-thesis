@@ -33,16 +33,15 @@ devices to virtualized environments is essential. However, as hardware in
 current computer systems is generally considered trustworthy and \ac{io} devices
 have unrestriced access to host memory by design, devices cannot be
 passed-through in a safe manner as they are since software in virtual
-environments could take over the host by abusing the device's memory access
+environments could take over its host by abusing the device's memory access
 privileges.
 
 The fact that \ac{io} devices have unrestricted access to memory is a
 consequence of historic developments. In the earliest computers, data transfer
-between memory, \acs{cpu} and peripherals was done by the \ac{cpu}. Using the
-\ac{cpu}, data was copied in a safe manner. However, \acp{cpu} are not
-particularly good at copying data, and \ac{io} operations are expensive. To
-reduce the time spent on memory transactions by the CPU, \ac{dma} was
-introduced. With \ac{dma}, data transfers between \ac{io} devices and memory
+between memory, \acs{cpu} and peripherals was done by the \ac{cpu}. However,
+\acp{cpu} are not particularly good at copying data, and \ac{io} operations are
+expensive. To reduce the time spent on memory transactions by the CPU, \ac{dma}
+was introduced. With \ac{dma}, data transfers between \ac{io} devices and memory
 were initially performed by a separate controller (third-party \ac{dma}) and
 later by the \ac{io} devices themselves (first-party \ac{dma}). As the term
 implies, devices that use \ac{dma} address memory directly, hence have
@@ -53,18 +52,49 @@ For fast pass-through of \ac{io} devices with real hardware isolation, computer
 manufacturers included a new component in their systems called \acf{iommu}.
 Similar to \acp{mmu}, \acp{iommu} introduced virtual memory for \ac{io} devices
 and a mechanism to restrict \ac{dma} accesses of peripherals to the virtualized
-memory. With such an \ac{iommu}, that can only be configured by the hypervisor
+memory. With such an \ac{iommu} that can only be configured by the hypervisor
 or the operating system of the host, pass-through can be performed in a safe
 manner.
 
-In fact, \acp{iommu} or their predecessors were sporadically used before the
-advent of hardware virtualization on x86 in 2005/2006. Some of the first
-machines with an \ac{iommu} were the SPARC stations of the Sun-4 architecture
-launched in 1987.  As early bus protocols at times supported smaller address
-spaces than the hosts they were used in, it is suspected that these early
-\acp{iommu} were included into the SPARC computers to improve \ac{io}
-performance by avoiding bounce buffers, i.e., expensive copying of memory
-between \ac{dma}-able memory and software buffers in non-\ac{dma}-able memory
-\cite[pp.~28~ff.]{rothwell2018exploitation}.
+In fact, \acp{iommu} or their predecessors were used before the advent of
+\ac{io} virtualization technology on x86 in 2008. Some of the first machines
+with an \ac{iommu} were the SPARC stations of the Sun-4 architecture launched in
+1987. As early bus protocols at times supported smaller address spaces than the
+hosts they were used in, it is suspected that these early \acp{iommu} were
+included into the SPARC computers to improve \ac{io} performance by avoiding
+bounce buffers, i.e., expensive copying of memory between \ac{dma}-able memory
+and buffers in non-\ac{dma}-able memory
+\cite[pp.~28~ff.]{rothwell2018exploitation}. Another early \ac{iommu} was the
+Graphics Address Remapping Table (GART), used for graphic cards to provide a
+contiguous view of host memory.
+
+In 2005/2006, Intel (VT-x) and AMD (AMD-V) released new processor extensions to
+support hardware virtualization. Slow \ac{io} performance of early Intel VT-x
+processors \cite{adams2006comparison} was remedied by the first \acp{cpu}
+employing Intel VT-d in 2008, i.e., Intel's \ac{io} virtualization features
+including an \ac{iommu}, respectively with AMD-V in 2011 by AMD's FX \acp{cpu}.
+Although primarily intended for virtualization, these \acp{iommu} were created
+as multipurpose devices.
+
+Usage of \acp{iommu} has changed. In recent years, protection against malicious
+or faulty \ac{io} devices moves to the forefront. Necessity for protection in
+this domain was already apparent in the early 2000s, when attacks through
+externally connected \ac{dma}-able \ac{io} devices, e.g., using Apple's
+FireWire, were carried out \cite{becher2005firewire}. With the mass adoption of
+USB-C and Thunderbolt (another \ac{dma}-capable protocol), the topic is gaining
+new importance.
+
+Nowadays, \acp{iommu} are not only used in servers and desktop computers but
+also mobiles devices like smartphones. Some ARM based Android phones are shipped
+with \acp{iommu}, and Apple has developed its own variant for its iPhones to
+protect the WiFi stack \cite{beniamini2017overtheair}.
+
+In summary, we note that \acp{iommu} today are used for various purposes, from
+virtualization in server architectures to protection against malicious
+peripherals in consumer hardware. Due to their versatiliy and prevalence,
+\acp{iommu} represent an interesting object of research. In this thesis, we want
+to investigate performance and safety/security impacts of \acp{iommu} in
+high-speed network environments, with a focus on Intel's and AMD's \acp{iommu}
+on x86.
 
 
