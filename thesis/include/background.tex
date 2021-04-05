@@ -56,8 +56,8 @@ which in turn interrupts the \ac{cpu}. To increase throughput, devices may use
 up to 32 lanes. With today's commonly used \ac{pcie} 4.0 (which was released in
 2017), a serial data rate of \SI{16}{\Gbps} per lane or
 \SI{1.97}{\giga\byte\per\second} (taking the 128b/130b line code into account)
-can be achieved. Compared to \ac{pcie} 1.0 (released in 2003), throughput of the
-lanes has increased by a factor of eight.
+can be achieved \cite{pcie2017specification}. Compared to \ac{pcie} 1.0
+(released in 2003), throughput of the lanes has increased by a factor of eight.
 
 \begin{figure}
     \centering
@@ -83,21 +83,24 @@ data or configuration data for the link, and routing information like
 transmitter and receiver IDs for memory or \ac{io} requests.
 
 Every \ac{pcie} transmission consists of four bytes that mark the start of a new
-packet, a header of \SI{12}{\byte} (or 16 when using 64-bit addresses), a
-payload of up to \SI{4096}{\byte} (depending on the maximum payload size on the
-link), and 4 to \SI{8}{\byte} of packet checksums. Thus, the minimal packet
-overhead for headers, checksums, etc. is \SI{20}{\byte}.
+packet \cite[pp.~238~ff.]{pcie2017specification}, a header of \SI{12}{\byte} (or
+16 when using 64-bit addresses) \cite[p.~98]{pcie2017specification}, a payload
+of up to \SI{4096}{\byte} \cite[p.~729]{pcie2017specification} (depending on the
+maximum payload size on the link), and 4 to \SI{8}{\byte} of packet checksums
+\cite[p.~173]{pcie2017specification}. Thus, the minimal packet overhead for
+headers, checksums, etc. is \SI{20}{\byte}.
 
-\ac{pcie} packets are categorized into requests and completions. Requests are
-memory, \ac{io} or configuration reads and writes (to the PCI configuration
-space) that are either posted, i.e., expect a completion (reply), or non-posted.
-The PCI configuration space is a standardized register space that contains
-information about a PCI(e) device such as vendor and device ID, device class or
-memory access type and addresses of the device's registers (stored in the Base
-Address Registers or BARs). Among others, memory space is used by a device to
-access main memory and by the \ac{cpu} to access device registers. \ac{io} space
-is included for backwards compatibility and will probably be deprecated in the
-future.
+\ac{pcie} packets are categorized into requests and completions
+\cite[p.~72]{pcie2017specification}. Requests are memory, \ac{io} or
+configuration reads and writes (to the PCI configuration space) that are either
+posted, i.e., expect a completion (reply), or non-posted. The PCI configuration
+space is a standardized register space that contains information about a PCI(e)
+device such as vendor and device ID, device class or memory access type and
+addresses of the device's registers (stored in the Base Address Registers or
+BARs). Among others, memory space is used by a device to access main memory and
+by the \ac{cpu} to access device registers. \ac{io} space is included for
+backwards compatibility and will probably be deprecated in the future
+\cite[p.~71]{pcie2017specification}.
 
 Device registers can be accessed via memory-mapped \ac{io} or port-mapped
 \ac{io}. With memory-mapped \ac{io}, main memory and \ac{io} devices share the
@@ -107,11 +110,12 @@ pin on the \ac{cpu} or a separate \ac{io} bus are used to perform \ac{io}.
 
 To access the configuration space of \ac{pcie} devices, addresses consisting of
 an eight bit bus number, five bit device number and three bit function number
-are used (commonly referred to as \ac{bdf} number). See \Cref{fig:pcie-bdf} for
-reference. \ac{pcie} also specifies an ``Alternative Routing-ID'' format where
-the 16-bit \ac{pcie} ID is split in an 8-bit bus number and an 8-bit function
-number, i.e., device and function number merge into one. However, this scheme
-does not yet seem to be used in practice \cite[p.~24]{rothwell2018exploitation}.
+are used \cite[p.~591]{pcie2017specification} (commonly referred to as \ac{bdf}
+number). See \Cref{fig:pcie-bdf} for reference. \ac{pcie} also specifies an
+``Alternative Routing-ID'' format where the 16-bit \ac{pcie} ID is split in an
+8-bit bus number and an 8-bit function number, i.e., device and function number
+merge into one \cite[p.~591]{pcie2017specification}. However, this scheme does
+not yet seem to be used in practice \cite[p.~24]{rothwell2018exploitation}.
 
 \begin{figure}
     \centering
@@ -190,9 +194,9 @@ information about network packets and are shared between \ac{nic} and host.
 \Cref{fig:tx-ring} shows a TX descriptor ring. Descriptors in TX descriptor
 rings describe outgoing packets, i.e., size of the packet to be sent, memory
 location of packet data (e.g., of buffers in a memory pool), whether transmittal
-of the packet should be reported by the \ac{nic} by updating the \texttt{DD}-bit
-of the descriptor, etc. Conversely, descriptors in RX descriptor rings describe
-incoming packets, e.g., where packet data can be stored by the \ac{nic}.
+of the packet should be reported by the \ac{nic} through descriptor writeback,
+etc. Conversely, descriptors in RX descriptor rings describe incoming packets,
+e.g., where packet data can be stored by the \ac{nic}.
 
 Ownership of descriptor rings is shared between \ac{nic} and host through two
 queue pointers, a head and a tail pointer. In case of the TX descriptor ring,
