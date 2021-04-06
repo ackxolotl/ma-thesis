@@ -16,7 +16,8 @@ Stefan Huber added basic \ac{iommu} support to \texttt{ixy.rs} in 2019 through
 Linux's \ac{vfio} API \cite{huber2019using}. We complete the implementation by
 adding support for the following two use cases: accessing multiple devices
 associated to the same \ac{iommu} group and using \texttt{ixy.rs} in conjunction
-with legacy \acp{iommu} not supporting 48-bit wide \acp{iova}.
+with legacy \acp{iommu} not supporting 48-bit wide \acp{iova} for second-level
+address translation (i.e., the translation mode used by \ac{vfio}).
 
 For the former, only minor changes in the code are necessary. In the original
 implementation, a device's \ac{vfio} group file is opened on device setup and
@@ -90,7 +91,7 @@ addresses where used instead of \ac{io} virtual addresses, a wrong bitmask was
 discovered and corrected in the original ixy driver \cite{emmerich2019user} that
 propagated into all re-implementations \cite{emmerich2019case} of the driver,
 and some comments were updated, typos fixed and overall code cleanliness
-improved (removal of superfluous casts, parantheses, etc.).
+improved (removal of superfluous casts, parentheses, etc.).
 
 
 \section{ixgbevf}
@@ -98,7 +99,9 @@ improved (removal of superfluous casts, parantheses, etc.).
 
 To analyse the effects of \acp{iommu} in context of \ac{sriov}, we implement
 \texttt{ixgbevf} for \texttt{ixy.rs}, a variant of the \texttt{ixgbe} driver for
-\ac{sriov} \acp{vf}.
+\ac{sriov} \acp{vf}. We base our implementation on the \texttt{ixgbevf} code in
+the Linux kernel and DPDK, and the Intel 82599 SR-IOV Companion Guide
+\cite{intel201082599}.
 
 While \texttt{ixgbe} (\ac{pf} driver) and \texttt{ixgbevf} (\ac{vf} driver)
 share large parts of their code base, device setup and communication between
@@ -161,7 +164,9 @@ initialization of the \ac{vf} is complete.
 
 Unlike in \texttt{ixgbe}, there is no link setup since the \ac{pf} driver is
 responsible for the link. Indeed, \acp{vf} can only be used once the device's
-link is up. If the link is down, \ac{vf} reset stalls.
+link is up. If the link is down, \ac{vf} reset stalls. If the link goes down
+while \acp{vf} are used, the \acp{vf} become inoperable and have to be reset
+once the \ac{pf}'s link is up again.
 
 Deriving the \ac{mac} address and using it as source address for outgoing
 packets is crucial for \texttt{ixgbevf} as the kernel driver enables \ac{mac}
