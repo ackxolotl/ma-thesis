@@ -9,8 +9,8 @@ virtualization techniques on their servers, these companies managed to create
 scalable platforms for their services while utilizing existing hardware
 resources more efficiently.
 
-Virtualization in this context does not primarily refer to
-hardware-virtualization or virtual machines: various solutions were used by the
+Virtualization in this context does not necessarily refer to
+hardware-virtualization or virtual machines. Various solutions were used by the
 big companies to abstract and unify their computing environments, from virtual
 machines to custom software for storage/network virtualization or \ac{os}-level
 virtualization like containers later on. Google, for example, is known to have
@@ -20,11 +20,19 @@ containerization due to the relatively high costs of classic virtualization
 \cite{verma2015large}.
 
 Telecommunication providers have also begun to use virtualization techniques on
-a broader basis. Through software-defined networking, providers have created
-more flexible, centrally managed networks. Networks that to an ever greater
-extent make use of network function virtualization, i.e., virtualization of
-functionality traditionally implemented in dedicated hardware like load
-balancers and firewalls.
+a broader basis. Through \ac{sdn}, providers such as Orange, Verizon and
+Deutsche Telekom \cite{csikor2020transition} have created more flexible,
+centrally managed networks. Google uses \ac{sdn} on a large scale, e.g., for its
+B4 datacenter WAN \cite{jain2013b4}. Another virtualization technique employed
+by telecommunication providers and IT companies is \ac{nfv}, i.e.,
+virtualization of functionality traditionally implemented in dedicated hardware
+like NAT, load balancers or firewalls \cite{roy2018state}. \ac{sdn} and \ac{nfv}
+offer several benefits to these enterprises. With \ac{sdn}, networks can be
+created and orchestrated remotely, services can be chained on-the-fly, and
+providers can mitigate traffic bursts by dynamically adapting routes and
+bandwidths. With \ac{nfv}, dedicated middle-boxes can be reduced and replaced by
+off-the-shelf hardware, and manual work is no longer needed to change network
+functionality.
 
 A side effect of large-scale deployment of virtualization techniques by the
 large IT companies was the invention of cloud computing. Like virtualization,
