@@ -108,8 +108,8 @@ differences in the drivers, there are also differences in the devices: \acp{vf}
 support only up to 8 RX/TX queues in contrast to 64 of the \ac{pf}, and the PCI
 configuration space of \acp{vf} returns \texttt{0xffff} for vendor and device
 ID, making it necessary to grab the values from files in the \texttt{sysfs} or
-from the \acp{pf}' configuration spaces to determine the correct driver to be
-used.
+from the \acp{pf}' PCI configuration spaces to determine the correct driver to
+be used.
 
 Reset and initialization of the \ac{pf}, i.e., the device itself, and creation
 of \acp{vf} is initiated by the \ac{pf} driver. The \ac{pf} driver brings the

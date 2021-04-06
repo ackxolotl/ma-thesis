@@ -105,8 +105,9 @@ backwards compatibility and will probably be deprecated in the future
 Device registers can be accessed via memory-mapped \ac{io} or port-mapped
 \ac{io}. With memory-mapped \ac{io}, main memory and \ac{io} devices share the
 same address space, i.e., all physical addresses refer to devices or main
-memory. With port-mapped \ac{io}, special \ac{cpu} instructions and an \ac{io}
-pin on the \ac{cpu} or a separate \ac{io} bus are used to perform \ac{io}.
+memory. With legacy port-mapped \ac{io}, special \ac{cpu} instructions and an
+\ac{io} pin on the \ac{cpu} or a separate \ac{io} bus are used to perform
+\ac{io}.
 
 To access the configuration space of \ac{pcie} devices, addresses consisting of
 an eight bit bus number, five bit device number and three bit function number
@@ -187,16 +188,18 @@ bugs found in the kernel in 2017 were located in device drivers
 \cite{emmerich2019case}.
 
 Although \acp{nic} have changed a lot in the last decades, most of them still
-use a seemingly simplistic interface to communicate reception or transmittal of
+use a seemingly simplistic interface to communicate reception or transmission of
 packets: descriptor rings. Descriptor rings are circular buffers that contain
 information about network packets and are shared between \ac{nic} and host.
 \acp{nic} that use descriptor rings have RX and TX descriptor rings.
 \Cref{fig:tx-ring} shows a TX descriptor ring. Descriptors in TX descriptor
 rings describe outgoing packets, i.e., size of the packet to be sent, memory
-location of packet data (e.g., of buffers in a memory pool), whether transmittal
-of the packet should be reported by the \ac{nic} through descriptor writeback,
-etc. Conversely, descriptors in RX descriptor rings describe incoming packets,
-e.g., where packet data can be stored by the \ac{nic}.
+location of packet data (e.g., of buffers in a memory pool), whether offloading
+features like TCP/UDP checksum insertion should be applied by the \ac{nic},
+whether transmission of the packet should be reported through descriptor
+writeback, etc. Conversely, descriptors in RX descriptor rings describe incoming
+packets, e.g., where packet data of received packets can be stored by the
+\ac{nic}.
 
 Ownership of descriptor rings is shared between \ac{nic} and host through two
 queue pointers, a head and a tail pointer. In case of the TX descriptor ring,
@@ -207,10 +210,10 @@ descriptor in the TX descriptor ring has been changed appropriately, the driver
 updates the tail pointer to the next descriptor, thereby transferring ownership
 of all descriptors between head and tail pointer to the \ac{nic}. Conversely,
 the \ac{nic} updates the head pointer once a descriptor was processed and the
-corresponding packet data has been fetched from main memory by the \ac{nic}.
+packet data has been fetched from main memory by the \ac{nic}.
 
 If the tail pointer points to the descriptor preceding the head pointer's
-descriptor, the TX queue is full and no new data can be queued for transmittal.
+descriptor, the TX queue is full and no new data can be queued for transmission.
 Consequently, the driver has to wait until some packets have been sent out by
 the \ac{nic}.
 
@@ -223,9 +226,9 @@ Access to main memory by hardware without \ac{cpu} involvement is known as
 offloaded, potentially improving performance as the \ac{cpu} is no longer
 involved in all memory transactions and therefore able to perform other
 operations while data from/to main memory is transferred. In multi-core
-processors, \ac{dma} is sometimes used to transfer data between cores. In
-conjunction with \ac{pcie} devices, \ac{dma} is performed through \ac{pcie}
-memory read and write transactions.
+processors, \ac{dma} is sometimes used to transfer data between cores
+\cite{kistler2006cell}. In conjunction with \ac{pcie} devices, \ac{dma} is
+performed through \ac{pcie} memory read and write transactions.
 
 Using \ac{pcie}, no separate \ac{dma} controller is needed (third-party
 \ac{dma}), instead reads and writes are issued directly from bus masters
@@ -353,7 +356,8 @@ For different address types, hardware implementations of \acp{iommu} may support
 different translation schemes. In case of virtualization, \acp{iommu} may be
 used for nested translation of addresses: a first-level translation to translate
 a guest virtual address to a guest physical address, followed by a second-level
-translation translating the guest physical address to the host physical address.
+translation translating the guest physical address to the host physical address
+\cite[pp.~43~ff.]{intel2019iommu}.
 
 \Cref{fig:translation} depicts the address translation mechanism of an Intel
 \ac{iommu} for 48-bit \acp{iova} to 4 KiB pages. After an attempt to read or
@@ -404,12 +408,12 @@ usage of the \ac{mmu} page table entries format for all translations.
 
 ARM on the other hand uses a completely different design for its \ac{iommu}. Its
 SMMUv2 specification describes a register-based architecture for small-scale
-systems, and SMMUv3 with \ac{iommu} configuration stored in memory for larger
-systems. The translation tables of these \acp{iommu} are compatible to the ARMv8
-architecture. Like AMD's and Intel's \ac{iommu}, ARM determines the context of
-the supplied address before address translation, however, context does not
-depend on the \ac{bdf} but a stream ID that is transmitted with every memory
-transaction.
+systems, and SMMUv3 an architecture with \ac{iommu} configuration stored in
+memory for larger systems. The translation tables of these \acp{iommu} are
+compatible to the ARMv8 architecture. Like AMD's and Intel's \ac{iommu}, ARM
+determines the context of the supplied address before address translation,
+however, context does not depend on the \ac{bdf} but a stream ID that is
+transmitted with every memory transaction.
 
 Common to all \acp{iommu} is caching of translation information in a context
 cache and a \ac{tlb}, the \ac{iotlb}, to speed up address translation. While
@@ -439,15 +443,21 @@ back and forth by the \ac{os} between the device-used memory in the aperture and
 the device-inaccessible buffer.
 
 On AMD systems, \acp{iommu} are enabled by default. For Intel, this behavior can
-be enforced through a kernel boot parameter. When \acp{iommu} are enabled, Linux
-checks the \acs{acpi} tables of \ac{bios}/\ac{uefi} for \ac{dmar} units on
-system boot. For every DMA Remapping Hardware Unit Definition (DRHD) in the
-\ac{dmar} reporting \ac{acpi} tables, Linux initializes the \ac{dmar} unit
-through its respective device driver, creates a default \ac{iommu} domain and
-assigns all \ac{pcie} devices to \ac{iommu} groups, where each group represents
-the smallest possible set of devices that can be distinguished by the \ac{iommu}
-(e.g., all devices behind a \ac{pcie}-to-PCI bridge belong to the same group).
-Furthermore, each \ac{iommu} group is assigned to an \ac{iommu} domain.
+be enforced through kernel boot parameters. Intel's \acp{iommu} were disabled
+for the first time in 2009 due to ``recurring issues with DMAR support on
+certain platforms'' \cite{mcmartin2009disable}. Since then, Linux distributions
+as Debian and Arch Linux have repeatedly enabled and disabled Intel \ac{iommu}
+support \cite{heftig2020disable, hutchings2009enable}.
+
+When \acp{iommu} are enabled, Linux checks the \acs{acpi} tables of
+\ac{bios}/\ac{uefi} for \ac{dmar} units on system boot. For every DMA Remapping
+Hardware Unit Definition (DRHD) in the \ac{dmar} reporting \ac{acpi} tables,
+Linux initializes the \ac{dmar} unit through its respective device driver,
+creates a default \ac{iommu} domain and assigns all \ac{pcie} devices to
+\ac{iommu} groups, where each group represents the smallest possible set of
+devices that can be distinguished by the \ac{iommu} (e.g., all devices behind a
+\ac{pcie}-to-PCI bridge belong to the same group).  Furthermore, each \ac{iommu}
+group is assigned to an \ac{iommu} domain.
 
 Linux has a number of kernel boot parameters to change its default behavior in
 relation to \acp{iommu}. (SW-)\acp{iommu} can be disabled or enforced, the
@@ -540,8 +550,8 @@ device which has full control over the device, is used to reset and initialize
 it and to enable and disable \acp{vf}. Hence, access to the \ac{pf} is usually
 restricted to \ac{os} or virtual machine manager (VMM). \acp{vf} on the other
 hand only support a subset of device operations, primarily to manage packet
-receival and transmittal of the function, and can be passed to virtual machines
-in a safe manner.
+reception and transmission of the function, and can be passed to virtual
+machines in a safe manner.
 
 For \acp{vf}, separate drivers are used as \acp{vf} use different device
 registers and have to communicate with the \ac{pf} driver for certain operations
@@ -549,8 +559,8 @@ like reset of the \ac{vf}. A \ac{pf} driver on the other hand must be able to
 handle these requests and is hence slightly more complex than the same driver
 without \ac{sriov} support.
 
-On Linux, \acp{vf} of \ac{sriov}-capable devices can be created when loading the
-\ac{pf} kernel driver, e.g., in case of \texttt{ixgbe}: \texttt{modprobe ixgbe
+With \texttt{ixgbe} for example, \acp{vf} of \ac{sriov}-capable devices can be
+created when loading the \ac{pf} kernel driver: \texttt{modprobe ixgbe
 max\_vfs=2}, which results in the \ac{pf} driver creating two \acp{vf} for every
 \texttt{ixgbe}-bound device in the system, or by writing the required number of
 \acp{vf} into a device \texttt{sysfs} file called \texttt{sriov\_numvfs}.
