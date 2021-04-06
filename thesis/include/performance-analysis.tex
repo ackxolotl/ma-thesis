@@ -10,25 +10,30 @@ conduct various measurements using the implementations described in
 \section{Methodology}
 \label{sec:methodology}
 
+% TODO: illustration of test setup?
+
 \begin{table}
     \centering
-    \begin{tabular}{l|c|l|c|l|l}
-    CPU & Year & Architecture & Memory & NIC & NUMA  \\ \hline
+    \begin{tabular}{lllrll}
+        \textbf{CPU} & \textbf{Year} & \textbf{Arch.} & \textbf{Memory} & \textbf{NIC} & \textbf{NUMA} \\
+        \toprule
 
-    \multirow{2}{*}{Intel Xeon E3-1230v2} & \multirow{2}{*}{2012} &
-    \multirow{2}{*}{Ivy Bridge} & \multirow{2}{*}{16 GB} & Intel X520-DA1 &
-    \multirow{2}{*}{no} \\
-    & & & & Intel X520-DA2 & \\ \hline
+        \multirow{2}{*}{Intel Xeon E3-1230v2} & \multirow{2}{*}{2012} &
+        \multirow{2}{*}{Ivy Bridge} & \multirow{2}{*}{\SI{16}{\giga\byte}} & Intel X520-DA1 &
+        \multirow{2}{*}{no} \\
+        & & & & Intel X520-DA2 & \\ \hline
 
-    \multirow{2}{*}{Intel Xeon E5-2620v3} & \multirow{2}{*}{2014} &
-    \multirow{2}{*}{Haswell} & \multirow{2}{*}{32 GB} & Intel X520-DA2 &
-    \multirow{2}{*}{no} \\
-    & & & & Intel X540-T2 & \\ \hline
+        \multirow{2}{*}{Intel Xeon E5-2620v3} & \multirow{2}{*}{2014} &
+        \multirow{2}{*}{Haswell} & \multirow{2}{*}{\SI{32}{\giga\byte}} & Intel X520-DA2 &
+        \multirow{2}{*}{no} \\
+        & & & & Intel X540-T2 & \\ \hline
 
-    \multirow{2}{*}{AMD EPYC 7551P} & \multirow{2}{*}{2017} &
-    \multirow{2}{*}{Naples} & \multirow{2}{*}{128 GB} & Intel X550T &
-    \multirow{2}{*}{yes} \\
-    & & & & Intel X550T & \\
+        \multirow{2}{*}{AMD EPYC 7551P} & \multirow{2}{*}{2017} &
+        \multirow{2}{*}{Naples} & \multirow{2}{*}{\SI{128}{\giga\byte}} & Intel X550T &
+        \multirow{2}{*}{yes} \\
+        & & & & Intel X550T & \\
+
+        \bottomrule
     \end{tabular}
 
     \caption{System configurations of servers used for performance analysis.}
@@ -84,14 +89,18 @@ size, such that line rate at 14.88 Mpps can be achieved in all measurements.
 
 \begin{table}
     \centering
-    \begin{tabular}{l|l|r|r|r|r}
-        \multirow{2}{*}{CPU} & \multirow{2}{*}{Clock} & \multirow{2}{*}{Cores} &
-        \multirow{2}{*}{L3-Cache} & \multicolumn{2}{c}{PassMark} \\
-        & & & & ST & All \\ \hline
+    \begin{tabular}{llrrrr}
+        \multirow{2}{*}{\textbf{CPU}} & \multirow{2}{*}{\textbf{Clock}} &
+        \multirow{2}{*}{\textbf{Cores}} & \multirow{2}{*}{\textbf{L3-Cache}} &
+        \multicolumn{2}{r}{\textbf{PassMark}} \\
+        & & & & \textbf{ST} & \textbf{All} \\
+        \toprule
 
-        Intel Xeon E3-1230v2 & 3.3 GHz &  4 &  8 MB & 1996 &  6192 \\ \hline
-        Intel Xeon E5-2620v3 & 2.4 GHz &  6 & 15 MB & 1700 &  7979 \\ \hline
-        AMD EPYC 7551P       & 2.0 GHz & 32 & 64 MB & 1611 & 25933 \\
+        Intel Xeon E3-1230v2 & \SI{3.3}{\giga\Hz} &  4 &  \SI{8}{\mega\byte} & 1,996 &  6,192 \\
+        Intel Xeon E5-2620v3 & \SI{2.4}{\giga\Hz} &  6 & \SI{15}{\mega\byte} & 1,700 &  7,979 \\
+        AMD EPYC 7551P       & \SI{2.0}{\giga\Hz} & 32 & \SI{64}{\mega\byte} & 1,611 & 25,933 \\
+
+        \bottomrule
     \end{tabular}
 
     \caption{\acsp{cpu} of devices under test and their PassMark scores for
