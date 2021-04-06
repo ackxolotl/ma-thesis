@@ -40,13 +40,13 @@ conduct various measurements using the implementations described in
     \label{tab:servers}
 \end{table}
 
-All measurements are performed on server pairs connected via two 10 Gbit/s
+All measurements are performed on server pairs connected via two \SI{10}{\Gbps}
 links. The devices under test use Intel \acp{nic} of the \texttt{ixgbe} family
 that are compatible with our drivers, i.e., X520, X540 and X550. Each device
 under test is equipped with two of these cards since two separate \acp{nic}
 yield better performance than a dual-ported one (probably due to hardware
-limitations of the \ac{pcie} connection). \Cref{tab:servers} lists the devices
-under test.
+limitations of the \ac{nic} or the \ac{pcie} bus). \Cref{tab:servers} lists the
+devices under test.
 
 On the devices under test, we run the different implementations. For the
 measurements, two applications are used on top of the drivers, a traffic
@@ -80,12 +80,15 @@ To reduce architecture-dependent overhead and assimilate the results of our
 measurements, packet-prefetching is disabled in all implementations. If not
 specified otherwise, packets are processed in batches of 32, ring sizes of 512
 are used for RX and TX descriptors, and all \ac{dma}-able memory is allocated on
-2 MiB huge pages. On RX overload, packets are dropped by the \ac{nic}.
+\SI{2}{\mebi\byte} huge pages. When the RX packet rate exceeds the host's packet
+processing rate, i.e., the RX queue is full, packets are dropped by the
+\ac{nic}.
 
 Throughput and latency results of the implementations are measured on the second
-server by MoonGen. Forwarded and generated packets contain 60~B of data, i.e.,
-84~B with checksums and interpacket gap which is the minimum Ethernet frame
-size, such that line rate at 14.88 Mpps can be achieved in all measurements.
+server by MoonGen. Forwarded and generated packets contain \SI{60}{\byte} of
+data, i.e., \SI{84}{\byte} with checksums and interpacket gap which is the
+minimum Ethernet frame size, such that line rate at \SI{14.88}{\mega\pps} can be
+achieved in all measurements.
 
 \begin{table}
     \centering
@@ -140,15 +143,15 @@ different \ac{cpu} cores and devices, single core packet generation rate equals
 	}
 
     \caption{Baseline throughput and latency of servers used for performance
-    measurements. Latency of forwarder measured with a total packet rate of 10
-    Mpps.}
+    measurements. Latency of forwarder measured with a total packet rate of
+    \SI{10}{\mega\pps}.}
 	\label{fig:baseline-perf}
 \end{figure}
 
 From \Cref{fig:baseline-perf-throughput}, it is particularly striking that the
-packet forwarder on the AMD EPYC \ac{cpu} (packet rate: 17.6~Mpps) is about one
-third slower than on the Intel Xeon E5 \ac{cpu} (packet rate: 24.4~Mpps)
-although clockspeeds differ only by one sixth.
+packet forwarder on the AMD EPYC \ac{cpu} (packet rate: \SI{17.6}{\mega\pps}) is
+about one third slower than on the Intel Xeon E5 \ac{cpu} (packet rate:
+\SI{24.4}{\mega\pps}) although clockspeeds differ only by one sixth.
 
 We use \ac{cpu} performance counters to profile the forwarder with both
 \acp{cpu} and identify two reasons for the poor performance of the AMD \ac{cpu}:
@@ -173,29 +176,29 @@ the more expensive Xeon E5 \ac{cpu} forwards traffic rather smoothly.
 
 \begin{figure}[!b]
 	\centering
-	\subfloat[4 KiB pages, stack]{%
+	\subfloat[\SI{4}{\kibi\byte} pages, stack]{%
         \includegraphics[width=0.46\textwidth]{figures/page-size-4k-throughput}
 		\label{fig:page-size-4k-throughput}
 	}
-	\subfloat[4 KiB pages, queue]{%
+	\subfloat[\SI{4}{\kibi\byte} pages, queue]{%
         \includegraphics[width=0.46\textwidth]{figures/page-size-4k-queue-throughput}
 		\label{fig:page-size-4k-queue-throughput}
 	}
     \par
-	\subfloat[2 MiB pages, stack]{%
+	\subfloat[\SI{2}{\mebi\byte} pages, stack]{%
         \includegraphics[width=0.46\textwidth]{figures/page-size-2m-throughput}
 		\label{fig:page-size-2m-throughput}
 	}
-	\subfloat[2 MiB pages, queue]{%
+	\subfloat[\SI{2}{\mebi\byte} pages, queue]{%
         \includegraphics[width=0.46\textwidth]{figures/page-size-2m-queue-throughput}
 		\label{fig:page-size-2m-queue-throughput}
 	}
     \par
-	\subfloat[1 GiB pages, stack]{%
+	\subfloat[\SI{1}{\gibi\byte} pages, stack]{%
         \includegraphics[width=0.46\textwidth]{figures/page-size-1g-throughput}
 		\label{fig:page-size-1g-throughput}
 	}
-	\subfloat[1 GiB pages, queue]{%
+	\subfloat[\SI{1}{\gibi\byte} pages, queue]{%
         \includegraphics[width=0.46\textwidth]{figures/page-size-1g-queue-throughput}
 		\label{fig:page-size-1g-queue-throughput}
 	}
@@ -218,63 +221,68 @@ cache. In extreme cases, addresses are re-translated for every page access,
 i.e., the \ac{tlb} is practically no longer in use.
 
 Available page sizes on a system depend on processor architecture and \ac{os}.
-Linux on x86 uses 4 KiB pages by default. With huge pages, sizes of 2~MiB or
-1~GiB can be used. These page sizes are also supported by Intel's and AMD's
-\acp{iommu}.
+Linux on x86 uses \SI{4}{\kibi\byte} pages by default. With huge pages, sizes of
+\SI{2}{\mebi\byte} or \SI{1}{\gibi\byte} can be used. These page sizes are also
+supported by Intel's and AMD's \acp{iommu}.
 
 To measure effects of different page sizes and number of pages, we run the
-forwarder application with 2~MiB and 1~GiB huge pages as well as our brute-force
-memory allocator to allocate memory on 4 KiB pages.
-\Cref{fig:page-size-throughput} visualizes packet rates for different page
-sizes, memory pool buffer sizes and data structures for the memory pool. For all
-measurements, RX and TX rings have a queue size of 256 descriptors.
-\Cref{fig:page-size-4k-throughput}, \Cref{fig:page-size-2m-throughput} and
-\Cref{fig:page-size-1g-throughput} use the default implementation of the driver,
-i.e., a stack data structure for the free buffers in the memory pool. There are
-no results for the Intel Xeon E3 \ac{cpu} and 1~GiB pages since these page are
-not supported by the \ac{cpu}.
+forwarder application with \SI{2}{\mebi\byte} and \SI{1}{\gibi\byte} huge pages
+as well as our brute-force memory allocator to allocate memory on
+\SI{4}{\kibi\byte} pages. \Cref{fig:page-size-throughput} visualizes packet
+rates for different page sizes, memory pool buffer sizes and data structures for
+the memory pool. For all measurements, RX and TX rings have a queue size of 256
+descriptors. \Cref{fig:page-size-4k-throughput},
+\Cref{fig:page-size-2m-throughput} and \Cref{fig:page-size-1g-throughput} use
+the default implementation of the driver, i.e., a stack data structure for the
+free buffers in the memory pool. There are no results for the Intel Xeon E3
+\ac{cpu} and \SI{1}{\gibi\byte} pages since these page are not supported by the
+\ac{cpu}.
 
-We run our measurements with memory pool buffer sizes of 256~B and 4,096~B. With
-4~KiB pages, different buffer sizes force the driver to allocate varying numbers
-of \ac{dma}-able pages.
+We run our measurements with memory pool buffer sizes of \SI{256}{\byte} and
+\SI{4,096}{\byte}. With \SI{4}{\kibi\byte} pages, different buffer sizes force
+the driver to allocate varying numbers of \ac{dma}-able pages.
 
 The exact number of allocated pages is determined by page size, buffer size and
 number of descriptors. In case of huge pages, three huge pages are used per
 device as all data structures fit onto single pages: one page is allocated for
 the RX descriptor ring, one for the TX descriptor ring and one for the packet
-memory pool. In case of 4~KiB pages, 1~page is used for each descriptor ring as
-each descriptor is 16~B and thus 256~descriptors fit onto a single page. The
-number of pages allocated for the memory pool depends on the buffer size. Since
-\texttt{ixy.rs} allocates the memory pools by default with twice as many buffers
-as RX/TX descriptors, the pool contains 512~packet buffers. With a buffer size
-of 256~B, that totals to 128~KiB, i.e., 32~pages. With a buffer size of 4,096,
-512~pages are allocated. In summary, 34~pages are allocated per device with
-256~B memory pool buffers and 514~pages are allocated with 4,096~B buffers.
+memory pool. In case of \SI{4}{\kibi\byte} pages, 1~page is used for each
+descriptor ring as each descriptor is \SI{16}{\byte} and thus 256~descriptors
+fit onto a single page. The number of pages allocated for the memory pool
+depends on the buffer size. Since \texttt{ixy.rs} allocates the memory pools by
+default with twice as many buffers as RX/TX descriptors, the pool contains
+512~packet buffers. With a buffer size of \SI{256}{\byte}, that totals to
+\SI{128}{\kibi\byte}, i.e., 32~pages. With a buffer size of 4,096, 512~pages are
+allocated. In summary, 34~pages are allocated per device with \SI{256}{\byte}
+memory pool buffers and 514~pages are allocated with \SI{4,096}{\byte} buffers.
 
 Various conclusions can be drawn from \Cref{fig:page-size-4k-throughput},
 \Cref{fig:page-size-2m-throughput} and \Cref{fig:page-size-1g-throughput}. On
 the AMD server, neither page size nor buffer size seem to have a significant
-effect on throughput. The biggest performance drop happens with 4~KiB pages:
-Without \ac{iommu}, packet rate between 256~B memory pool buffers, i.e., 68
-pages in total, and 4,096~B memory pool buffers, i.e., 1,028 pages, decreases by
-0.7 Mpps. With \ac{iommu}, packet rate decreases twice as much, i.e., by 1.4
-Mpps.
+effect on throughput. The biggest performance drop happens with
+\SI{4}{\kibi\byte} pages: Without \ac{iommu}, packet rate between
+\SI{256}{\byte} memory pool buffers, i.e., 68 pages in total, and
+\SI{4,096}{\byte} memory pool buffers, i.e., 1,028 pages, decreases by
+\SI{0.7}{\mega\pps}. With \ac{iommu}, packet rate decreases twice as much, i.e.,
+by \SI{1.4}{\mega\pps}.
 
-On the Intel servers, results are mixed. The Xeon E5 \ac{cpu} exhibits quite
-constant behavior with huge pages across all configurations: packet rates drop
-with increasing buffer sizes, possibly due to decreased data locality. Using
-4~KiB pages without \ac{iommu}, packet rate is almost constant while with
-\ac{iommu} throughput goes down by more than 50\% when using greater buffers,
-i.e., allocating more pages. We inspect this anomaly closer in
+On the Intel servers, results are inconsistent. The Xeon E5 \ac{cpu} exhibits
+quite constant behavior with huge pages across all configurations: packet rates
+drop with increasing buffer sizes, possibly due to decreased data locality.
+Using \SI{4}{\kibi\byte} pages without \ac{iommu}, packet rate is almost
+constant while with \ac{iommu} throughput goes down by more than 50\% when using
+greater buffers, i.e., allocating more pages. We inspect this anomaly closer in
 \Cref{fig:page-size-4k-omanyte}.
 
 Like the AMD \ac{cpu}, the Intel Xeon E3 delivers constant throughput rates in
 all non-\ac{iommu} configurations independent of page size and buffer size.
 Compared to the Xeon E5 \ac{cpu}, \ac{iommu} performance seems abnormal for
-4,096~B memory pool buffers with 4~KiB and 2~MiB pages. For 4~KiB pages, packet
-rate is unexpectedly high while performance drops significantly for 2~MiB pages.
-The reasons for these unusual performance characteristics remain in the dark.
-Notably, both Intel \acp{cpu} profit from huge pages unlike the AMD \ac{cpu}.
+\SI{4,096}{\byte} memory pool buffers with \SI{4}{\kibi\byte} and
+\SI{2}{\mebi\byte} pages. For \SI{4}{\kibi\byte} pages, packet rate is
+unexpectedly high while performance drops significantly for \SI{2}{\mebi\byte}
+pages. The reasons for these unusual performance characteristics remain in the
+dark. Notably, both Intel \acp{cpu} profit from huge pages unlike the AMD
+\ac{cpu}.
 
 In summary, our measurements imply that larger memory pool buffers and thus more
 pages have a negative effect on packet throughput. In case of the \ac{iommu},
@@ -312,27 +320,29 @@ with the stack.
 	\centering
     \includegraphics[width=0.46\textwidth]{figures/page-size-4k-omanyte-throughput}
 
-    \caption{Throughput of forwarder on Intel Xeon E5-2620v3 with 4~KiB pages,
-    IOMMU enabled, and using a queue for the memory pool.}
+    \caption{Throughput of forwarder on Intel Xeon E5-2620v3 with
+    \SI{4}{\kibi\byte} pages, IOMMU enabled, and using a queue for the memory
+    pool.}
 	\label{fig:page-size-4k-omanyte}
 \end{figure}
 
 As noted before, \Cref{fig:page-size-4k-throughput} and
 \Cref{fig:page-size-4k-queue-throughput} depict a drastical loss of performance
-with 4~KiB pages and larger memory pool buffer sizes on the Xeon E5 \ac{cpu}
-when using the \ac{iommu}. To determine whether this performance degradation is
-caused by the number of used pages, we run the forwarder application with
-different queue and memory pool buffer sizes on the Xeon E5 \ac{cpu}, using
-4~KiB pages, \ac{iommu} and a queue as data structure for the memory pool.
-\Cref{fig:page-size-4k-omanyte} shows the results of our measurements.
+with \SI{4}{\kibi\byte} pages and larger memory pool buffer sizes on the Xeon E5
+\ac{cpu} when using the \ac{iommu}. To determine whether this performance
+degradation is caused by the number of used pages, we run the forwarder
+application with different queue and memory pool buffer sizes on the Xeon E5
+\ac{cpu}, using \SI{4}{\kibi\byte} pages, \ac{iommu} and a queue as data
+structure for the memory pool. \Cref{fig:page-size-4k-omanyte} shows the
+results of our measurements.
 
 The stepwise decrease in packet rate for different queue and memory pool buffer
 sizes seems to imply that the number of used pages is indeed the reason for loss
 of throughput. With 2 + 64~pages per device, i.e., a queue size of 128 and
-1,024~B buffers, a queue size of 256 and 512~B buffers or a queue size of 512
-and 256~B buffers, throughput is at its maximum. With 2 + 128~pages, packet rate
-decreases between 1.9 and 7.7 Mpps. With 2 + 512~pages, throughput is at its
-worst with 10.7 Mpps.
+\SI{1,024}{\byte} buffers, a queue size of 256 and \SI{512}{\byte} buffers or a
+queue size of 512 and \SI{256}{\byte} buffers, throughput is at its maximum.
+With 2 + 128~pages, packet rate decreases between 1.9 and \SI{7.7}{\mega\pps}.
+With 2 + 512~pages, throughput is at its worst with \SI{10.7}{\mega\pps}.
 
 \begin{figure}%[!b]
 	\centering
@@ -355,18 +365,19 @@ worst with 10.7 Mpps.
 	}
 
     \caption{Packet rate of two generator instances on Intel Xeon E5-2620v3 with
-    4~KiB pages, different memory pool and buffer sizes.}
+    \SI{4}{\kibi\byte} pages, different memory pool and buffer sizes.}
 	\label{fig:page-size-generator}
 \end{figure}
 
 We repeat our measurements with the packet generator application on the Xeon E5
 \ac{cpu}. \Cref{fig:page-size-generator} shows the results of our measurements.
 We use a queue data structure for the memory pool and vary memory pool buffer
-and memory pool size to run the generator with different numbers of 4~KiB pages,
-ranging from 16~pages (256~buffers with 256~B each) to 512~pages (8,192~buffers
-with 256~B each, or 2,048~buffers with 1,024~B each, etc.). We run two instances
-of the packet generator, each instance generating traffic on one device. We set
-the queue size of RX and TX descriptor ring to 256 entries.
+and memory pool size to run the generator with different numbers of
+\SI{4}{\kibi\byte} pages, ranging from 16~pages (256~buffers with
+\SI{256}{\byte} each) to 512~pages (8,192~buffers with \SI{256}{\byte} each, or
+2,048~buffers with \SI{1,024}{\byte} each,~etc.). We run two instances of the
+packet generator, each instance generating traffic on one device. We set the
+queue size of RX and TX descriptor ring to 256 entries.
 \Cref{fig:page-size-4k-omanyte-generator-one-throughput} and
 \Cref{fig:page-size-4k-omanyte-generator-iommu-one-throughput} show the results
 when running the generator instances staggered in time,
@@ -374,14 +385,14 @@ when running the generator instances staggered in time,
 \Cref{fig:page-size-4k-omanyte-generator-iommu-two-throughput} when running them
 concurrently.
 
-To our surprise, there seems to be no strong correlation between performance
+To our surprise, there seems to be no correlation between performance
 degradation and the number of used pages. Packet rate in the non-\ac{iommu}
 measurements is absolutely constant, with a loss of about 40k packets when
 running both generators concurrently, while with \ac{iommu}, packet rate
 decreases slightly with larger memory pool sizes, and significantly with a
-buffer size of 4,096~B. When running the two generators concurrently with
-4,096~B buffers, packet rate goes down by 3.7 Mpps compared to 256~B buffers
-using the same number of pages.
+buffer size of \SI{4,096}{\byte}. When running the two generators concurrently
+with \SI{4,096}{\byte} buffers, packet rate goes down by \SI{3.7}{\mega\pps}
+compared to \SI{256}{\byte} buffers using the same number of pages.
 
 To verify whether packet rate in \Cref{fig:page-size-4k-omanyte} drops due to
 only one \ac{iommu} domain being used for both devices, we modify the forwarder
@@ -389,11 +400,11 @@ of \Cref{fig:page-size-4k-omanyte} such that every device belongs to another
 domain, and, since the devices can no longer access each other's \ac{dma}
 memory, mirror packets received by the devices back onto the link. We check
 packet rates in bullet point manner and note that there is almost no difference
-in performance (\textasciitilde 0.1~Mpps) when using one or two domains for the
-devices. We also modify the packet generator \Cref{fig:page-size-generator} to
-generate traffic on two devices, i.e., using only one domain for both devices.
-Again, there is no noticeable performance difference between one and two domains
-being used.
+in performance (\textasciitilde \SI{0.1}{\mega\pps}) when using one or two
+domains for the devices. We also modify the packet generator
+\Cref{fig:page-size-generator} to generate traffic on two devices, i.e., using
+only one domain for both devices. Again, there is no noticeable performance
+difference between one and two domains being used.
 
 Our final guess as to why packet rate drops with the forwarder but not the
 generator is that while both allocate 512~pages per device, the forwarder uses
@@ -418,8 +429,8 @@ numbers of pages in use, this is not confirmed by our packet generator.
 
 For \acp{iova}, any mappings can be chosen. Depending on page size and \ac{iova}
 address widths, \acp{iommu} use different paging structures: To translate a
-57-bit address to 4~KiB pages, an Intel \ac{iommu} uses a 5-level paging
-structure, for 48-bit and 39-bit addresses, 4 and 3 levels are used
+57-bit address to \SI{4}{\kibi\byte} pages, an Intel \ac{iommu} uses a 5-level
+paging structure, for 48-bit and 39-bit addresses, 4 and 3 levels are used
 respectively.
 
 We run our packet forwarder application to determine the performance impact of
@@ -432,14 +443,14 @@ exceed the maximum \ac{iova} address widths of the Xeon's \ac{iommu} which is 39
 bit.
 
 When using a single dual-ported \ac{nic} for the forwarder, packet rate indeed
-decreases by about 1.7 Mpps on both Intel \acp{cpu} with 48-bit addresses
-instead of 32-bit addresses. We repeat our measurements and note that the loss
-of performance occurs as soon as \ac{iova} address widths surpass the 32-bit
-boundary.
+decreases by about \SI{1.7}{\mega\pps} on both Intel \acp{cpu} with 48-bit
+addresses instead of 32-bit addresses. We repeat our measurements and note that
+the loss of performance occurs as soon as \ac{iova} address widths surpass the
+32-bit boundary.
 
 When using two \acp{nic} for the forwarder, no significant change in performance
-can be observed. Throughput increases slightly on the Intel \acp{cpu} by 0.3
-Mpps.
+can be observed. Throughput increases slightly on the Intel \acp{cpu} by
+\SI{0.3}{\mega\pps}.
 
 We take a closer look at \Cref{fig:iova-address-widths-single-device-throughput}
 with the different packet rates for different \ac{iova} address widths. We note
@@ -449,8 +460,8 @@ forwarder is capped at a certain packet rate. We suspect that this is a
 bottleneck at the \ac{pcie} level. A sufficient explanation is given by the
 \ac{pcie} specification \cite{pcie2017specification}: The header of \ac{pcie}
 memory read requests varies in size depending on the address widths, for 32-bit
-addresses it is 4~B smaller. Thus, more packets can be transmitted at the
-\ac{pcie} level.
+addresses it is \SI{4}{\byte} smaller. Thus, more packets can be transmitted at
+the \ac{pcie} level.
 
 We conclude from these results that changes in performance with different
 \ac{iova} address widths are not related to the \acp{iommu}.
@@ -492,16 +503,16 @@ them at the same time by multiple applications through \ac{vfio}, or through
 
 As in our other measurements, two instances of the generator are run for the
 measurements, one per device. Notably, compared to the unmodified forwarder in
-\Cref{fig:baseline-perf-throughput}, the modified forwarder is about 6~Mpps
-slower on the Intel Xeon E5 \ac{cpu}, and about 2~Mpps slower on the Intel Xeon
-E3 \ac{cpu}.
+\Cref{fig:baseline-perf-throughput}, the modified forwarder is about
+\SI{6}{\mega\pps} slower on the Intel Xeon E5 \ac{cpu}, and about
+\SI{2}{\mega\pps} slower on the Intel Xeon E3 \ac{cpu}.
 
 The packet rates show that the \acp{iommu} have almost no impact on performance,
 neither in the base configuration nor with \acp{vf}. Absurdly, packet rate with
-\acp{vf} is 5.3~Mpps greater on the Xeon E5 \ac{cpu} than without \acp{vf}, and
-on the Xeon E3 \ac{cpu} the forwarder with \acp{vf} reaches a new maximum of all
-measurements with 27.6~Mpps (0.15~Mpps faster compared to
-\Cref{fig:baseline-perf}).
+\acp{vf} is \SI{5.3}{\mega\pps} greater on the Xeon E5 \ac{cpu} than without
+\acp{vf}, and on the Xeon E3 \ac{cpu} the forwarder with \acp{vf} reaches a new
+maximum of all measurements with \SI{27.6}{\mega\pps} (\SI{0.15}{\mega\pps}
+faster compared to \Cref{fig:baseline-perf}).
 
 \begin{figure}%[!b]
 	\centering
@@ -525,26 +536,27 @@ measurements with 27.6~Mpps (0.15~Mpps faster compared to
 
     \caption{Throughput and latency of modified forwarder with two devices, with
     and without VFs, with and without IOMMU. Latency of forwarder measured with
-    a total packet rate of 10 Mpps.}
+    a total packet rate of \SI{10}{\mega\pps}.}
 	\label{fig:sriov-baseline}
 \end{figure}
 
 When running the generator application, we note that throughput is capped at
-14.20~Mpps per port. We disable the \ac{mac} anti-spoofing mechanism and reach
-line rate on the Xeon E3 \ac{cpu}, i.e., 14.88~Mpps per port. Thus, we put the
-cost of the spoof check at 0.68 Mpps per port or 1.36 Mpps in total. We repeat
-this experiment on the AMD EPYC \ac{cpu} and note that packet rate increases
-from 14.08~Mpps to 14.35~Mpps when disabling the spoof check. To our surprise,
-on all hosts the \ac{pf} driver of the Linux kernel reports some spoofed packets
-when switching the spoof check on or off on the fly.
+\SI{14.20}{\mega\pps} per port. We disable the \ac{mac} anti-spoofing mechanism
+and reach line rate on the Xeon E3 \ac{cpu}, i.e., \SI{14.88}{\mega\pps} per
+port. Thus, we put the cost of the spoof check at \SI{0.68}{\mega\pps} per port
+or \SI{1.36}{\mega\pps} in total. We repeat this experiment on the AMD EPYC
+\ac{cpu} and note that packet rate increases from \SI{14.08}{\mega\pps} to
+\SI{14.35}{\mega\pps} when disabling the spoof check. To our surprise, on all
+hosts the \ac{pf} driver of the Linux kernel reports some spoofed packets when
+switching the spoof check on or off on the fly.
 
 We also measure the latency. On the Xeon E3, latency of forwarder, and forwarder
 with \acp{vf} resemble each other with, while latency of forwarder with
-\ac{iommu} is on average 1 microsecond greater than without \ac{iommu}. On the
-Xeon E5, latencies are also approximately the same, but tail latencies diverge.
-Interestingly, forwarder and \ac{iommu} achieve the lowest tail latencies,
-followed by the forwarder as-is, forwarder with \acp{vf} and forwarder with
-\acp{vf} and \ac{iommu}.
+\ac{iommu} is on average \SI{1}{\micro\second} greater than without \ac{iommu}.
+On the Xeon E5, latencies are also approximately the same, but tail latencies
+diverge. Interestingly, forwarder and \ac{iommu} achieve the lowest tail
+latencies, followed by the forwarder as-is, forwarder with \acp{vf} and
+forwarder with \acp{vf} and \ac{iommu}.
 
 We conclude that \acp{iommu} do not have a significant effect on throughput and
 latency of \acp{vf}.
