@@ -132,20 +132,20 @@ different \ac{cpu} cores and devices, single core packet generation rate equals
 (approximately) the measured results divided by two.
 
 \begin{figure}%[!b]
-	\centering
-	\subfloat[Throughput]{%
+    \centering
+    \subfloat[Throughput]{%
         \includegraphics[width=0.46\textwidth]{figures/baseline-throughput}
-		\label{fig:baseline-perf-throughput}
-	}
-	\subfloat[Latency]{%
+        \label{fig:baseline-perf-throughput}
+    }
+    \subfloat[Latency]{%
         \includegraphics[width=0.54\textwidth]{figures/baseline-latency}
-		\label{fig:baseline-perf-latency}
-	}
+        \label{fig:baseline-perf-latency}
+    }
 
     \caption{Baseline throughput and latency of servers used for performance
     measurements. Latency of forwarder measured with a total packet rate of
     \SI{10}{\mega\pps}.}
-	\label{fig:baseline-perf}
+    \label{fig:baseline-perf}
 \end{figure}
 
 From \Cref{fig:baseline-perf-throughput}, it is particularly striking that the
@@ -175,37 +175,37 @@ the more expensive Xeon E5 \ac{cpu} forwards traffic rather smoothly.
 \label{sec:page_sizes}
 
 \begin{figure}[!b]
-	\centering
-	\subfloat[\SI{4}{\kibi\byte} pages, stack]{%
+    \centering
+    \subfloat[\SI{4}{\kibi\byte} pages, stack]{%
         \includegraphics[width=0.46\textwidth]{figures/page-size-4k-throughput}
-		\label{fig:page-size-4k-throughput}
-	}
-	\subfloat[\SI{4}{\kibi\byte} pages, queue]{%
+        \label{fig:page-size-4k-throughput}
+    }
+    \subfloat[\SI{4}{\kibi\byte} pages, queue]{%
         \includegraphics[width=0.46\textwidth]{figures/page-size-4k-queue-throughput}
-		\label{fig:page-size-4k-queue-throughput}
-	}
+        \label{fig:page-size-4k-queue-throughput}
+    }
     \par
-	\subfloat[\SI{2}{\mebi\byte} pages, stack]{%
+    \subfloat[\SI{2}{\mebi\byte} pages, stack]{%
         \includegraphics[width=0.46\textwidth]{figures/page-size-2m-throughput}
-		\label{fig:page-size-2m-throughput}
-	}
-	\subfloat[\SI{2}{\mebi\byte} pages, queue]{%
+        \label{fig:page-size-2m-throughput}
+    }
+    \subfloat[\SI{2}{\mebi\byte} pages, queue]{%
         \includegraphics[width=0.46\textwidth]{figures/page-size-2m-queue-throughput}
-		\label{fig:page-size-2m-queue-throughput}
-	}
+        \label{fig:page-size-2m-queue-throughput}
+    }
     \par
-	\subfloat[\SI{1}{\gibi\byte} pages, stack]{%
+    \subfloat[\SI{1}{\gibi\byte} pages, stack]{%
         \includegraphics[width=0.46\textwidth]{figures/page-size-1g-throughput}
-		\label{fig:page-size-1g-throughput}
-	}
-	\subfloat[\SI{1}{\gibi\byte} pages, queue]{%
+        \label{fig:page-size-1g-throughput}
+    }
+    \subfloat[\SI{1}{\gibi\byte} pages, queue]{%
         \includegraphics[width=0.46\textwidth]{figures/page-size-1g-queue-throughput}
-		\label{fig:page-size-1g-queue-throughput}
-	}
+        \label{fig:page-size-1g-queue-throughput}
+    }
 
     \caption{Throughput of forwarder with different page sizes, memory pool
     buffer sizes and data structures for the memory pool.}
-	\label{fig:page-size-throughput}
+    \label{fig:page-size-throughput}
 \end{figure}
 
 It is well known that page sizes impact system performance. Page sizes are a
@@ -317,13 +317,13 @@ configurations in which throughput with the queue is even slightly higher than
 with the stack.
 
 \begin{figure}%[!b]
-	\centering
+    \centering
     \includegraphics[width=0.46\textwidth]{figures/page-size-4k-omanyte-throughput}
 
     \caption{Throughput of forwarder on Intel Xeon E5-2620v3 with
     \SI{4}{\kibi\byte} pages, IOMMU enabled, and using a queue for the memory
     pool.}
-	\label{fig:page-size-4k-omanyte}
+    \label{fig:page-size-4k-omanyte}
 \end{figure}
 
 As noted before, \Cref{fig:page-size-4k-throughput} and
@@ -339,34 +339,34 @@ results of our measurements.
 The stepwise decrease in packet rate for different queue and memory pool buffer
 sizes seems to imply that the number of used pages is indeed the reason for loss
 of throughput. With 2 + 64~pages per device, i.e., a queue size of 128 and
-\SI{1,024}{\byte} buffers, a queue size of 256 and \SI{512}{\byte} buffers or a
+\SI{1024}{\byte} buffers, a queue size of 256 and \SI{512}{\byte} buffers or a
 queue size of 512 and \SI{256}{\byte} buffers, throughput is at its maximum.
 With 2 + 128~pages, packet rate decreases between 1.9 and \SI{7.7}{\mega\pps}.
 With 2 + 512~pages, throughput is at its worst with \SI{10.7}{\mega\pps}.
 
 \begin{figure}%[!b]
-	\centering
-	\subfloat[Staggered in time]{%
+    \centering
+    \subfloat[Staggered in time]{%
         \includegraphics[width=0.46\textwidth]{figures/page-size-4k-omanyte-generator-one-throughput}
-		\label{fig:page-size-4k-omanyte-generator-one-throughput}
-	}
-	\subfloat[Concurrently]{%
+        \label{fig:page-size-4k-omanyte-generator-one-throughput}
+    }
+    \subfloat[Concurrently]{%
         \includegraphics[width=0.46\textwidth]{figures/page-size-4k-omanyte-generator-two-throughput}
-		\label{fig:page-size-4k-omanyte-generator-two-throughput}
-	}
+        \label{fig:page-size-4k-omanyte-generator-two-throughput}
+    }
     \par
-	\subfloat[Staggered in time with IOMMU]{%
+    \subfloat[Staggered in time with IOMMU]{%
         \includegraphics[width=0.46\textwidth]{figures/page-size-4k-omanyte-generator-iommu-one-throughput}
-		\label{fig:page-size-4k-omanyte-generator-iommu-one-throughput}
-	}
-	\subfloat[Concurrently with IOMMU]{%
+        \label{fig:page-size-4k-omanyte-generator-iommu-one-throughput}
+    }
+    \subfloat[Concurrently with IOMMU]{%
         \includegraphics[width=0.46\textwidth]{figures/page-size-4k-omanyte-generator-iommu-two-throughput}
-		\label{fig:page-size-4k-omanyte-generator-iommu-two-throughput}
-	}
+        \label{fig:page-size-4k-omanyte-generator-iommu-two-throughput}
+    }
 
     \caption{Packet rate of two generator instances on Intel Xeon E5-2620v3 with
     \SI{4}{\kibi\byte} pages, different memory pool and buffer sizes.}
-	\label{fig:page-size-generator}
+    \label{fig:page-size-generator}
 \end{figure}
 
 We repeat our measurements with the packet generator application on the Xeon E5
@@ -467,18 +467,18 @@ We conclude from these results that changes in performance with different
 \ac{iova} address widths are not related to the \acp{iommu}.
 
 \begin{figure}%[!b]
-	\centering
-	\subfloat[Throughput using 1 NIC]{%
+    \centering
+    \subfloat[Throughput using 1 NIC]{%
         \includegraphics[width=0.46\textwidth]{figures/iova-address-widths-single-device-throughput}
-		\label{fig:iova-address-widths-single-device-throughput}
-	}
-	\subfloat[Throughput using 2 NICs]{%
+        \label{fig:iova-address-widths-single-device-throughput}
+    }
+    \subfloat[Throughput using 2 NICs]{%
         \includegraphics[width=0.46\textwidth]{figures/iova-address-widths-two-devices-throughput}
-		\label{fig:iova-address-widths-two-devices-throughput}
-	}
+        \label{fig:iova-address-widths-two-devices-throughput}
+    }
 
     \caption{Throughput of forwarder with 32, 33 and 48 bit wide IOVAs.}
-	\label{fig:iova-address-widths-throughput}
+    \label{fig:iova-address-widths-throughput}
 \end{figure}
 
 
@@ -515,29 +515,29 @@ maximum of all measurements with \SI{27.6}{\mega\pps} (\SI{0.15}{\mega\pps}
 faster compared to \Cref{fig:baseline-perf}).
 
 \begin{figure}%[!b]
-	\centering
-	\subfloat[Throughput on Intel Xeon E5-2620v3]{%
+    \centering
+    \subfloat[Throughput on Intel Xeon E5-2620v3]{%
         \includegraphics[width=0.49\textwidth]{figures/sriov-omanyte-throughput}
-		\label{fig:sriov-omanyte-throughput}
-	}
+        \label{fig:sriov-omanyte-throughput}
+    }
     \subfloat[Throughput on Intel Xeon E3-1230v2]{%
         \includegraphics[width=0.49\textwidth]{figures/sriov-narva-throughput}
-		\label{fig:sriov-narva-throughput}
-	}
+        \label{fig:sriov-narva-throughput}
+    }
     \par
-	\subfloat[Latency on Intel Xeon E5-2620v3]{%
+    \subfloat[Latency on Intel Xeon E5-2620v3]{%
         \includegraphics[width=0.49\textwidth]{figures/sriov-omanyte-latency}
-		\label{fig:sriov-omanyte-latency}
-	}
-	\subfloat[Latency on Intel Xeon E3-1230v2]{%
+        \label{fig:sriov-omanyte-latency}
+    }
+    \subfloat[Latency on Intel Xeon E3-1230v2]{%
         \includegraphics[width=0.49\textwidth]{figures/sriov-narva-latency}
-		\label{fig:sriov-narva-latency}
-	}
+        \label{fig:sriov-narva-latency}
+    }
 
     \caption{Throughput and latency of modified forwarder with two devices, with
     and without VFs, with and without IOMMU. Latency of forwarder measured with
     a total packet rate of \SI{10}{\mega\pps}.}
-	\label{fig:sriov-baseline}
+    \label{fig:sriov-baseline}
 \end{figure}
 
 When running the generator application, we note that throughput is capped at

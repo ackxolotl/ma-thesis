@@ -17,12 +17,12 @@
 \usepackage{url}
 \usepackage[style=base]{caption}
 \captionsetup{%
-	font={rm,footnotesize},
-	labelfont={sc},
+    font={rm,footnotesize},
+    labelfont={sc},
 }
 \captionsetup[subfloat]{%
-	font={rm,footnotesize},
-	labelfont={rm},
+    font={rm,footnotesize},
+    labelfont={rm},
 }
 \usepackage{subfig}
 \usepackage{nicefrac}
@@ -51,19 +51,19 @@
 \makeatletter
 \newenvironment{moeplstborder}[2][]{%
 \ifx#1\@empty\@empty%
-	\edef\@margin{-1.5\baselineskip}%
+    \edef\@margin{-1.5\baselineskip}%
 \else%
-	\edef\@margin{#1}%
+    \edef\@margin{#1}%
 \fi%
 \vspace{-\baselineskip}
 \begin{center}
 \begin{minipage}{#2}
 \begin{mdframed}[%
-	topline=false,leftline=false,bottomline=false,rightline=true,
-	linecolor=TUMRed!20,linewidth=\charwidth,
-	innertopmargin=\@margin,innerbottommargin=-0.5\baselineskip,
-	innerleftmargin=0pt,innerrightmargin=-\charwidth,
-	userdefinedwidth=#2,
+    topline=false,leftline=false,bottomline=false,rightline=true,
+    linecolor=TUMRed!20,linewidth=\charwidth,
+    innertopmargin=\@margin,innerbottommargin=-0.5\baselineskip,
+    innerleftmargin=0pt,innerrightmargin=-\charwidth,
+    userdefinedwidth=#2,
 ]%
 }%
 {%
@@ -131,13 +131,13 @@ Florian~Wiedner\tlc{}~M.\,Sc.}
 
 
 \begin{abstract}
-	\input{include/abstract-en}
+    \input{include/abstract-en}
 \end{abstract}
 
 \begin{otherlanguage}{ngerman}
-	\begin{abstract}
-		\input{include/abstract-de}
-	\end{abstract}
+    \begin{abstract}
+        \input{include/abstract-de}
+    \end{abstract}
 \end{otherlanguage}
 
 \begin{thanks}
@@ -184,5 +184,4 @@ Florian~Wiedner\tlc{}~M.\,Sc.}
 \pagestyle{empty}
 
 \end{document}
-
 

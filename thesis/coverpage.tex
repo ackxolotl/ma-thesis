@@ -14,15 +14,15 @@
 \def\pagestapleheight{10mm}
 
 \geometry{%
-	paperheight=320mm,
-	paperwidth=450mm,
-	left=0mm,
-	right=0mm,
-	top=0mm,
-	bottom=0mm,
-	head=0mm,
-	includehead=false,
-	footskip=0mm,
+    paperheight=320mm,
+    paperwidth=450mm,
+    left=0mm,
+    right=0mm,
+    top=0mm,
+    bottom=0mm,
+    head=0mm,
+    includehead=false,
+    footskip=0mm,
 }
 
 \begin{document}%
@@ -34,19 +34,19 @@
 \hfill
 \fbox{%
 \begin{minipage}{\pagestapleheight}%
-	\centering
-	\rotatebox{-90}{%
-			\@author\mdash{}\thetitle
-	}
+    \centering
+    \rotatebox{-90}{%
+            \@author\mdash{}\thetitle
+    }
 \end{minipage}%
 }%
 \fbox{%
 \begin{minipage}[c][297mm][c]{210mm}
-	\centering
-	\begin{minipage}[c]{160mm}
-		\setlength{\parskip}{.5\baselineskip}
-		\maketitle*%
-	\end{minipage}%
+    \centering
+    \begin{minipage}[c]{160mm}
+        \setlength{\parskip}{.5\baselineskip}
+        \maketitle*%
+    \end{minipage}%
 \end{minipage}%
 }%
 \makeatother
