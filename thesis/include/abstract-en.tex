@@ -1,4 +1,35 @@
 \small
 
-TODO
+Hardware isolation plays an important role in today's computer systems. For
+efficient use of hardware resources and to create highly scalable systems,
+virtualization techniques are used by Internet companies and telecommunication
+providers. Backbone operators deploy SDN and VFN, cloud computing platforms rely
+on containers or virtual machines. In such virtualized environments, questions
+about hardware isolation and safe usage come to the fore.
+
+The same questions arise on consumer hardware. On the one hand by protocols like
+Thunderbolt which is built on PCIe, a powerful bus standard designed for
+internal peripherals, providing external devices with unlimited access to
+internal hardware such as main memory. On the other hand by the monolithic
+operating systems and their recurring bugs in device drivers. An effective
+solution to mitigate these bugs is to move device drivers from the OS kernel to
+user space like microkernels do. However, here, too, questions arise as to how
+devices can be isolated and passed to user space in a safe manner.
+
+A solution for the before mentioned problems are IOMMUs, multipurpose devices
+that virtualize I/O memory and isolate I/O peripherals. IOMMUs can be found in
+all kinds of devices nowadays, from high-end server hardware to desktop
+computers to mobile devices like Apple's iPhones. For fast I/O performance in
+virtual machines (e.g., as they are used by Amazon Elastic Cloud Computing),
+direct pass-through of hardware and use of IOMMUs is inevitable.
+
+We investigate effects of IOMMUs on performance and safety/security in
+high-speed network environments. For our analyses, we use \texttt{ixy.rs}, a
+state-of-the-art user space network driver for Intel's 82599 NICs written in
+Rust.
+
+Our contributions are a new driver to \texttt{ixy.rs} for virtual functions,
+support for legacy Intel IOMMUs with limited second-level address translation
+capabilities, and a tool to perform accurate timing measurements on NIC DMA
+operations. Besides, we have fixed an error in DPDK's ixgbevf driver.
 
