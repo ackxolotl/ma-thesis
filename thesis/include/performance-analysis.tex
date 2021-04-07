@@ -10,8 +10,6 @@ conduct various measurements using the implementations described in
 \section{Methodology}
 \label{sec:methodology}
 
-% TODO: illustration of test setup?
-
 \begin{table}
     \centering
     \begin{tabular}{lllrll}
@@ -417,8 +415,8 @@ two pools. Again, there is no noticeable drop of performance when increasing the
 number of pages.
 
 In summary, we note that on the AMD EPYC \ac{cpu}, there are no quantifiable
-effects of the \ac{iommu} on performance. On the Intel \acp{cpu}, packet
-throughput is impaired by the \ac{iommu} with a performance loss of more than
+effects of the \ac{iommu} on performance. On the Intel \acp{cpu}, in some
+configurations packet throughput is impaired by the \ac{iommu} by more than
 50\%. However, the reasons for this remain unclear: While our measurements in
 \Cref{fig:page-size-4k-omanyte} imply a correlation between packet rate and the
 numbers of pages in use, this is not confirmed by our packet generator.
