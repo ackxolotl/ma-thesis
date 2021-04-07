@@ -1,37 +1,28 @@
 \small
 
-Hardware isolation plays an important role in today's computer systems. For
-efficient use of hardware resources and to create highly scalable systems,
-virtualization techniques are used by Internet companies and telecommunication
-providers. Backbone operators deploy \ac{sdn} and \ac{nfv}, cloud computing
-platforms rely on containers or virtual machines. In such virtualized
-environments, questions about hardware isolation and safe usage of \acs{io}
-devices come to the fore.
+Hardware isolation plays an important role in today's computer systems.
+Internet companies and telecommunication providers rely on it for their heavily
+virtualized infrastructures with \ac{sdn}, \ac{nfv}, containers and virtual
+machines, and consumer hardware uses it to protect itself against malicious or
+faulty external peripherals.
 
-The same questions arise on consumer hardware. On the one hand by protocols like
-OCuLink and Thunderbolt which are built on \acs{pcie}, a powerful bus standard
-designed for internal peripherals, providing external devices with unlimited
-access to internal hardware such as main memory. On the other hand by the
-monolithic \acp{os} and their recurring bugs in device drivers. An effective
-solution to mitigate these bugs is to move device drivers from the \ac{os}
-kernel to user space like microkernels do. However, here, too, questions arise
-as to how devices can be isolated and passed to user space in a safe manner.
+One way to isolate hardware are \acp{iommu}, multipurpose devices to virtualize
+\acs{io} memory that can be found in all kinds of devices nowadays, from
+high-end servers to mobile devices like Apple's iPhones, and are inevitable for
+fast \ac{io} on platforms like Amazon's Elastic Cloud Computing. Due to their
+widespread use, questions arise whether \acp{iommu} impact performance and
+safety/security of the systems they are used in.
 
-A solution for the before mentioned problems are \acp{iommu}, multipurpose
-devices that virtualize \ac{io} memory and isolate \ac{io} peripherals.
-\acp{iommu} can be found in all kinds of devices nowadays, from high-end server
-hardware to desktop computers to mobile devices like Apple's iPhones. For fast
-\ac{io} performance in virtual machines (e.g., as they are used by Amazon
-Elastic Cloud Computing), direct pass-through of hardware and use of \acp{iommu}
-is inevitable.
-
-We investigate effects of \acp{iommu} on performance and safety/security in
-high-speed network environments. For our analyses, we use \texttt{ixy.rs}, a
-state-of-the-art user space network driver for Intel's 82599 \acp{nic} written
-in Rust.
+We address these questions in the area of high-speed network environments. For
+our analyses, we use \texttt{ixy.rs}, a state-of-the-art user space network
+driver for Intel's 82599 \acp{nic} written in Rust. We show that \acp{iommu}
+have a minor impact on performance in most cases. In some cases, however,
+\acp{iommu} lead to a loss of packet throughput of more than 50\%. While our
+suspicion of a side-channel vulnerability in the \acs{iotlb} is not confirmed,
+we note that \acp{iommu} protection against malicious peripherals is weak.
 
 Our contributions are a new driver to \texttt{ixy.rs} for \acp{vf}, support for
-legacy Intel IOMMUs with limited second-level address translation capabilities,
-and a tool to perform accurate timing measurements on \ac{nic} \acs{dma}
-operations. Besides, we have fixed an error in DPDK's ixgbevf driver.
+legacy Intel \acp{iommu} with limited second-level address translation
+capabilities, and a tool to perform accurate timing measurements on \ac{nic}
+\acs{dma} operations. Besides, we have fixed an error in DPDK's ixgbevf driver.
 
