@@ -9,13 +9,13 @@ environments, questions about hardware isolation and safe usage of \acs{io}
 devices come to the fore.
 
 The same questions arise on consumer hardware. On the one hand by protocols like
-Thunderbolt which is built on \acs{pcie}, a powerful bus standard designed for
-internal peripherals, providing external devices with unlimited access to
-internal hardware such as main memory. On the other hand by the monolithic
-\acp{os} and their recurring bugs in device drivers. An effective solution to
-mitigate these bugs is to move device drivers from the \ac{os} kernel to user
-space like microkernels do. However, here, too, questions arise as to how
-devices can be isolated and passed to user space in a safe manner.
+OCuLink and Thunderbolt which are built on \acs{pcie}, a powerful bus standard
+designed for internal peripherals, providing external devices with unlimited
+access to internal hardware such as main memory. On the other hand by the
+monolithic \acp{os} and their recurring bugs in device drivers. An effective
+solution to mitigate these bugs is to move device drivers from the \ac{os}
+kernel to user space like microkernels do. However, here, too, questions arise
+as to how devices can be isolated and passed to user space in a safe manner.
 
 A solution for the before mentioned problems are \acp{iommu}, multipurpose
 devices that virtualize \ac{io} memory and isolate \ac{io} peripherals.
