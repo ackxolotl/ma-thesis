@@ -1,4 +1,32 @@
 \small
 
-TODO
+Hardware-Isolation spielt in heutigen Computersystemen eine wichtige Rolle.
+Internetfirmen und Telekommunikationsanbieter sind mit ihrer stark
+virtualisierten Infrastruktur auf Hardware-Isolation angewiesen, und
+Verbraucherprodukte nutzen sie, um sich vor böswilligen oder fehlerhaften
+externen Geräten zu schützen.
+
+Eine gängige Methode zur Isolierung von Hardware ist die Verwendung von IOMMUs,
+Mehrzweckgeräten zur Virtualisierung von IO-Speicher, die heutzutage in allen
+Arten von Geräten zu finden sind, von High-End-Servern bis hin zu mobilen
+Geräten wie Apples iPhones, und die für schnelle IO-Operationen auf Plattformen
+wie Amazons Elastic Cloud Computing unumgänglich sind. Aufgrund der weiten
+Verbreitung von IOMMUs stellt sich die Frage, inwiefern sie die Leistung und die
+Sicherheit der Systeme, in denen sie eingesetzt werden, beeinflussen.
+
+Wir adressieren diese Frage im Bereich von
+Hochgeschwindigkeits-Netzwerkumgebungen. Für unsere Analyse verwenden wir
+\texttt{ixy.rs}, einen in Rust geschriebenen, modernen
+User-Space-Netzwerktreiber für Intels 82599-Netzwerkkarten. Wir zeigen, dass
+IOMMUs in den meisten Fällen einen geringen Einfluss auf die Performance haben.
+In manchen Fällen jedoch führen IOMMUs zu einem Performanceverlust von mehr als
+50\%. Während sich unser Verdacht auf eine Seitenkanal-Schwachstelle in den
+Übersetzungspuffern von IOMMUs nicht bestätigt, stellen wir fest, dass der
+Schutz von IOMMUs gegenüber bösartigen Geräten gering ist.
+
+Mit dieser Arbeit tragen wir einen neuen Treiber zu \texttt{ixy.rs} für
+virtuelle Funktionen, Unterstützung für ältere Intel-IOMMUs mit eingeschränkter
+Second-Level-Adressübersetzung und ein Werkzeug zur Durchführung genauer
+Zeit-Messungen auf Speicherzugriffe von Netzwerkkarten bei. Des Weiteren wurde
+ein Fehler in DPDKs ixgbevf-Treiber behoben.
 
