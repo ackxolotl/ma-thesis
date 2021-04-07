@@ -2,11 +2,11 @@
 \label{chap:safety_and_security}
 
 \acp{iommu} have been bypassed in numerous ways due to weaknesses in \ac{pcie},
-boot-time issues and poor configuration of \acp{iommu} by \acp{os}. We will
-describe some attacks to give a short overview of vulnerabilities. In the second
-half of the chapter (\Cref{sec:iotlb}), we will take a closer look at the
-\ac{iotlb} of \acp{iommu} which we assume to be another weak point. We suspect
-that the \ac{iotlb} is susceptible to timing attacks.
+boot-time issues and poor configuration of \acp{iommu} by \acp{os}. We describe
+some attacks to give a short overview of vulnerabilities. In the second half of
+the chapter (\Cref{sec:iotlb}), we take a closer look at the \ac{iotlb} of
+\acp{iommu} which we assume to be another weak point. We suspect that the
+\ac{iotlb} is susceptible to timing attacks.
 
 
 \section{Known Vulnerabilities}
@@ -123,15 +123,32 @@ on packet arrival.
     \centering
     \includegraphics[width=1.0\textwidth]{figures/iotlb-baseline-iommu-pt-fixed}
     \caption{CPU cycles per batch of transmitted packets with IOMMU and fixed
-virtual and physical addresses.}
+    virtual and physical addresses.}
     \label{fig:cycles-iommu-pt-fixed}
+\end{figure}
+
+\begin{figure}%[!b]
+    \centering
+    \includegraphics[width=1.0\textwidth]{figures/iotlb-baseline-iommu-pt-fixed-no-devs}
+    \caption{CPU cycles per batch of transmitted packets with IOMMU and fixed
+    virtual and physical addresses, other PCIe devices unbound.}
+    \label{fig:cycles-iommu-pt-fixed-no-devs}
+\end{figure}
+
+\begin{figure}%[!b]
+    \centering
+    \includegraphics[width=1.0\textwidth]{figures/iotlb-baseline-iommu-pt-fixed-no-devs-ping-0.4}
+    \caption{CPU cycles per batch of transmitted packets with IOMMU and fixed
+    virtual and physical addresses, other PCIe devices unbound, ping on second
+    NIC port every 0.4 seconds.}
+    \label{fig:cycles-iommu-pt-fixed-no-devs-ping}
 \end{figure}
 
 In our first measurements, we try to determine the number of \ac{cpu} cycles it
 takes for the \ac{nic} to fetch the TX descriptors from one page, transmit a
-batch of 63 packets from the 63 other pages, and set the descriptor-done bit in
-the last TX descriptor on the descriptor page. Thus, the \ac{nic} accesses 64
-distinct but physically and virtually contiguous pages for every batch of
+batch of 63~packets from the 63~other pages, and set the descriptor-done bit in
+the last TX descriptor on the descriptor page. Thus, the \ac{nic} accesses
+64~distinct but physically and virtually contiguous pages for every batch of
 to-be-transmitted packets.
 
 We run the application with and without \ac{iommu}. We warm up the caches before
@@ -139,25 +156,26 @@ starting our measurements. For every run of the application, we measure the
 \ac{cpu} cycles for 500k batches and mean and standard deviation of the
 \ac{cpu} cycles. \Cref{fig:cycles-no-iommu} shows the results of five runs
 without \ac{iommu}. The plots are cut off at 50,000~\ac{cpu} cycles, all spikes
-that end up at 50,000 cycles go up to 400,000 \ac{cpu} cycles.
+that end up at 50,000~cycles go up to 400,000~\ac{cpu} cycles.
 
 Several conclusions can be drawn from the plots. First, the number of \ac{cpu}
 cycles varies greatly in every run. Second, the number of \ac{cpu} cycles
 between spikes is constant in a run and for all runs. Third, some spikes appear
-equidistantly across runs, e.g., with a time interval of 0.4, 0.6 or 2.0s.
+equidistantly across runs, e.g., with a time interval of 0.4, 0.6 or
+\SI{2.0}{\s}.
 
-On average, we note 15,622 \ac{cpu} cycles and a standard deviation of
+On average, we note 15,622~\ac{cpu} cycles and a standard deviation of
 623~cycles for the runs in \Cref{fig:cycles-no-iommu}. With a batch size of
 63~packets, we get 248~cycles per packet.
 
-We repeat our measurements with the \ac{iommu} in pass-through mode, i.e., only
+We repeat our measurements with the \ac{iommu} in pass-through mode, i.e.,
 our device uses the \ac{iommu}. \Cref{fig:cycles-iommu-pt} shows the results.
 Notably, variance of the \ac{cpu} cycles is even worse with \ac{iommu}. However,
 we can also notice more patterns in the spikes. In the second run from the top,
-spikes between 22k and 30k \ac{cpu} cycles appear every 0.2 seconds, and spikes
-above 50,000 \ac{cpu} cycles every second.
+spikes between 22k and 30k~\ac{cpu} cycles appear every \SI{0.2}{\s}, and spikes
+above 50,000~\ac{cpu} cycles every second.
 
-On average, we note 15,682 \ac{cpu} cycles and a standard deviation of
+On average, we note 15,682~\ac{cpu} cycles and a standard deviation of
 658~cycles for the runs in \Cref{fig:cycles-iommu-pt}. With a batch size of
 63~packets, we get 249~cycles per packet. Thus, we put the cost of the
 \ac{iommu} at 60~cycles per batch of packets or about 1~cycle per packet.
@@ -172,7 +190,19 @@ and \texttt{mmap} the memory chunk into the process address space via
 with \ac{iommu} and fixed addresses. To our disappointment, \ac{cpu} cycles
 still vary greatly although all runs were executed on the same \ac{cpu} core
 with the same memory addresses and no dynamic overclocking. Again, we note a
-periodicity of the peaks of 1.0 and 2.0 seconds.
+periodicity of the peaks of 1.0 and \SI{2.0}{\s}.
+
+As a final attempt, we unbind all \ac{pcie} devices not needed for our
+measurements and repeat our measurements with fixed memory addresses.
+\Cref{fig:cycles-iommu-pt-fixed-no-devs} shows that without these \ac{pcie}
+devices, background noise is reduced significantly. However, our measurements
+still contain too much variance to draw conclusions about \ac{iotlb} misses. We
+verify this assumption by binding the second part of the \ac{nic} to the kernel
+\texttt{ixgbe} driver and sending out ping packets every \SI{0.4}{\s}.
+\Cref{fig:cycles-iommu-pt-fixed-no-devs-ping} depicts the results of the same
+measurements with ping running on the second port of the \ac{nic}. The plots
+confirm our assumption. We cannot determine the ping packets with our
+measurements.
 
 
 \section{Summary}

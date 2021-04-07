@@ -35,15 +35,15 @@ file descriptor from the \texttt{HashMap} is used.
 
 To use \texttt{ixy.rs} with \acp{iommu} with a maximum second-level translation
 \ac{iova} widths smaller than the host's virtual address widths (e.g., only 39
-instead of 48 bits), we reduce the \ac{iova} widths in \texttt{ixy.rs}.
+instead of \SI{48}{\bit}), we reduce the \ac{iova} widths in \texttt{ixy.rs}.
 Currently, \texttt{ixy.rs} uses a 1:1 mapping of process virtual addresses to
 \acp{iova} when setting up the \acp{dmar}. Hence, \ac{mmu} and \ac{iommu} map
 the same (\ac{io}) virtual addresses to the same physical addresses and there is
 no need for \texttt{ixy.rs} to track which \ac{iova} is used for which \ac{dma}
 buffer. We keep this mapping for simplicity but enforce all memory to be used by
-the \ac{nic} to be mapped into the lower 32~bit of the process address space.
-To our knowledge, there are no \acp{iommu} for the x86 architecture that do not
-support addresses up to 39~bit.
+the \ac{nic} to be mapped into the lower \SI{32}{\bit} of the process address
+space. To our knowledge, there are no \acp{iommu} for the x86 architecture that
+do not support addresses up to \SI{39}{\bit}.
 
 On a side note: a 1:1 mapping of process virtual addresses to \acp{iova} is one
 of the use cases mentioned in Intel's \ac{iommu} specification as Shared Virtual
@@ -55,18 +55,19 @@ used in practice \cite[p.~31]{rothwell2018exploitation}.
 
 Mapping memory into the 32-bit address space of a process is not rocket science.
 \texttt{mmap} can be forced through the \texttt{MAP\_32BIT} flag to create
-mappings in the first 4 GiB of the process address space (indeed, only 2 GiB are
-used, making some authors call it the \texttt{MAP\_31BIT} flag). However,
-mapping memory gets more sophisticated when huge pages are used (as they are in
-\texttt{ixy.rs}) due to alignment requirements: huge pages have to be
-huge-page-aligned, i.e., at 2 MiB or 1 GiB boundaries. Due to the alignment
+mappings in the first \SI{4}{\gibi\byte} of the process address space (indeed,
+only \SI{2}{\gibi\byte} are used, which is why some authors call it the
+\texttt{MAP\_31BIT} flag). However, mapping memory gets more sophisticated when
+huge pages are used (as they are in \texttt{ixy.rs}) due to alignment
+requirements: huge pages have to be huge-page-aligned, i.e., at
+\SI{2}{\mebi\byte} or \SI{1}{\gibi\byte} boundaries. Due to the alignment
 requirements, calling \texttt{mmap} with \texttt{MAP\_32BIT} and
 \texttt{MAP\_HUGETLB} fails.
 
 To obey the alignment, we use \texttt{mmap} twice: to determine an appropriate
 address range and to map the huge pages into the address range.
 \Cref{lst:32-bit-map} illustrates the algorithm. First, a mapping of needed size
-+ one huge page size is created (whereby needed size is equivalent to one or
+plus one huge page size is created (where needed size is equivalent to one or
 multiple huge pages). We know that any address range of size $s$ contains a
 $s$-aligned address, i.e., for any address $r$ returned by \texttt{mmap} we know
 that ${\exists a \in \{r, r + 1, ..., r + s - 1\}: a \equiv 0 \mod s}$. Thus we
@@ -121,16 +122,16 @@ e.g., by the \ac{os}.
 
 Reset and initialization of the \ac{vf} is initiated by the \ac{vf} driver. To
 reset the \ac{vf}, communication with the \ac{pf} driver is necessary. In
-general, \ac{vf} driver communication happens in two different ways: Directly
-with the \ac{nic} via memory-mapped \ac{io} and by passing messages to the
-\ac{pf} driver via a mailbox system. For direct communication with the \ac{nic},
-only a part of the device configuration space can be accessed by the \ac{vf}.
-The registers in this configuration space allow the \ac{vf} driver to set up the
-descriptor rings, enable or disable interrupts, send and receive packets, etc.
-For operations that have global impact like configuring VLAN filters or
-resetting the \ac{vf}, the \ac{vf} driver has to communicate with the \ac{pf}
-driver and request the needed operations. This is done via a mailbox system that
-is implemented in hardware in the \ac{nic}.
+general, \ac{vf} driver communication happens in two ways: Directly with the
+\ac{nic} via memory-mapped \ac{io} and by passing messages to the \ac{pf} driver
+via a mailbox system. For direct communication with the \ac{nic}, only a part of
+the device configuration space can be accessed by the \ac{vf}.  The registers in
+this configuration space allow the \ac{vf} driver to set up the descriptor
+rings, enable or disable interrupts, send and receive packets, etc.  For
+operations that have global impact like configuring VLAN filters or resetting
+the \ac{vf}, the \ac{vf} driver has to communicate with the \ac{pf} driver and
+request the needed operations. This is done via a mailbox system that is
+implemented in hardware in the \ac{nic}.
 
 Messages used for mailbox communication are hardware-independent and can be
 freely chosen by driver implementations. However, to be able to use our driver

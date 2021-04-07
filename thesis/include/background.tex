@@ -288,8 +288,7 @@ groups).
 Vendors use different marketing names for their \ac{iommu} solutions. Intel
 calls it ``Intel Virtualization Technology for Directed I/O'' (VT-d), AMD uses
 the term ``AMD I/O Virtualization Technology'' (AMD-V), and ARM does without
-such a designation, simply denoting its \acp{iommu} as System Memory Management
-Units (SMMUs).
+such a designation, simply denoting its \acp{iommu} as \acp{smmu}.
 
 In the VT-d specification, Intel describes different virtualization models for
 \ac{io} devices, like direct assignment to virtual machines and \ac{io} device
@@ -347,8 +346,8 @@ account the domain's translation scheme. Depending on the usage model of the
 \begin{figure}[!b]
     \centering
     \includegraphics[width=1.0\textwidth]{figures/iova-translation}
-    \caption{Intel \acs{iommu} address translation of 48-bit addresses to 4~KiB
-    pages. Adapted from \cite{morgan2018iommu}.}
+    \caption{Intel \acs{iommu} address translation of 48-bit addresses to
+    \SI{4}{\kibi\byte} pages. Adapted from \cite{morgan2018iommu}.}
     \label{fig:translation}
 \end{figure}
 
@@ -443,7 +442,8 @@ back and forth by the \ac{os} between the device-used memory in the aperture and
 the device-inaccessible buffer.
 
 On AMD systems, \acp{iommu} are enabled by default. For Intel, this behavior can
-be enforced through kernel boot parameters. Intel's \acp{iommu} were disabled
+be enforced through kernel boot parameters. The reasons why Intel's \acp{iommu}
+are not enabled by default are not clear. Intel's \acp{iommu} were disabled
 for the first time in 2009 due to ``recurring issues with DMAR support on
 certain platforms'' \cite{mcmartin2009disable}. Since then, Linux distributions
 as Debian and Arch Linux have repeatedly enabled and disabled Intel \ac{iommu}
@@ -456,7 +456,7 @@ Linux initializes the \ac{dmar} unit through its respective device driver,
 creates a default \ac{iommu} domain and assigns all \ac{pcie} devices to
 \ac{iommu} groups, where each group represents the smallest possible set of
 devices that can be distinguished by the \ac{iommu} (e.g., all devices behind a
-\ac{pcie}-to-PCI bridge belong to the same group).  Furthermore, each \ac{iommu}
+\ac{pcie}-to-PCI bridge belong to the same group). Furthermore, each \ac{iommu}
 group is assigned to an \ac{iommu} domain.
 
 Linux has a number of kernel boot parameters to change its default behavior in
@@ -488,10 +488,14 @@ address of the allocated memory is created through the \ac{iommu} driver.
 
 For each \ac{iommu} domain, a base address and the upper boundary of
 device-addressable \acp{iova} are assigned on initialization. Allocated
-\acp{iova} are stored in a red-black tree which on allocation is searched for a
-fitting address range bottom-up, i.e., from the highest \ac{iova} to the lowest.
-To speed up \ac{iova} allocation, magazines are used, i.e., per core caches for
-previously deallocated \acp{iova}.
+\acp{iova} ranges are stored in a red-black tree which on allocation is searched
+for a fitting address range bottom-up, i.e., from the highest \ac{iova} range to
+the lowest. Since the node of the last allocated \ac{iova} range is cached, most
+allocations happen in constant time \cite{malka2015efficient}. To inhibit race
+conditions, access to the global \ac{iova} red-black tree is fenced by a
+spinlock. To speed up \ac{iova} allocation on multi-core systems, i.e., avoid
+locking and unlocking the spinlock, magazines are used, i.e., per core caches
+for previously deallocated \acp{iova}.
 
 For controlled device access in user space, e.g., by user space network drivers,
 Linux offers a framework called \ac{vfio}. The framework consists of a device

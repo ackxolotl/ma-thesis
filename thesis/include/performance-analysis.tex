@@ -107,7 +107,7 @@ achieved in all measurements.
     \end{tabular}
 
     \caption{\acsp{cpu} of devices under test and their PassMark scores for
-    Single Thread (ST) and all cores.}
+    single thread (ST) and all cores.}
     \label{tab:cpus}
 \end{table}
 
@@ -239,7 +239,7 @@ free buffers in the memory pool. There are no results for the Intel Xeon E3
 \ac{cpu}.
 
 We run our measurements with memory pool buffer sizes of \SI{256}{\byte} and
-\SI{4,096}{\byte}. With \SI{4}{\kibi\byte} pages, different buffer sizes force
+\SI{4096}{\byte}. With \SI{4}{\kibi\byte} pages, different buffer sizes force
 the driver to allocate varying numbers of \ac{dma}-able pages.
 
 The exact number of allocated pages is determined by page size, buffer size and
@@ -254,7 +254,7 @@ default with twice as many buffers as RX/TX descriptors, the pool contains
 512~packet buffers. With a buffer size of \SI{256}{\byte}, that totals to
 \SI{128}{\kibi\byte}, i.e., 32~pages. With a buffer size of 4,096, 512~pages are
 allocated. In summary, 34~pages are allocated per device with \SI{256}{\byte}
-memory pool buffers and 514~pages are allocated with \SI{4,096}{\byte} buffers.
+memory pool buffers and 514~pages are allocated with \SI{4096}{\byte} buffers.
 
 Various conclusions can be drawn from \Cref{fig:page-size-4k-throughput},
 \Cref{fig:page-size-2m-throughput} and \Cref{fig:page-size-1g-throughput}. On
@@ -262,7 +262,7 @@ the AMD server, neither page size nor buffer size seem to have a significant
 effect on throughput. The biggest performance drop happens with
 \SI{4}{\kibi\byte} pages: Without \ac{iommu}, packet rate between
 \SI{256}{\byte} memory pool buffers, i.e., 68 pages in total, and
-\SI{4,096}{\byte} memory pool buffers, i.e., 1,028 pages, decreases by
+\SI{4096}{\byte} memory pool buffers, i.e., 1,028 pages, decreases by
 \SI{0.7}{\mega\pps}. With \ac{iommu}, packet rate decreases twice as much, i.e.,
 by \SI{1.4}{\mega\pps}.
 
@@ -277,7 +277,7 @@ greater buffers, i.e., allocating more pages. We inspect this anomaly closer in
 Like the AMD \ac{cpu}, the Intel Xeon E3 delivers constant throughput rates in
 all non-\ac{iommu} configurations independent of page size and buffer size.
 Compared to the Xeon E5 \ac{cpu}, \ac{iommu} performance seems abnormal for
-\SI{4,096}{\byte} memory pool buffers with \SI{4}{\kibi\byte} and
+\SI{4096}{\byte} memory pool buffers with \SI{4}{\kibi\byte} and
 \SI{2}{\mebi\byte} pages. For \SI{4}{\kibi\byte} pages, packet rate is
 unexpectedly high while performance drops significantly for \SI{2}{\mebi\byte}
 pages. The reasons for these unusual performance characteristics remain in the
@@ -375,7 +375,7 @@ We use a queue data structure for the memory pool and vary memory pool buffer
 and memory pool size to run the generator with different numbers of
 \SI{4}{\kibi\byte} pages, ranging from 16~pages (256~buffers with
 \SI{256}{\byte} each) to 512~pages (8,192~buffers with \SI{256}{\byte} each, or
-2,048~buffers with \SI{1,024}{\byte} each,~etc.). We run two instances of the
+2,048~buffers with \SI{1024}{\byte} each,~etc.). We run two instances of the
 packet generator, each instance generating traffic on one device. We set the
 queue size of RX and TX descriptor ring to 256 entries.
 \Cref{fig:page-size-4k-omanyte-generator-one-throughput} and
@@ -390,8 +390,8 @@ degradation and the number of used pages. Packet rate in the non-\ac{iommu}
 measurements is absolutely constant, with a loss of about 40k packets when
 running both generators concurrently, while with \ac{iommu}, packet rate
 decreases slightly with larger memory pool sizes, and significantly with a
-buffer size of \SI{4,096}{\byte}. When running the two generators concurrently
-with \SI{4,096}{\byte} buffers, packet rate goes down by \SI{3.7}{\mega\pps}
+buffer size of \SI{4096}{\byte}. When running the two generators concurrently
+with \SI{4096}{\byte} buffers, packet rate goes down by \SI{3.7}{\mega\pps}
 compared to \SI{256}{\byte} buffers using the same number of pages.
 
 To verify whether packet rate in \Cref{fig:page-size-4k-omanyte} drops due to
@@ -439,8 +439,8 @@ shows the results of our measurements. We run the forwarder on two ports of a
 single \ac{nic} (\Cref{fig:iova-address-widths-single-device-throughput}) and on
 two distinct \acp{nic} (\Cref{fig:iova-address-widths-two-devices-throughput}).
 There are no values for the Intel Xeon E-3 \ac{cpu} and 48-bit addresses as they
-exceed the maximum \ac{iova} address widths of the Xeon's \ac{iommu} which is 39
-bit.
+exceed the maximum \ac{iova} address widths of the Xeon's \ac{iommu} which is
+\SI{39}{\bit}.
 
 When using a single dual-ported \ac{nic} for the forwarder, packet rate indeed
 decreases by about \SI{1.7}{\mega\pps} on both Intel \acp{cpu} with 48-bit
@@ -454,9 +454,9 @@ can be observed. Throughput increases slightly on the Intel \acp{cpu} by
 
 We take a closer look at \Cref{fig:iova-address-widths-single-device-throughput}
 with the different packet rates for different \ac{iova} address widths. We note
-that 32~bit is not a boundary in the Intel \ac{iommu} paging structure. Compared
-to \Cref{fig:iova-address-widths-two-devices-throughput}, throughput of the
-forwarder is capped at a certain packet rate. We suspect that this is a
+that \SI{32}{\bit} is not a boundary in the Intel \ac{iommu} paging structure.
+Compared to \Cref{fig:iova-address-widths-two-devices-throughput}, throughput of
+the forwarder is capped at a certain packet rate. We suspect that this is a
 bottleneck at the \ac{pcie} level. A sufficient explanation is given by the
 \ac{pcie} specification \cite{pcie2017specification}: The header of \ac{pcie}
 memory read requests varies in size depending on the address widths, for 32-bit
@@ -477,7 +477,7 @@ We conclude from these results that changes in performance with different
         \label{fig:iova-address-widths-two-devices-throughput}
     }
 
-    \caption{Throughput of forwarder with 32, 33 and 48 bit wide IOVAs.}
+    \caption{Throughput of forwarder with 32, 33 and \SI{48}{\bit} wide IOVAs.}
     \label{fig:iova-address-widths-throughput}
 \end{figure}
 
