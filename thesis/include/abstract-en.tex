@@ -2,7 +2,7 @@
 
 Hardware isolation plays an important role in today's computer systems.
 Internet companies and telecommunication providers rely on it for their heavily
-virtualized infrastructures with \ac{sdn}, \ac{nfv}, containers and virtual
+virtualized infrastructures with \acl{sdn}, \acl{nfv}, containers and virtual
 machines, and consumer hardware uses it to protect itself against malicious or
 faulty external peripherals.
 
@@ -15,14 +15,15 @@ performance and safety/security of the systems they are used in.
 
 We address these questions in the area of high-speed network environments. For
 our analyses, we use \texttt{ixy.rs}, a state-of-the-art user space network
-driver for Intel's 82599 \acp{nic} written in Rust. We show that \acp{iommu}
+driver for Intel's 82599 network cards written in Rust. We show that \acp{iommu}
 have a minor impact on performance in most cases. In some cases, however,
 \acp{iommu} lead to a loss of packet throughput of more than 50\%. While our
-suspicion of a side-channel vulnerability in the \acs{iotlb} is not confirmed,
-we note that \acp{iommu} protection against malicious peripherals is weak.
+suspicion of a side-channel vulnerability in the \aclp{tlb} of \acp{iommu} is
+not confirmed, we note that \ac{iommu} protection against malicious peripherals
+is weak.
 
-Our contributions are a new driver to \texttt{ixy.rs} for \acp{vf}, support for
+Our contributions are a new driver to \texttt{ixy.rs} for \aclp{vf}, support for
 legacy Intel \acp{iommu} with limited second-level address translation
-capabilities, and a tool to perform accurate timing measurements on \ac{nic}
+capabilities, and a tool to perform accurate timing measurements on network card
 \acs{dma} operations. Besides, we have fixed an error in DPDK's ixgbevf driver.
 
