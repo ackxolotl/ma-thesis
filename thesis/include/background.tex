@@ -79,8 +79,7 @@ layer and a transaction layer. The physical layer of \ac{pcie} is responsible
 for link initialization and point-to-point data transfer. The data link layer
 ensures reliable transport of data between individual \ac{pcie} endpoints, or
 endpoints and the root complex. The transaction layer contains user application
-data or configuration data for the link, and routing information like
-transmitter and receiver IDs for memory or \ac{io} requests.
+data or configuration data for the link, and routing information.
 
 Every \ac{pcie} transmission consists of four bytes that mark the start of a new
 packet \cite[pp.~238~ff.]{pcie2017specification}, a header of \SI{12}{\byte} (or
@@ -109,14 +108,16 @@ memory. With legacy port-mapped \ac{io}, special \ac{cpu} instructions and an
 \ac{io} pin on the \ac{cpu} or a separate \ac{io} bus are used to perform
 \ac{io}.
 
-To access the configuration space of \ac{pcie} devices, addresses consisting of
-an eight bit bus number, five bit device number and three bit function number
-are used \cite[p.~591]{pcie2017specification} (commonly referred to as \ac{bdf}
-number). See \Cref{fig:pcie-bdf} for reference. \ac{pcie} also specifies an
-``Alternative Routing-ID'' format where the 16-bit \ac{pcie} ID is split in an
-8-bit bus number and an 8-bit function number, i.e., device and function number
-merge into one \cite[p.~591]{pcie2017specification}. However, this scheme does
-not yet seem to be used in practice \cite[p.~24]{rothwell2018exploitation}.
+\ac{pcie} uses different schemes to route packets. For memory and \ac{io}
+requests, 32 to \SI{64}{\bit} addresses are used. Requests to the configuration
+space are routed by an ID consisting of an eight bit bus number, five bit device
+number and three bit function number \cite[p.~591]{pcie2017specification}
+(commonly referred to as \ac{bdf} number). See \Cref{fig:pcie-bdf} for
+reference. \ac{pcie} also specifies an ``Alternative Routing-ID'' format where
+the 16-bit \ac{pcie} ID is split in an 8-bit bus number and an 8-bit function
+number, i.e., device and function number merge into one
+\cite[p.~591]{pcie2017specification}. However, this scheme does not yet seem to
+be used in practice \cite[p.~24]{rothwell2018exploitation}.
 
 \begin{figure}
     \centering
@@ -130,14 +131,14 @@ not yet seem to be used in practice \cite[p.~24]{rothwell2018exploitation}.
 
 On system boot, every \ac{pcie} root complex is enumerated to determine which
 slots have devices installed. During enumeration, the \acs{bios}/\acs{uefi} or
-\ac{os} probe the \ac{pcie} configuration space for all possible combinations of
-bus and device number, i.e., by reading vendor and device ID of \ac{pcie}
-switches and endpoints. It suffices to probe for function 0 for every
-combination of bus and device number to determine a device's presence since
-every device is required to implement function 0. For every detected device, the
-maximum payload size on the link is determined and the device is assigned its
-respective \ac{bdf}. Bus and device numbers might be re-assigned by the
-enumeration software if a \ac{pcie} device is hotplugged.
+\ac{os} probe the PCI configuration space for all possible combinations of bus
+and device number, i.e., by reading vendor and device ID of \ac{pcie} switches
+and endpoints. It suffices to probe for function 0 for every combination of bus
+and device number to determine a device's presence since every device is
+required to implement function 0. For every detected device, the maximum payload
+size on the link is determined and the device is assigned its respective
+\ac{bdf}. Bus and device numbers might be re-assigned by the enumeration
+software if a \ac{pcie} device is hotplugged.
 
 After a device's presence has been detected, every base address register field
 in the configuration space is read to determine the address space needed to
@@ -146,9 +147,8 @@ portion of the host physical address space. If software sets one of the device's
 registers through memory-mapped \ac{io}, e.g., during device setup by a device
 driver, a memory write to the physical address is issued. The \ac{pcie} root
 complex -- which unites the physical address space of all its devices --
-receives the memory write, translates the physical address to the \ac{bdf} of
-the respective device and initiates a \ac{pcie} memory write transaction to the
-device.
+receives the memory write, and initiates a \ac{pcie} memory write transaction to
+the device.
 
 
 \section{Network Interface Controllers}
@@ -540,8 +540,6 @@ kernel-internal \ac{iommu}-API.
 
 \section{Single-Root Input/Output Virtualization}
 \label{sec:sriov}
-
-% TODO: image physical function vs virtual function?
 
 \Acf{sriov} is a mechanism that allows \ac{pcie} devices to appear as multiple
 devices and thus be shared with multiple virtual machines. Devices that support
