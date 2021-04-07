@@ -9,15 +9,15 @@ virtualization techniques on their servers, these companies managed to create
 scalable platforms for their services while utilizing existing hardware
 resources more efficiently.
 
-Virtualization in this context does not necessarily refer to
-hardware-virtualization or virtual machines. Various solutions were used by the
-big companies to abstract and unify their computing environments, from virtual
+Virtualization in this context does not necessarily refer to hardware
+virtualization or virtual machines. Various solutions were used by the big
+companies to abstract and unify their computing environments, from virtual
 machines to custom software for storage/network virtualization or \ac{os}-level
 virtualization like containers later on. Google, for example, is known to have
 dispensed with classic virtualization in the form of hypervisor and virtual
-machines for its platform early on, preferring custom solutions and eventually
-containerization due to the relatively high costs of classic virtualization
-\cite{verma2015large}.
+machines on its platforms early on. For its cluster management software Borg,
+Google preferred custom solutions and eventually containerization due to the
+relatively high costs of classic virtualization \cite{verma2015large}.
 
 Telecommunication providers have also begun to use virtualization techniques on
 a broader basis. Through \ac{sdn}, providers such as Orange, Verizon and
@@ -31,7 +31,7 @@ offer several benefits to these enterprises. With \ac{sdn}, networks can be
 created and orchestrated remotely, services can be chained on-the-fly, and
 providers can mitigate traffic bursts by dynamically adapting routes and
 bandwidths. With \ac{nfv}, dedicated middle-boxes can be reduced and replaced by
-off-the-shelf hardware, and manual work is no longer needed to change network
+off-the-shelf hardware, and manual work is no longer needed to adapt network
 functionality.
 
 A side effect of large-scale deployment of virtualization techniques by the
