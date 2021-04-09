@@ -20,10 +20,10 @@ configurations where \acp{iommu} have a negative impact, leading to a loss of
 packet throughput of more than 50\%.
 
 In regards to safety and security, our picture of \acp{iommu} is rather bleak:
-Against common believe, \acp{iommu} do not protect against malicious or faulty
-peripherals due to the weaknesses in the \ac{pcie} protocol and archaic threat
-models of \ac{os} vendors which see internal \ac{io} peripherals as trustworthy
-and enable inherently unsafe features like ATS on these devices.
+Contrary to general belief, \acp{iommu} do not protect against malicious or
+faulty peripherals due to the weaknesses of the \ac{pcie} protocol and archaic
+threat models of \ac{os} vendors which see internal \ac{io} peripherals as
+trustworthy and enable inherently unsafe features like ATS on these devices.
 
 As a result, many weaknesses in the handling of \acp{iommu} have been uncovered
 in the past, as well as some architectural deficiencies. We believe that more
@@ -31,8 +31,8 @@ vulnerabilities are to be discovered and suspect one in the hardware of
 \acp{iommu}: the \ac{iotlb}. As other caches, we believe that the \ac{iotlb} is
 susceptible to timing attacks and thus provides an attack surface for side
 channel attacks. If timing of \ac{dma} accesses and address translation through
-the \ac{iotlb} can be measured precisely, packet receival and transmittal times
-of other devices sharing the \ac{iotlb} could be leaked.
+the \ac{iotlb} can be measured precisely, packet reception and transmission
+times of other devices sharing the \ac{iotlb} could be leaked.
 
 Our measurements on \ac{dma} operations provide some insight on the performance
 characteristics of Intel's \ac{iommu}. We hope these results can be used in the

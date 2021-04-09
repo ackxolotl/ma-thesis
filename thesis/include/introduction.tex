@@ -51,13 +51,13 @@ While not necessarily being built on classic virtualization technique
 themselves, Amazon AWS, Microsoft Azure and Google Compute Engine offer virtual
 machines to customers. For high-performance applications, features like Amazon's
 ``Enhanced Networking'' are available which mitigate one of the limiting factors
-in virtualized environments: poor performance of \acs{io} devices. In order to
-achieve high throughput rates and low latency, direct pass-through of devices to
-virtualized environments is essential. However, as hardware in current computer
-systems is generally considered trustworthy and \ac{io} devices have
-unrestricted access to host memory by design, devices cannot be passed-through
-in a safe manner as they are since software in virtual environments could take
-over its host by abusing the device's memory access privileges.
+in virtualized environments: poor \acs{io} performance. In order to achieve high
+throughput rates and low latency, direct pass-through of devices to virtualized
+environments is essential. However, as hardware in current computer systems is
+generally considered trustworthy and \ac{io} devices have unrestricted access to
+host memory by design, devices cannot be passed-through in a safe manner as they
+are since software in virtual environments could take over its host by abusing
+the device's memory access privileges.
 
 The fact that \ac{io} devices have unrestricted access to memory is a
 consequence of historic developments. In the earliest computers, data transfer

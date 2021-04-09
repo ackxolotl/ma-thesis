@@ -61,7 +61,7 @@ translation type of \ac{iommu} domains to pass-through mode
 The flaws in how \aclp{os} configure \acp{iommu} are even worse. In 2019,
 Markettos et al. examined the behavior of all major \acp{os} and came to
 disillusioning conclusions \cite{markettos2019thunderclap}. Most versions of
-Microsoft Windows did not use the \ac{iommu} at all and were therefore entirely
+Microsoft Windows did not use \acp{iommu} at all and were therefore entirely
 unprotected against \ac{dma} attacks. Windows 10 Enterprise supported
 \acp{iommu}, however, they were only used to protect a secure container (VBS),
 not the root operating system. Unlike Windows, macOS and Linux enabled
@@ -209,9 +209,9 @@ measurements.
 \label{sec:sec_summary}
 
 \acp{iommu} provide limited protection against malicious or faulty peripherals
-due to weaknesses in the \ac{pcie} protocol. Besides, architectural flaws,
+due to weaknesses at the \ac{pcie} protocol layer. Besides, architectural flaws,
 missing support and incorrect handling of \acp{iommu} by \aclp{os} further
-reduce the safety / security benefits of employing \acp{iommu}.
+reduces the safety / security benefits of employing \acp{iommu}.
 
 Although we suspect the possiblity of side-channel attacks using the \ac{iotlb},
 our timing measurements in \Cref{sec:iotlb} do not reveal any significant
